@@ -1,0 +1,208 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const proofStories = (await getCollection("caseStudies"))
+  .sort((a, b) => Number(b.data.featured) - Number(a.data.featured))
+  .slice(0, 2);
+---
+<BaseLayout
+  title="MaaxGen"
+  description="One agency partner for marketing, advertising, and AI - built for local and e-commerce SMBs."
+>
+  <section class="home-hero">
+    <img
+      class="home-hero__media"
+      src="/images/home/maaxgen-growth-operations.webp"
+      alt=""
+      width="1672"
+      height="941"
+      fetchpriority="high"
+    />
+    <div class="home-hero__shade" aria-hidden="true"></div>
+    <div class="container home-hero__content">
+      <p class="eyebrow">Marketing, advertising, and practical AI</p>
+      <h1>Turn scattered marketing into one growth engine.</h1>
+      <p class="lead">
+        MaaxGen plans the strategy, creates the campaigns, runs the ads, and builds the
+        follow-up systems that help local and e-commerce businesses grow.
+      </p>
+      <ul class="home-hero__scope" aria-label="Core services">
+        <li>Strategy and creative</li>
+        <li>Websites and landing pages</li>
+        <li>Paid media</li>
+        <li>AI-enabled follow-up</li>
+      </ul>
+      <div class="home-hero__offer">
+        <p>
+          <span>Now onboarding</span>
+          Five Performance Engine clients at <strong>$1,700/month</strong>
+          <s>$2,400/month</s>.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn--primary" href="/contact?offer=performance-engine">Claim one of five spots</a>
+          <a class="btn btn--secondary" href="/services">Explore services</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading" data-reveal>
+        <p class="eyebrow">Where growth leaks out</p>
+        <h2>Three problems that quietly cost you customers</h2>
+        <p class="lead">
+          Most businesses we meet are not short on effort. They are losing revenue in the same
+          three places, and every one of them is fixable.
+        </p>
+      </div>
+      <ul class="leak-list">
+        <li data-reveal>
+          <div class="leak__problem">
+            <span class="leak__label">The leak</span>
+            <h3>Leads come in, then go cold</h3>
+            <p>
+              You are paying for clicks and calls, but inquiries sit unanswered for hours. By the
+              time someone follows up, the customer already booked with whoever replied first.
+            </p>
+          </div>
+          <div class="leak__fix">
+            <span class="leak__label">The fix</span>
+            <p>
+              We build the follow-up system: instant replies to new inquiries, missed-call text
+              back, pipeline reminders, and review requests. More of the leads you already get
+              become paying customers.
+            </p>
+          </div>
+        </li>
+        <li data-reveal style="--reveal-delay: 0.08s">
+          <div class="leak__problem">
+            <span class="leak__label">The leak</span>
+            <h3>Your website looks fine but does not sell</h3>
+            <p>
+              Visitors land, skim, and leave. Slow pages, vague offers, and a buried contact
+              button quietly turn ad spend into bounce rates.
+            </p>
+          </div>
+          <div class="leak__fix">
+            <span class="leak__label">The fix</span>
+            <p>
+              We build and tune pages that match your ads, load fast, and make the next step
+              obvious, whether that is a call, a booking, or a checkout.
+            </p>
+          </div>
+        </li>
+        <li data-reveal style="--reveal-delay: 0.16s">
+          <div class="leak__problem">
+            <span class="leak__label">The leak</span>
+            <h3>AI tools that promised the world, then broke</h3>
+            <p>
+              Half-configured chatbots and duct-taped automations create work instead of saving
+              it, and nobody on your team trusts the output.
+            </p>
+          </div>
+          <div class="leak__fix">
+            <span class="leak__label">The fix</span>
+            <p>
+              We set up AI workflows that are documented, tested, and reviewed by humans, doing
+              real jobs: drafting content, routing and answering leads, and prepping reports.
+            </p>
+          </div>
+        </li>
+      </ul>
+      <div class="compound-note" data-reveal>
+        <p>
+          And everything feeds one learning system. <strong>Your results data stays organized and
+          in context</strong>, so every month of campaigns makes the next month smarter instead of
+          starting from zero each quarter.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container grid-2">
+      <div data-reveal>
+        <h2>Built for owners who wear every hat</h2>
+        <p>
+          You need clear plans, on-brand creative, and campaigns that actually run - not another
+          dashboard login. We package what usually takes three vendors into one partner you can hold accountable.
+        </p>
+      </div>
+      <div data-reveal style="--reveal-delay: 0.08s">
+        <h2>Local and e-commerce, same standard</h2>
+        <p>
+          Whether customers walk in or check out online, growth comes from consistent messaging,
+          measurable ads, and AI where it saves time - never as a gimmick.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div data-reveal>
+        <h2>What you get in the bundle</h2>
+        <p class="lead">Core capabilities included across services and pricing tiers.</p>
+      </div>
+      <div class="capability-list">
+        <article class="capability capability--lead" data-reveal>
+          <h3>One team, one plan</h3>
+          <p>
+            Strategy, creative, paid media, and optimization stay aligned. You get a single roadmap and
+            one point of accountability - not three vendors pointing at each other.
+          </p>
+        </article>
+        <article class="capability" data-reveal style="--reveal-delay: 0.08s">
+          <h3>Brand &amp; creative</h3>
+          <p>Positioning, offers, and assets that look like you - not a stock template.</p>
+        </article>
+        <article class="capability" data-reveal style="--reveal-delay: 0.16s">
+          <h3>Paid media &amp; AI ops</h3>
+          <p>Search, social, and retargeting with reporting you can read in five minutes - plus follow-up workflows that keep leads warm and cut busywork.</p>
+        </article>
+      </div>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="/pricing">See pricing</a>
+        <a class="btn btn--secondary" href="/contact">Get started</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container">
+      <div class="section-heading" data-reveal>
+        <p class="eyebrow">Proof of work</p>
+        <h2>Client stories built around the full bundle</h2>
+        <p class="lead">
+          Case studies show how strategy, paid media, creative, and practical AI work together for local and e-commerce businesses.
+        </p>
+      </div>
+      <ul class="case-study-list case-study-list--compact">
+        {proofStories.map((study, index) => (
+          <li class="case-study-row" data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
+            <div class="case-study-row__main">
+              <p class="case-study-row__meta">
+                <span class="case-study-row__industry">
+                  {study.data.industry === "local" ? "Local business" : "E-commerce"}
+                </span>
+                {" / "}
+                {study.data.client}
+              </p>
+              <h3>
+                <a href={`/case-studies/${study.id}`}>{study.data.title}</a>
+              </h3>
+              <p>{study.data.outcome}</p>
+            </div>
+            <a class="btn btn--secondary" href={`/case-studies/${study.id}`}>Read story</a>
+          </li>
+        ))}
+      </ul>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="/case-studies">View case studies</a>
+        <a class="btn btn--secondary" href="/services">View services</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

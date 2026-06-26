@@ -1,0 +1,100 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const principles = [
+  {
+    index: "01",
+    title: "One plan beats scattered tactics",
+    text: "Growth work improves when strategy, ads, creative, reporting, and AI support share the same priorities.",
+  },
+  {
+    index: "02",
+    title: "Plain language builds trust",
+    text: "Owners should know what is happening, why it matters, and what decision comes next without decoding agency jargon.",
+  },
+  {
+    index: "03",
+    title: "AI should save time, not replace judgment",
+    text: "Automation is useful when it helps teams brief, draft, organize, and decide faster with human review intact.",
+  },
+];
+---
+<BaseLayout title="About" description="About MaaxGen, a bundled marketing, advertising, and AI agency for local and e-commerce SMBs.">
+  <section class="page-hero page-hero--accent">
+    <div class="container split-block">
+      <div>
+        <p class="eyebrow">About MaaxGen</p>
+        <h1>Built for owners who need a growth partner, not another vendor to manage</h1>
+        <p class="lead">
+          MaaxGen helps local and e-commerce SMBs connect the work that often gets split apart: positioning, creative, paid media, reporting, and practical AI workflows.
+        </p>
+      </div>
+      <div class="proof-panel">
+        <h2>Our role</h2>
+        <p>
+          We translate goals into a working growth system, then keep the pieces moving together so the business is not left coordinating disconnected specialists.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container split-block">
+      <div>
+        <p class="eyebrow">Agency story</p>
+        <h2>Strategy, execution, and AI under one roof</h2>
+      </div>
+      <div>
+        <p>
+          Small teams are asked to move like large marketing departments. They need better offers, sharper creative, paid campaigns, content, follow-up, and reporting, all while running the business.
+        </p>
+        <p>
+          MaaxGen was shaped around that reality. The bundle keeps strategic planning close to execution, so ads do not drift away from the offer, creative does not miss the campaign, and AI tools support the workflow instead of becoming another thing to manage.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow">What we believe</p>
+        <h2>Practical growth principles</h2>
+      </div>
+      <div class="pillar-list">
+        {principles.map((item) => (
+          <article class="pillar">
+            <span class="pillar__index" aria-hidden="true">{item.index}</span>
+            <div class="pillar__body">
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container split-block">
+      <div>
+        <p class="eyebrow">Who we serve</p>
+        <h2>Local presence and online revenue both need coordination</h2>
+      </div>
+      <div class="audience-list">
+        <article>
+          <h3>Local businesses</h3>
+          <p>Service areas, reputation, offers, and booking paths need to line up so every campaign supports real customer intent.</p>
+        </article>
+        <article>
+          <h3>E-commerce brands</h3>
+          <p>Catalog decisions, creative refreshes, email, paid social, and landing pages need one rhythm so spend is not wasted.</p>
+        </article>
+      </div>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="/contact">Book a call</a>
+        <a class="btn btn--secondary" href="/case-studies">View case studies</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

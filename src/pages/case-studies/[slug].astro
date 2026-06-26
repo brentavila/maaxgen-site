@@ -1,0 +1,85 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, getEntry, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const studies = await getCollection("caseStudies");
+  return studies.map((study) => ({
+    params: { slug: study.id },
+  }));
+}
+
+const { slug } = Astro.params;
+const entry = await getEntry("caseStudies", slug!);
+if (!entry) {
+  return Astro.redirect("/case-studies");
+}
+const { Content } = await render(entry);
+const { data } = entry;
+const industryLabel = data.industry === "local" ? "Local business" : "E-commerce";
+---
+<BaseLayout title={data.title} description={data.summary}>
+  <section class="page-hero page-hero--accent">
+    <div class="container case-study-hero">
+      <div>
+        <p class="eyebrow">{industryLabel} / {data.client}</p>
+        <h1>{data.title}</h1>
+        <p class="lead">{data.summary}</p>
+      </div>
+      <aside class="proof-panel" aria-label="Case study summary">
+        <h2>Engagement snapshot</h2>
+        <dl class="snapshot-list">
+          <div>
+            <dt>Client type</dt>
+            <dd>{industryLabel}</dd>
+          </div>
+          <div>
+            <dt>Outcome</dt>
+            <dd>{data.outcome}</dd>
+          </div>
+        </dl>
+        <ul class="case-study-row__tags">
+          {data.services.map((s) => (
+            <li>{s}</li>
+          ))}
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container case-study-detail">
+      <article class="prose case-study-body">
+        <Content />
+      </article>
+      <aside class="detail-aside">
+        <p class="eyebrow">Bundle map</p>
+        <h2>What stayed connected</h2>
+        <ul class="check-list">
+          <li>Strategy and offer decisions</li>
+          <li>Campaign creative and landing copy</li>
+          <li>Paid channel testing and reporting</li>
+          <li>AI-supported drafting with human review</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container split-block">
+      <div>
+        <p class="eyebrow">Your next story</p>
+        <h2>Want one partner to own the whole growth loop?</h2>
+      </div>
+      <div>
+        <p>
+          Bring the goals, channels, and friction points. We will help sort the priorities and recommend a bundle that fits the stage you are in now.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn--primary" href="/contact">Book a call</a>
+          <a class="btn btn--secondary" href="/case-studies">All case studies</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

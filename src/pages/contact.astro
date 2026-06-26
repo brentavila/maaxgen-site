@@ -1,0 +1,69 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const prompts = [
+  "What type of business are you growing?",
+  "Which channels are working today?",
+  "Where do strategy, ads, creative, or AI workflows feel disconnected?",
+];
+---
+<BaseLayout title="Contact" description="Book a call or send a message to MaaxGen.">
+  <section class="page-hero page-hero--accent">
+    <div class="container split-block">
+      <div>
+        <p class="eyebrow">Contact</p>
+        <h1>Tell us what growth looks like next</h1>
+        <p class="lead">
+          Share the business type, goals, and current marketing friction. We will follow up with next steps or a booking link.
+        </p>
+      </div>
+      <div class="proof-panel">
+        <h2>Helpful context</h2>
+        <ul class="check-list">
+          {prompts.map((prompt) => (
+            <li>{prompt}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container contact-layout">
+      <form class="form contact-form" action="#" method="post">
+        <div class="field-grid">
+          <div>
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" required autocomplete="name" />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required autocomplete="email" />
+          </div>
+        </div>
+        <label for="business-type">Business type</label>
+        <select id="business-type" name="business-type">
+          <option value="">Select one</option>
+          <option value="local">Local business</option>
+          <option value="ecommerce">E-commerce</option>
+          <option value="both">Local and e-commerce</option>
+        </select>
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required placeholder="Goals, current channels, timeline, and what you want off your plate"></textarea>
+        <button type="submit" class="btn btn--primary">Send message</button>
+        <p class="form-note">
+          Placeholder form only. Replace this with the GoHighLevel form or booking calendar embed before launch.
+        </p>
+      </form>
+
+      <aside class="detail-aside">
+        <p class="eyebrow">What happens next</p>
+        <h2>A focused first conversation</h2>
+        <p>
+          We will review your current growth stack, identify the highest-leverage gaps, and recommend whether Growth foundation, Performance engine, or AI-accelerated scale is the right starting point.
+        </p>
+        <a class="btn btn--secondary" href="/pricing">See pricing</a>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

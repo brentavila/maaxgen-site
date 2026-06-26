@@ -1,0 +1,63 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.publishDate.localeCompare(a.data.publishDate));
+
+function formatDate(value: string) {
+  return new Date(`${value}T00:00:00`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+---
+<BaseLayout title="Blog" description="Articles from MaaxGen on growth strategy, advertising, creative, and practical AI for SMBs.">
+  <section class="page-hero page-hero--accent">
+    <div class="container split-block">
+      <div>
+        <p class="eyebrow">Blog</p>
+        <h1>Clear thinking for the owners running the growth stack</h1>
+        <p class="lead">
+          Notes on offers, ads, creative systems, and AI workflows for local and e-commerce businesses.
+        </p>
+      </div>
+      <div class="proof-panel">
+        <h2>Editorial focus</h2>
+        <p>
+          Practical articles for deciding what to fix next, not trend-chasing posts about every new tool.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      {posts.length > 0 ? (
+        <ul class="blog-list">
+          {posts.map((post) => (
+            <li class="blog-row">
+              <p class="blog-row__meta">{post.data.category} / {formatDate(post.data.publishDate)}</p>
+              <h2>
+                <a href={`/blog/${post.id}`}>{post.data.title}</a>
+              </h2>
+              <p>{post.data.description}</p>
+              <ul class="case-study-row__tags">
+                {post.data.tags.map((tag) => (
+                  <li>{tag}</li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="proof-panel">
+          <h2>Articles are coming soon</h2>
+          <p>Use this space for SEO, education, and authority content once the first posts are approved.</p>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>

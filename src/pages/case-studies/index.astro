@@ -1,0 +1,98 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const studies = (await getCollection("caseStudies")).sort(
+  (a, b) => Number(b.data.featured) - Number(a.data.featured)
+);
+---
+<BaseLayout
+  title="Case studies"
+  description="How MaaxGen helps local and e-commerce businesses grow with bundled marketing, advertising, and AI."
+>
+  <section class="page-hero page-hero--accent">
+    <div class="container split-block">
+      <div>
+        <p class="eyebrow">Proof of work</p>
+        <h1>Outcomes shaped by one accountable growth partner</h1>
+        <p class="lead">
+          These v1 stories show how MaaxGen bundles strategy, creative, paid media, and practical AI for local and e-commerce businesses that need coordinated execution.
+        </p>
+      </div>
+      <div class="proof-panel">
+        <h2>What each story covers</h2>
+        <ul class="check-list">
+          <li>Starting context and business type</li>
+          <li>The challenge across channels</li>
+          <li>What MaaxGen delivered across the bundle</li>
+          <li>Qualitative results until approved metrics are available</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow">Client stories</p>
+        <h2>Local and e-commerce proof, not siloed wins</h2>
+      </div>
+      <ul class="case-study-list">
+        {
+          studies.map((study, index) => (
+            <li class:list={["case-study-row", index % 2 === 1 && "case-study-row--offset"]}>
+              <div class="case-study-row__main">
+                <p class="case-study-row__meta">
+                  <span class="case-study-row__industry">
+                    {study.data.industry === "local" ? "Local business" : "E-commerce"}
+                  </span>
+                  {" / "}
+                  {study.data.client}
+                </p>
+                <h2>
+                  <a href={`/case-studies/${study.id}`}>{study.data.title}</a>
+                </h2>
+                <p>{study.data.summary}</p>
+                <p class="case-study-row__outcome">
+                  <strong>Outcome:</strong> {study.data.outcome}
+                </p>
+                <ul class="case-study-row__tags">
+                  {study.data.services.map((s) => (
+                    <li>{s}</li>
+                  ))}
+                </ul>
+              </div>
+              <div class="case-study-row__action">
+                {study.data.featured && <p class="eyebrow">Featured</p>}
+                <a class="btn btn--secondary" href={`/case-studies/${study.id}`}>
+                  Read story
+                </a>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container split-block">
+      <div>
+        <p class="eyebrow">Ready to compare?</p>
+        <h2>Bring us the messy middle</h2>
+        <p class="lead">
+          If your ads, creative, CRM follow-up, and AI experiments are moving separately, the first win is usually alignment.
+        </p>
+      </div>
+      <div>
+        <p>
+          We will map the current stack, identify the channels that need attention first, and recommend the bundle level that fits your stage.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn--primary" href="/contact">Book a call</a>
+          <a class="btn btn--secondary" href="/services">View services</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

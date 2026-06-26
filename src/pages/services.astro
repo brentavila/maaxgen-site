@@ -1,0 +1,464 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const pillars = [
+  {
+    index: "01",
+    title: "Marketing strategy",
+    intro: "Positioning, offers, and a plan your team can actually run - not a slide deck that sits in a folder.",
+    bullets: [
+      "Brand and message alignment across web, ads, and email",
+      "Offer architecture and seasonal campaign calendars",
+      "Competitive and local-market snapshots you can act on",
+      "Monthly priorities tied to revenue, not vanity metrics",
+    ],
+  },
+  {
+    index: "02",
+    title: "Advertising",
+    intro: "Paid media that connects to your creative and landing experience - with reporting you can read in five minutes.",
+    bullets: [
+      "Search, social, and retargeting setup and ongoing management",
+      "Creative testing tied to hooks that match your brand voice",
+      "Budget pacing and channel mix recommendations",
+      "Clear dashboards: spend, leads, ROAS, and next tests",
+    ],
+  },
+  {
+    index: "03",
+    title: "Websites and landing pages",
+    intro: "Conversion-focused pages that match your ads and make the next step obvious - because traffic is wasted on a site that does not sell.",
+    bullets: [
+      "Website rebuilds and tune-ups focused on calls, bookings, and checkouts",
+      "Campaign landing pages that match the ad's message and offer",
+      "Fast load times, mobile-first layouts, and local SEO basics",
+      "Tracking installed so you know which pages produce revenue",
+    ],
+  },
+  {
+    index: "04",
+    title: "AI-enabled workflows",
+    intro: "Practical automation where it saves hours - never as a gimmick or a replacement for judgment.",
+    bullets: [
+      "Content briefs, drafts, and variant generation with human review",
+      "Ad copy and asset prep pipelines your team approves",
+      "Lead routing and CRM handoffs documented and repeatable",
+      "Results data kept organized and in context, so every campaign learns from the last",
+      "Guardrails so AI output stays on-brand and compliant",
+    ],
+  },
+];
+
+const followUpDeliverables = [
+  "Speed-to-lead: automatic text and email replies within minutes of an inquiry",
+  "Missed-call text back, so after-hours callers do not dial a competitor",
+  "CRM pipeline with stages, owners, and reminders, so nothing slips",
+  "Automated review and referral requests after the job or purchase",
+  "Source tracking that ties closed revenue back to the channel that earned it",
+];
+
+const leadJourney = [
+  {
+    when: "Minute one",
+    title: "Inquiry answered",
+    detail: "A new lead gets an instant, on-brand text or email response, even after hours.",
+  },
+  {
+    when: "Day one",
+    title: "Booked or followed up",
+    detail: "Unbooked leads enter a reminder sequence, and your team sees exactly who to call next.",
+  },
+  {
+    when: "Week one",
+    title: "Closed and recorded",
+    detail: "The pipeline shows what closed, what stalled, and which channel sent it.",
+  },
+  {
+    when: "Week two",
+    title: "Review and referral",
+    detail: "Happy customers get a timely review request that feeds the next lead.",
+  },
+];
+
+const expectations = [
+  {
+    window: "Days 1-30",
+    title: "Foundation",
+    items: [
+      "Kickoff, goals, and access to the accounts you already own",
+      "Positioning, offer, and a 90-day roadmap in plain language",
+      "Tracking installed and baseline numbers recorded",
+      "Website or landing page fixes scoped and started",
+    ],
+  },
+  {
+    window: "Days 31-60",
+    title: "Launch and learn",
+    items: [
+      "Campaigns live on agreed budgets, with checks before spend goes up",
+      "Follow-up automation answering every lead",
+      "First creative tests producing readable results",
+      "Weekly updates you can skim in five minutes",
+    ],
+  },
+  {
+    window: "Days 61-90",
+    title: "Optimize and compound",
+    items: [
+      "Budget shifts toward what produced revenue, not impressions",
+      "Creative refreshed from winning tests",
+      "Monthly review: spend, leads, closed work, next moves",
+      "Your data organized in context, so month four starts ahead",
+    ],
+  },
+];
+
+const bundles = [
+  {
+    name: "Growth foundation",
+    summary: "Positioning, core creative, and campaign setup for businesses ready to market consistently.",
+    includes: [
+      "Strategy kickoff and 90-day roadmap",
+      "Brand-aligned creative kit",
+      "Landing page or website tune-up",
+      "One paid channel launch",
+    ],
+  },
+  {
+    name: "Performance engine",
+    summary: "Ongoing paid media, testing, and reporting with monthly optimization and creative refreshes.",
+    includes: [
+      "Multi-channel ads and testing cadence",
+      "Campaign landing pages and creative refreshes",
+      "Lead follow-up automation",
+      "AI-assisted content workflows",
+    ],
+    featured: true,
+  },
+  {
+    name: "AI-accelerated scale",
+    summary: "Everything in Performance plus deeper AI workflows for content, briefs, and operational efficiency.",
+    includes: [
+      "Advanced automation and brief pipelines",
+      "Custom AI workflows with human review",
+      "Higher-touch strategy reviews",
+      "Scale-ready reporting pack",
+    ],
+  },
+];
+
+const process = [
+  { step: "01", title: "Discover", detail: "Goals, audience, offers, and what is working today - in plain language." },
+  { step: "02", title: "Plan", detail: "Bundle level, channels, creative needs, and a timeline you can hold us to." },
+  { step: "03", title: "Launch", detail: "Assets, campaigns, and tracking live with checks before spend goes up." },
+  { step: "04", title: "Optimize", detail: "Weekly tests, monthly reviews, and clear next actions - no black-box jargon." },
+];
+
+const localIndustries = [
+  {
+    label: "Automotive and home trades",
+    industries: [
+      "Auto repair shops",
+      "Home remodeling contractors",
+      "HVAC companies",
+      "Roofers",
+      "Carpet cleaning",
+      "Home cleaning services",
+    ],
+  },
+  {
+    label: "Food and hospitality",
+    industries: ["Restaurants"],
+  },
+  {
+    label: "Health and personal care",
+    industries: [
+      "Veterinary clinics",
+      "Dentists",
+      "Eye care practices",
+      "Nail salons",
+      "Tattoo shops",
+    ],
+  },
+];
+
+const ecommerceIndustries = [
+  "Home goods",
+  "Door companies",
+  "Industrial sales",
+];
+---
+<BaseLayout
+  title="Services"
+  description="Bundled marketing, advertising, and AI services for local and e-commerce SMBs."
+>
+  <section class="page-hero page-hero--accent">
+    <div class="container">
+      <p class="eyebrow">All-in-one agency bundle</p>
+      <h1>One partner for strategy, ads, web, and AI</h1>
+      <p class="lead">
+        MaaxGen packages what usually takes four vendors into accountable bundles - so you always know what is included and who owns results.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="/contact">Book a call</a>
+        <a class="btn btn--secondary" href="/pricing">See pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div data-reveal>
+        <h2>Four pillars, one team</h2>
+        <p class="lead">Strategy, ads, web, and smart automation aligned - not four agencies pointing fingers.</p>
+      </div>
+      <div class="pillar-list">
+        {pillars.map((p) => (
+          <article class="pillar" data-reveal>
+            <span class="pillar__index" aria-hidden="true">{p.index}</span>
+            <div class="pillar__body">
+              <h3>{p.title}</h3>
+              <p>{p.intro}</p>
+              <ul>
+                {p.bullets.map((b) => (
+                  <li>{b}</li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container split-block">
+      <div data-reveal>
+        <p class="eyebrow">Lead to close</p>
+        <h2>More of the leads you already get, closed</h2>
+        <p class="lead">
+          Most growth problems are not traffic problems. They are follow-up problems. We build the
+          system that carries a lead from first click to paid invoice, then asks for the review.
+        </p>
+      </div>
+      <div class="grid-2">
+        <div data-reveal>
+          <h3>What we build</h3>
+          <ul class="check-list">
+            {followUpDeliverables.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+        <div data-reveal style="--reveal-delay: 0.08s">
+          <h3>How a lead moves through it</h3>
+          <ol class="journey">
+            {leadJourney.map((stage, index) => (
+              <li>
+                <span class="journey__marker" aria-hidden="true">{index + 1}</span>
+                <div>
+                  <h4>{stage.when}: {stage.title}</h4>
+                  <p>{stage.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+      <blockquote class="pull-quote" data-reveal>
+        <p>
+          Every step writes to the same organized data layer as your ads, so the longer the system
+          runs, the smarter your next campaign gets.
+        </p>
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container split-block">
+      <div data-reveal>
+        <h2>Who we work with</h2>
+        <p class="lead">Local shops and online stores - same standard of clarity and accountability.</p>
+      </div>
+      <div class="grid-2">
+        <div>
+          <h3>Local businesses</h3>
+          <p>
+            Foot traffic, service areas, and community trust matter. We tie messaging, offers, and geo-targeted ads to how customers actually find you.
+          </p>
+        </div>
+        <div>
+          <h3>E-commerce</h3>
+          <p>
+            Catalog promos, retention, and ROAS-focused tests. Creative and landing experience stay aligned so ad spend is not wasted on a weak checkout path.
+          </p>
+        </div>
+      </div>
+      <blockquote class="pull-quote">
+        <p>We do not sell AI for its own sake. We sell bundles that save you time, clarify spend, and grow revenue.</p>
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="section industries-section">
+    <div class="container">
+      <div class="section-heading" data-reveal>
+        <p class="eyebrow">Industries we understand</p>
+        <h2>Marketing built around how your customers actually buy</h2>
+        <p class="lead">
+          The strategy changes when a customer needs an urgent repair, compares a local provider, books recurring care, or evaluates a specialized product online.
+        </p>
+      </div>
+
+      <div class="industry-feature" data-reveal>
+        <div class="industry-feature__content">
+          <p class="industry-feature__label">Local businesses</p>
+          <h3>Service-area growth and neighborhood trust</h3>
+          <p>
+            We connect local search, reputation, offers, creative, and follow-up around the moments that turn nearby demand into calls, appointments, and visits.
+          </p>
+          <div class="industry-groups">
+            {localIndustries.map((group) => (
+              <div class="industry-group">
+                <h4>{group.label}</h4>
+                <ul>
+                  {group.industries.map((industry) => (
+                    <li>{industry}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+        <figure class="industry-feature__media" aria-hidden="true">
+          <img
+            src="/images/services/local-business-operations.webp"
+            alt=""
+            width="1536"
+            height="1024"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+
+      <div class="industry-feature industry-feature--reverse" data-reveal>
+        <div class="industry-feature__content">
+          <p class="industry-feature__label">E-commerce</p>
+          <h3>Specialized products with considered buying cycles</h3>
+          <p>
+            We align merchandising, catalog creative, paid acquisition, landing experiences, and retention for products that need more context than a quick impulse buy.
+          </p>
+          <ul class="industry-list">
+            {ecommerceIndustries.map((industry) => (
+              <li>{industry}</li>
+            ))}
+          </ul>
+        </div>
+        <figure class="industry-feature__media" aria-hidden="true">
+          <img
+            src="/images/services/ecommerce-product-operations.webp"
+            alt=""
+            width="1536"
+            height="1024"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+
+      <div class="industry-note">
+        <p>
+          Do not see your industry yet? The list will grow. If you sell locally or run a specialized e-commerce business, we can still assess the fit.
+        </p>
+        <a class="btn btn--secondary" href="/contact">Talk through your business</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container">
+      <div class="section-heading" data-reveal>
+        <p class="eyebrow">Hiring an agency?</p>
+        <h2>What to expect in your first 90 days</h2>
+        <p class="lead">
+          Whether you hire MaaxGen or anyone else, a serious partner should be able to show you
+          this plan before you sign. Here is ours.
+        </p>
+      </div>
+      <div class="expect-grid">
+        {expectations.map((phase, index) => (
+          <div class="expect-phase" data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
+            <p class="expect-phase__window">{phase.window}</p>
+            <h3>{phase.title}</h3>
+            <ul>
+              {phase.items.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <div class="industry-note" data-reveal>
+        <p>
+          What we need from you: about two hours a month for reviews and approvals, honest feedback
+          on lead quality, and access to the accounts you already own. You keep ownership of all of it.
+        </p>
+        <a class="btn btn--secondary" href="/contact">Start the conversation</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div data-reveal>
+        <h2>Bundle levels</h2>
+        <p class="lead">Pick the depth that matches your stage. Upgrade when ready - no mystery line items.</p>
+      </div>
+      <div class="bundle-grid">
+        {bundles.map((b, index) => (
+          <article
+            class:list={["bundle-card", b.featured && "bundle-card--featured"]}
+            data-reveal
+            style={`--reveal-delay: ${index * 0.08}s`}
+          >
+            {b.featured && <p class="eyebrow">Most popular</p>}
+            <h3>{b.name}</h3>
+            <p>{b.summary}</p>
+            <ul>
+              {b.includes.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="/contact">Book a call</a>
+        <a class="btn btn--secondary" href="/pricing">Compare pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container">
+      <div data-reveal>
+        <h2>How we work</h2>
+        <p class="lead">A straightforward rhythm from first call to ongoing optimization.</p>
+      </div>
+      <ol class="process-steps">
+        {process.map((p, index) => (
+          <li data-reveal style={`--reveal-delay: ${index * 0.06}s`}>
+            <span class="process-steps__index">{p.step}</span>
+            <div>
+              <h3>{p.title}</h3>
+              <p>{p.detail}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="/contact">Get started</a>
+        <a class="btn btn--secondary" href="/pricing">View pricing tiers</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

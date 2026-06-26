@@ -1,0 +1,73 @@
+---
+const nav = [
+  { href: "/", label: "Home" },
+  { href: "/services", label: "Services" },
+  { href: "/case-studies", label: "Case studies" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/blog", label: "Blog" },
+  { href: "/contact", label: "Contact" },
+];
+
+const pathname = Astro.url.pathname;
+
+function isActive(href: string) {
+  if (href === "/") return pathname === "/" || pathname === "";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+---
+<aside class="promo-bar" aria-label="Current promotion">
+  <div class="container promo-bar__inner">
+    <p>
+      <strong>Performance Engine offer:</strong>
+      Five new client openings at <span>$1,700/month</span>
+      <s>$2,400/month</s>
+    </p>
+    <a href="/contact?offer=performance-engine">Claim a spot</a>
+  </div>
+</aside>
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="/" class="logo" aria-label="MaaxGen home">
+      <img
+        src="/brand/logo-lockup.png"
+        alt="MaaxGen"
+        width="160"
+        height="36"
+        id="logo-img"
+      />
+      <span id="logo-fallback" hidden>
+        <span class="logo__maax">MAAX</span><span class="logo__gen">GEN</span>
+      </span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        {nav.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              aria-current={isActive(item.href) ? "page" : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <a class="btn btn--primary site-header__cta" href="/contact">Get started</a>
+  </div>
+</header>
+<script is:inline>
+  (function () {
+    var img = document.getElementById("logo-img");
+    var fallback = document.getElementById("logo-fallback");
+    if (!img || !fallback) return;
+    function showFallback() {
+      img.hidden = true;
+      fallback.hidden = false;
+    }
+    img.addEventListener("error", showFallback);
+    if (!img.complete || img.naturalWidth === 0) {
+      if (img.complete) showFallback();
+    }
+  })();
+</script>

@@ -1,0 +1,256 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const tiers = [
+  {
+    name: "Growth foundation",
+    price: "From $1,200/mo",
+    fit: "Best for businesses getting consistent marketing basics in place.",
+    summary: "Positioning, core creative, campaign setup, and one focused paid channel.",
+    includes: [
+      "Strategy kickoff and 90-day roadmap",
+      "Offer and message refinement",
+      "Brand-aligned creative kit",
+      "Landing page or website tune-up",
+      "One paid channel launch",
+      "Speed-to-lead reply basics",
+      "Monthly reporting summary",
+    ],
+  },
+  {
+    name: "Performance engine",
+    price: "From $2,400/mo",
+    fit: "Best for owners ready to test, refresh creative, and improve paid acquisition every month.",
+    summary: "Ongoing paid media, creative testing, reporting, and practical AI support.",
+    includes: [
+      "Multi-channel ads and testing cadence",
+      "Campaign landing pages built and tested",
+      "Monthly creative refreshes",
+      "Full follow-up system: CRM pipeline, reminders, review requests",
+      "AI-assisted briefs and content variants",
+      "Monthly optimization review",
+    ],
+    featured: true,
+  },
+  {
+    name: "AI-accelerated scale",
+    price: "Custom",
+    fit: "Best for higher-volume teams that need deeper automation and senior strategy.",
+    summary: "Performance support plus workflow design for content, reporting, and campaign operations.",
+    includes: [
+      "Advanced automation and brief pipelines",
+      "Website and conversion management",
+      "Custom AI workflows with human review",
+      "Higher-touch strategy reviews",
+      "Expanded reporting and decision dashboards",
+      "Scale planning across channels",
+    ],
+  },
+];
+
+const everyTier = [
+  "No setup fee",
+  "You own your ad accounts, website, CRM, and data from day one",
+  "Three-month initial term, then month to month",
+  "Ad spend paid directly to the platforms, never marked up",
+  "A monthly report you can read in five minutes",
+  "Cancel with 30 days notice after the initial term",
+];
+
+const comparison = [
+  ["Strategy roadmap", "90-day plan", "Monthly planning", "Quarterly scale planning"],
+  ["Paid media", "One core channel", "Multi-channel testing", "Channel mix and budget strategy"],
+  ["Websites & landing pages", "Tune-up of your core page", "Pages built and tested per campaign", "Full conversion management"],
+  ["Lead follow-up", "Speed-to-lead replies", "Pipeline, reminders, review requests", "Custom routing and sales handoffs"],
+  ["Creative support", "Launch kit", "Monthly refreshes", "Expanded testing system"],
+  ["AI workflows", "Light setup", "Briefs and variants", "Custom operating workflows"],
+  ["Reporting", "Monthly summary", "Monthly review", "Decision dashboard"],
+];
+
+const faqs = [
+  {
+    q: "How fast will we see results?",
+    a: "Follow-up fixes and landing page improvements often show results within weeks, because they convert demand you already have. Paid campaigns typically need 60 to 90 days of testing before spend settles into a reliable return. Anyone promising overnight results is guessing with your budget.",
+  },
+  {
+    q: "Is ad spend included in the price?",
+    a: "No. Ad spend is billed directly to you by the platforms (Google, Meta, and others), so you always see exactly what media costs. Our fee covers strategy, creative, management, and the systems around them. We never mark up media.",
+  },
+  {
+    q: "What is the contract?",
+    a: "A three-month initial term, then month to month with 30 days notice. The initial term exists because campaigns need testing time to produce honest data, not because we want to lock you in.",
+  },
+  {
+    q: "Who owns the accounts, website, and data?",
+    a: "You do. Ad accounts, website, CRM, and every asset we create are set up under your ownership from day one. If we ever part ways, everything stays with you, organized and documented.",
+  },
+  {
+    q: "Do we have to replace our current tools?",
+    a: "Not by default. We start with what you already have and only recommend a change when a tool is actively costing you leads or hours. Any new tool we add is in your name, not ours.",
+  },
+  {
+    q: "How do you use AI? Will it sound like a robot?",
+    a: "AI drafts, humans approve. Every automated reply and piece of content runs through brand guardrails and human review, so customers hear your voice. And the data your campaigns generate stays organized and in context, which means the system keeps getting smarter the longer it runs.",
+  },
+  {
+    q: "What do you need from us?",
+    a: "About two hours a month: a review call, fast approvals on creative, and honest feedback on lead quality. We handle the rest.",
+  },
+];
+
+const agencyQuestions = [
+  {
+    q: "Who owns the ad accounts and the data?",
+    a: "You do, from day one. Leaving an agency should never mean starting your marketing history from zero. If an agency hesitates on this question, end the call.",
+  },
+  {
+    q: "How will I know it is working?",
+    a: "A monthly report you can read in five minutes: spend, leads, closed revenue by channel, and what changes next. If a report needs a translator, it is hiding something.",
+  },
+  {
+    q: "Who actually does the work?",
+    a: "The people you meet on the first call. No handoff to an anonymous queue after the contract is signed.",
+  },
+  {
+    q: "What happens in the first 30 days?",
+    a: "Access, tracking, baselines, and a written 90-day plan before meaningful spend. If an agency starts spending before it starts measuring, your money is funding their learning curve.",
+  },
+  {
+    q: "How exactly do you use AI?",
+    a: "Ask them to draw the line between what AI drafts and what a person approves. If they cannot draw that line, there is no line. Ours: AI handles drafts, variants, and data organization; a human approves everything a customer sees.",
+  },
+];
+---
+<BaseLayout title="Pricing" description="MaaxGen pricing tiers for bundled marketing, advertising, and AI services.">
+  <section class="page-hero page-hero--accent">
+    <div class="container split-block">
+      <div>
+        <p class="eyebrow">Pricing</p>
+        <h1>Bundle levels for the stage you are in now</h1>
+        <p class="lead">
+          Each tier combines strategy, advertising, creative, web, and practical AI support. Scope is confirmed on a call so the package fits your market, spend, and team capacity.
+        </p>
+      </div>
+      <div class="proof-panel">
+        <h2>How pricing works</h2>
+        <p>
+          Start with the closest bundle, then adjust channel count, creative volume, and automation depth. No mystery line items buried in a PDF.
+        </p>
+        <a class="btn btn--primary" href="/contact">Book a call</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="tier-list">
+        {tiers.map((t, index) => (
+          <article
+            class:list={["tier", t.featured && "tier--featured"]}
+            data-reveal
+            style={`--reveal-delay: ${index * 0.08}s`}
+          >
+            {t.featured && <p class="eyebrow">Most popular</p>}
+            <h2>{t.name}</h2>
+            <p class="price">{t.price}</p>
+            <p class="tier__fit">{t.fit}</p>
+            <p>{t.summary}</p>
+            <ul class="check-list">
+              {t.includes.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+      <div class="terms-strip" data-reveal>
+        <h3>Included in every tier</h3>
+        <ul>
+          {everyTier.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container">
+      <div class="section-heading" data-reveal>
+        <p class="eyebrow">Comparison</p>
+        <h2>What changes as scope grows</h2>
+        <p class="lead">The names match the services bundles so pricing and delivery stay easy to compare.</p>
+      </div>
+      <div class="comparison-table" role="region" aria-label="Pricing comparison" tabindex="0" data-reveal>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Capability</th>
+              <th scope="col">Growth foundation</th>
+              <th scope="col">Performance engine</th>
+              <th scope="col">AI-accelerated scale</th>
+            </tr>
+          </thead>
+          <tbody>
+            {comparison.map((row) => (
+              <tr>
+                {row.map((cell, index) => (
+                  index === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading" data-reveal>
+        <p class="eyebrow">Common questions</p>
+        <h2>The fine print, in plain language</h2>
+        <p class="lead">
+          Honest answers to what owners actually ask before signing with any agency.
+        </p>
+      </div>
+      <div class="faq" data-reveal>
+        {faqs.map((faq) => (
+          <details>
+            <summary>{faq.q}</summary>
+            <div class="faq__body">
+              <p>{faq.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface">
+    <div class="container">
+      <div class="section-heading" data-reveal>
+        <p class="eyebrow">Before you hire anyone</p>
+        <h2>Five questions to ask any agency, including us</h2>
+        <p class="lead">
+          Take these into every sales call. A good partner answers all five without flinching.
+        </p>
+      </div>
+      <dl class="ask-list">
+        {agencyQuestions.map((item, index) => (
+          <div data-reveal style={`--reveal-delay: ${index * 0.05}s`}>
+            <dt>{item.q}</dt>
+            <dd>
+              <strong>How we answer</strong>
+              {item.a}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="/contact">Get started</a>
+        <a class="btn btn--secondary" href="/services">View services</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
