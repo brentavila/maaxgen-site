@@ -6,6 +6,15 @@ const prompts = [
   "Which channels are working today?",
   "Where do strategy, ads, creative, or AI workflows feel disconnected?",
 ];
+
+// Paste your GoHighLevel inbound webhook URL here (Workflow -> Inbound Webhook trigger).
+// Submissions, including the SMS consent selections, are POSTed to this URL.
+const WEBHOOK_URL = "PASTE_YOUR_GHL_INBOUND_WEBHOOK_URL_HERE";
+
+const SMS_MARKETING_CONSENT =
+  "I consent to receive marketing text messages, about special offers, discounts, and service updates, from MaaxGen at the phone number provided. Message frequency may vary. Message & data rates may apply. Text HELP for assistance, reply STOP to opt out.";
+const SMS_TRANSACTIONAL_CONSENT =
+  "I consent to receive non-marketing text messages from MaaxGen about appointment and booking confirmations, replies to my inquiry, and account or service updates. Message frequency may vary. Message & data rates may apply. Text HELP for assistance, reply STOP to opt out.";
 ---
 <BaseLayout title="Contact" description="Book a call or send a message to MaaxGen.">
   <section class="page-hero page-hero--accent">
@@ -30,7 +39,8 @@ const prompts = [
 
   <section class="section">
     <div class="container contact-layout">
-      <form class="form contact-form" action="#" method="post">
+      <div class="contact-col">
+      <form id="contact-form" class="form contact-form" action={WEBHOOK_URL} method="post">
         <div class="field-grid">
           <div>
             <label for="name">Name</label>
@@ -79,13 +89,22 @@ const prompts = [
         </fieldset>
 
         <button type="submit" class="btn btn--primary">Send message</button>
+        <p class="form-status" id="form-status" role="alert" hidden></p>
         <p class="form-legal">
           By submitting this form you agree to our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms &amp; Conditions</a>. Mobile information and SMS consent are never shared or sold to third parties for marketing.
         </p>
-        <p class="form-note">
-          Placeholder form only. Replace this with the GoHighLevel form or booking calendar embed before launch, keeping the optional consent checkboxes, the phone field, and the Privacy Policy and Terms links intact.
-        </p>
       </form>
+
+      <div id="form-success" class="contact-form form-success" role="status" tabindex="-1" hidden>
+        <h2>Thanks - we got your message</h2>
+        <p>
+          Your message is on its way to the MaaxGen team. We will follow up shortly with next steps or a booking link.
+        </p>
+        <p>
+          If you opted in to text messages, you can reply STOP at any time to opt out, or HELP for assistance.
+        </p>
+      </div>
+      </div>
 
       <aside class="detail-aside">
         <p class="eyebrow">What happens next</p>
@@ -97,4 +116,60 @@ const prompts = [
       </aside>
     </div>
   </section>
+
+  <script define:vars={{ WEBHOOK_URL, SMS_MARKETING_CONSENT, SMS_TRANSACTIONAL_CONSENT }}>
+    const form = document.getElementById("contact-form");
+    const successBox = document.getElementById("form-success");
+    const statusEl = document.getElementById("form-status");
+
+    if (form) {
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const data = new FormData(form);
+        const marketingConsent = data.get("sms-marketing") === "yes";
+        const transactionalConsent = data.get("sms-transactional") === "yes";
+
+        const payload = {
+          name: data.get("name"),
+          email: data.get("email"),
+          phone: data.get("phone") || "",
+          businessType: data.get("business-type") || "",
+          message: data.get("message"),
+          smsMarketingConsent: marketingConsent,
+          smsTransactionalConsent: transactionalConsent,
+          consentLanguage: {
+            marketing: marketingConsent ? SMS_MARKETING_CONSENT : "",
+            transactional: transactionalConsent ? SMS_TRANSACTIONAL_CONSENT : "",
+          },
+          submittedAt: new Date().toISOString(),
+          pageUrl: window.location.href,
+        };
+
+        statusEl.hidden = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending...";
+
+        try {
+          await fetch(WEBHOOK_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          form.hidden = true;
+          successBox.hidden = false;
+          successBox.focus();
+        } catch (error) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Send message";
+          statusEl.hidden = false;
+          statusEl.textContent =
+            "Sorry, something went wrong sending your message. Please try again, or email us directly.";
+        }
+      });
+    }
+  </script>
 </BaseLayout>
