@@ -6,15 +6,6 @@ const prompts = [
   "Which channels are working today?",
   "Where do strategy, ads, creative, or AI workflows feel disconnected?",
 ];
-
-// Paste your GoHighLevel inbound webhook URL here (Workflow -> Inbound Webhook trigger).
-// Submissions, including the SMS consent selections, are POSTed to this URL.
-const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/yumx8KoOhRfNc1pxaesc/webhook-trigger/99267a30-84fa-46d6-9772-66e2c9c6ac42";
-
-const SMS_MARKETING_CONSENT =
-  "I consent to receive marketing text messages, about special offers, discounts, and service updates, from MaaxGen at the phone number provided. Message frequency may vary. Message & data rates may apply. Text HELP for assistance, reply STOP to opt out.";
-const SMS_TRANSACTIONAL_CONSENT =
-  "I consent to receive non-marketing text messages from MaaxGen about appointment and booking confirmations, replies to my inquiry, and account or service updates. Message frequency may vary. Message & data rates may apply. Text HELP for assistance, reply STOP to opt out.";
 ---
 <BaseLayout title="Contact" description="Book a call or send a message to MaaxGen.">
   <section class="page-hero page-hero--accent">
@@ -40,70 +31,29 @@ const SMS_TRANSACTIONAL_CONSENT =
   <section class="section">
     <div class="container contact-layout">
       <div class="contact-col">
-      <form id="contact-form" class="form contact-form" action={WEBHOOK_URL} method="post">
-        <div class="field-grid">
-          <div>
-            <label for="name">Name</label>
-            <input id="name" name="name" type="text" required autocomplete="name" />
-          </div>
-          <div>
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" required autocomplete="email" />
-          </div>
+        <div class="ghl-form">
+          <iframe
+            src="https://brand.maaxgen.com/widget/form/liSkFaXf3jlLOtNxAPmw"
+            style="width:100%;height:100%;border:none;border-radius:8px"
+            id="inline-liSkFaXf3jlLOtNxAPmw"
+            data-layout="{'id':'INLINE'}"
+            data-trigger-type="alwaysShow"
+            data-trigger-value=""
+            data-activation-type="alwaysActivated"
+            data-activation-value=""
+            data-deactivation-type="neverDeactivate"
+            data-deactivation-value=""
+            data-form-name="Contact Form"
+            data-height="1150"
+            data-layout-iframe-id="inline-liSkFaXf3jlLOtNxAPmw"
+            data-form-id="liSkFaXf3jlLOtNxAPmw"
+            title="Contact Form"
+          >
+          </iframe>
         </div>
-        <div class="field-grid">
-          <div>
-            <label for="phone">Phone <span class="field-optional">(optional)</span></label>
-            <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" />
-          </div>
-          <div>
-            <label for="business-type">Business type</label>
-            <select id="business-type" name="business-type">
-              <option value="">Select one</option>
-              <option value="local">Local business</option>
-              <option value="ecommerce">E-commerce</option>
-              <option value="both">Local and e-commerce</option>
-            </select>
-          </div>
-        </div>
-        <label for="message">Message</label>
-        <textarea id="message" name="message" required placeholder="Goals, current channels, timeline, and what you want off your plate"></textarea>
-
-        <fieldset class="consent">
-          <legend>Text message preferences <span class="field-optional">(optional)</span></legend>
-          <p class="consent__intro">
-            Adding your phone number and these options is optional. You can submit this form and contact us without agreeing to text messages.
-          </p>
-          <label class="consent__item">
-            <input type="checkbox" name="sms-marketing" value="yes" />
-            <span>
-              I consent to receive marketing text messages, about special offers, discounts, and service updates, from MaaxGen at the phone number provided. Message frequency may vary. Message &amp; data rates may apply. Text HELP for assistance, reply STOP to opt out.
-            </span>
-          </label>
-          <label class="consent__item">
-            <input type="checkbox" name="sms-transactional" value="yes" />
-            <span>
-              I consent to receive non-marketing text messages from MaaxGen about appointment and booking confirmations, replies to my inquiry, and account or service updates. Message frequency may vary. Message &amp; data rates may apply. Text HELP for assistance, reply STOP to opt out.
-            </span>
-          </label>
-        </fieldset>
-
-        <button type="submit" class="btn btn--primary">Send message</button>
-        <p class="form-status" id="form-status" role="alert" hidden></p>
         <p class="form-legal">
           By submitting this form you agree to our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms &amp; Conditions</a>. Mobile information and SMS consent are never shared or sold to third parties for marketing.
         </p>
-      </form>
-
-      <div id="form-success" class="contact-form form-success" role="status" tabindex="-1" hidden>
-        <h2>Thanks - we got your message</h2>
-        <p>
-          Your message is on its way to the MaaxGen team. We will follow up shortly with next steps or a booking link.
-        </p>
-        <p>
-          If you opted in to text messages, you can reply STOP at any time to opt out, or HELP for assistance.
-        </p>
-      </div>
       </div>
 
       <aside class="detail-aside">
@@ -117,59 +67,5 @@ const SMS_TRANSACTIONAL_CONSENT =
     </div>
   </section>
 
-  <script define:vars={{ WEBHOOK_URL, SMS_MARKETING_CONSENT, SMS_TRANSACTIONAL_CONSENT }}>
-    const form = document.getElementById("contact-form");
-    const successBox = document.getElementById("form-success");
-    const statusEl = document.getElementById("form-status");
-
-    if (form) {
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const data = new FormData(form);
-        const marketingConsent = data.get("sms-marketing") === "yes";
-        const transactionalConsent = data.get("sms-transactional") === "yes";
-
-        const payload = {
-          name: data.get("name"),
-          email: data.get("email"),
-          phone: data.get("phone") || "",
-          businessType: data.get("business-type") || "",
-          message: data.get("message"),
-          smsMarketingConsent: marketingConsent,
-          smsTransactionalConsent: transactionalConsent,
-          consentLanguage: {
-            marketing: marketingConsent ? SMS_MARKETING_CONSENT : "",
-            transactional: transactionalConsent ? SMS_TRANSACTIONAL_CONSENT : "",
-          },
-          submittedAt: new Date().toISOString(),
-          pageUrl: window.location.href,
-        };
-
-        statusEl.hidden = true;
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Sending...";
-
-        try {
-          await fetch(WEBHOOK_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          form.hidden = true;
-          successBox.hidden = false;
-          successBox.focus();
-        } catch (error) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Send message";
-          statusEl.hidden = false;
-          statusEl.textContent =
-            "Sorry, something went wrong sending your message. Please try again, or email us directly.";
-        }
-      });
-    }
-  </script>
+  <script is:inline src="https://brand.maaxgen.com/js/form_embed.js"></script>
 </BaseLayout>
