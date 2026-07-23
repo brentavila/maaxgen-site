@@ -4,52 +4,85 @@ import { getCollection, getEntry, render } from "astro:content";
 
 export async function getStaticPaths() {
   const posts = (await getCollection("blog")).filter((post) => !post.data.draft);
-  return posts.map((post) => ({
-    params: { slug: post.id },
-  }));
+  return posts.map((post) => ({ params: { slug: post.id } }));
 }
 
 const { slug } = Astro.params;
 const entry = await getEntry("blog", slug!);
-if (!entry || entry.data.draft) {
-  return Astro.redirect("/blog");
-}
+if (!entry || entry.data.draft) return Astro.redirect("/blog");
+
 const { Content } = await render(entry);
 
 function formatDate(value: string) {
   return new Date(`${value}T00:00:00`).toLocaleDateString("en-US", {
-    month: "short",
+    month: "long",
     day: "numeric",
     year: "numeric",
   });
 }
 ---
+
 <BaseLayout title={entry.data.title} description={entry.data.description}>
-  <section class="page-hero page-hero--accent">
-    <div class="container prose">
-      <p class="eyebrow">{entry.data.category} / {formatDate(entry.data.publishDate)}</p>
+  <div class="article-progress" aria-hidden="true"><span data-article-progress></span></div>
+
+  <section class="article-hero">
+    <div class="container article-hero__inner">
+      <a href="/blog">← All field notes</a>
+      <p class="hero-kicker">{entry.data.category} / {formatDate(entry.data.publishDate)}</p>
       <h1>{entry.data.title}</h1>
       <p class="lead">{entry.data.description}</p>
-      <ul class="case-study-row__tags">
-        {entry.data.tags.map((tag) => (
-          <li>{tag}</li>
-        ))}
+      <ul>
+        {entry.data.tags.map((tag) => <li>{tag}</li>)}
       </ul>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container prose case-study-body">
-      <Content />
+  <section class="section article-section">
+    <div class="container article-layout">
+      <aside class="article-aside">
+        <p>In this field note</p>
+        <span>{entry.data.category}</span>
+        <small>Written for owners making practical growth decisions.</small>
+        <a href="/contact">Discuss your situation <span aria-hidden="true">→</span></a>
+      </aside>
+      <article class="prose case-study-body article-body">
+        <Content />
+      </article>
     </div>
   </section>
 
-  <section class="section section--surface">
-    <div class="container">
+  <section class="article-next">
+    <div class="container article-next__inner" data-reveal>
+      <div>
+        <p>Turn the idea into a decision.</p>
+        <h2>Want help applying this to your growth stack?</h2>
+      </div>
       <div class="cta-row">
-        <a class="btn btn--primary" href="/contact">Book a call</a>
-        <a class="btn btn--secondary" href="/blog">All articles</a>
+        <a class="btn btn--primary" href="/contact">Talk through the context</a>
+        <a class="btn btn--secondary" href="/blog">Read more field notes</a>
       </div>
     </div>
   </section>
+
+  <script>
+    const progress = document.querySelector<HTMLElement>("[data-article-progress]");
+
+    if (progress) {
+      let scheduled = false;
+      const updateProgress = () => {
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        const value = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
+        progress.style.transform = `scaleX(${value})`;
+        scheduled = false;
+      };
+
+      window.addEventListener("scroll", () => {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(updateProgress);
+      }, { passive: true });
+
+      updateProgress();
+    }
+  </script>
 </BaseLayout>

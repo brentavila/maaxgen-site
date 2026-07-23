@@ -3,10 +3,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 const tiers = [
   {
+    step: "Start",
     name: "Growth foundation",
     price: "From $1,200/mo",
-    fit: "Best for businesses getting consistent marketing basics in place.",
-    summary: "Positioning, core creative, campaign setup, and one focused paid channel.",
+    fit: "For businesses putting consistent marketing basics in place.",
+    result: "A clear message, a focused channel, and the tracking to know what happens next.",
     includes: [
       "Strategy kickoff and 90-day roadmap",
       "Offer and message refinement",
@@ -14,190 +15,172 @@ const tiers = [
       "Landing page or website tune-up",
       "One paid channel launch",
       "Speed-to-lead reply basics",
-      "Monthly reporting summary",
     ],
+    cta: "Start with the foundation",
   },
   {
+    step: "Grow",
     name: "Performance engine",
     price: "From $2,400/mo",
-    fit: "Best for owners ready to test, refresh creative, and improve paid acquisition every month.",
-    summary: "Ongoing paid media, creative testing, reporting, and practical AI support.",
+    offer: "$1,700/mo for five current openings",
+    fit: "For owners ready to improve paid acquisition every month.",
+    result: "Ongoing media, fresh creative, conversion pages, and follow-up under one plan.",
     includes: [
-      "Multi-channel ads and testing cadence",
-      "Campaign landing pages built and tested",
+      "Multi-channel ads and testing",
+      "Campaign landing pages",
       "Monthly creative refreshes",
-      "Full follow-up system: CRM pipeline, reminders, review requests",
-      "AI-assisted briefs and content variants",
+      "Full lead follow-up system",
+      "AI-assisted briefs and variants",
       "Monthly optimization review",
     ],
     featured: true,
+    cta: "Claim a current opening",
   },
   {
+    step: "Scale",
     name: "AI-accelerated scale",
     price: "Custom",
-    fit: "Best for higher-volume teams that need deeper automation and senior strategy.",
-    summary: "Performance support plus workflow design for content, reporting, and campaign operations.",
+    fit: "For higher-volume teams that need deeper automation and strategy.",
+    result: "A connected operating layer for content, campaigns, reporting, and conversion.",
     includes: [
-      "Advanced automation and brief pipelines",
+      "Advanced workflow design",
       "Website and conversion management",
-      "Custom AI workflows with human review",
-      "Higher-touch strategy reviews",
-      "Expanded reporting and decision dashboards",
-      "Scale planning across channels",
+      "Custom AI systems with human review",
+      "Higher-touch strategy",
+      "Decision dashboards",
+      "Cross-channel scale planning",
     ],
+    cta: "Plan for scale",
   },
 ];
 
 const everyTier = [
   "No setup fee",
-  "You own your ad accounts, website, CRM, and data from day one",
+  "You own every account, asset, and data source",
   "Three-month initial term, then month to month",
-  "Ad spend paid directly to the platforms, never marked up",
-  "A monthly report you can read in five minutes",
-  "Cancel with 30 days notice after the initial term",
+  "Ad spend paid directly to platforms with no markup",
+  "Reporting written for business owners",
+  "30-day notice after the initial term",
 ];
 
 const comparison = [
-  ["Strategy roadmap", "90-day plan", "Monthly planning", "Quarterly scale planning"],
-  ["Paid media", "One core channel", "Multi-channel testing", "Channel mix and budget strategy"],
-  ["Websites & landing pages", "Tune-up of your core page", "Pages built and tested per campaign", "Full conversion management"],
-  ["Lead follow-up", "Speed-to-lead replies", "Pipeline, reminders, review requests", "Custom routing and sales handoffs"],
-  ["Creative support", "Launch kit", "Monthly refreshes", "Expanded testing system"],
+  ["Strategy", "90-day roadmap", "Monthly planning", "Quarterly scale planning"],
+  ["Paid media", "One focused channel", "Multi-channel testing", "Channel and budget strategy"],
+  ["Web and landing pages", "Core page tune-up", "Campaign pages tested", "Full conversion management"],
+  ["Lead follow-up", "Speed-to-lead basics", "Pipeline and reminders", "Custom routing and handoffs"],
+  ["Creative", "Launch kit", "Monthly refreshes", "Expanded testing system"],
   ["AI workflows", "Light setup", "Briefs and variants", "Custom operating workflows"],
-  ["Reporting", "Monthly summary", "Monthly review", "Decision dashboard"],
 ];
 
 const faqs = [
   {
     q: "How fast will we see results?",
-    a: "Follow-up fixes and landing page improvements often show results within weeks, because they convert demand you already have. Paid campaigns typically need 60 to 90 days of testing before spend settles into a reliable return. Anyone promising overnight results is guessing with your budget.",
+    a: "Follow-up and landing-page fixes can improve existing demand within weeks. Paid campaigns usually need 60 to 90 days of testing before returns become reliable. We will show you early signals without pretending they are final answers.",
   },
   {
-    q: "Is ad spend included in the price?",
-    a: "No. Ad spend is billed directly to you by the platforms (Google, Meta, and others), so you always see exactly what media costs. Our fee covers strategy, creative, management, and the systems around them. We never mark up media.",
+    q: "Is ad spend included?",
+    a: "No. Platforms bill you directly, so media costs remain transparent. Our fee covers strategy, creative, management, conversion work, and the systems around the campaigns.",
   },
   {
-    q: "What is the contract?",
-    a: "A three-month initial term, then month to month with 30 days notice. The initial term exists because campaigns need testing time to produce honest data, not because we want to lock you in.",
+    q: "What is the commitment?",
+    a: "A three-month initial term, then month to month with 30 days notice. That gives the work enough time to produce honest learning without locking you into a long contract.",
   },
   {
-    q: "Who owns the accounts, website, and data?",
-    a: "You do. Ad accounts, website, CRM, and every asset we create are set up under your ownership from day one. If we ever part ways, everything stays with you, organized and documented.",
+    q: "Who owns the accounts and data?",
+    a: "You do, from day one. Your ad accounts, website, CRM, creative, and campaign history stay with your business.",
   },
   {
-    q: "Do we have to replace our current tools?",
-    a: "Not by default. We start with what you already have and only recommend a change when a tool is actively costing you leads or hours. Any new tool we add is in your name, not ours.",
+    q: "Will we need to replace our tools?",
+    a: "Not by default. We start with what you have and only recommend a change when the current setup is clearly costing leads, time, or trustworthy data.",
   },
   {
-    q: "How do you use AI? Will it sound like a robot?",
-    a: "AI drafts, humans approve. Every automated reply and piece of content runs through brand guardrails and human review, so customers hear your voice. And the data your campaigns generate stays organized and in context, which means the system keeps getting smarter the longer it runs.",
-  },
-  {
-    q: "What do you need from us?",
-    a: "About two hours a month: a review call, fast approvals on creative, and honest feedback on lead quality. We handle the rest.",
-  },
-];
-
-const agencyQuestions = [
-  {
-    q: "Who owns the ad accounts and the data?",
-    a: "You do, from day one. Leaving an agency should never mean starting your marketing history from zero. If an agency hesitates on this question, end the call.",
-  },
-  {
-    q: "How will I know it is working?",
-    a: "A monthly report you can read in five minutes: spend, leads, closed revenue by channel, and what changes next. If a report needs a translator, it is hiding something.",
-  },
-  {
-    q: "Who actually does the work?",
-    a: "The people you meet on the first call. No handoff to an anonymous queue after the contract is signed.",
-  },
-  {
-    q: "What happens in the first 30 days?",
-    a: "Access, tracking, baselines, and a written 90-day plan before meaningful spend. If an agency starts spending before it starts measuring, your money is funding their learning curve.",
-  },
-  {
-    q: "How exactly do you use AI?",
-    a: "Ask them to draw the line between what AI drafts and what a person approves. If they cannot draw that line, there is no line. Ours: AI handles drafts, variants, and data organization; a human approves everything a customer sees.",
+    q: "How do you use AI?",
+    a: "AI supports drafts, variants, routing, and data organization. A person approves what customers see and remains accountable for every recommendation.",
   },
 ];
 ---
-<BaseLayout title="Pricing" description="MaaxGen pricing tiers for bundled marketing, advertising, and AI services.">
-  <section class="page-hero page-hero--accent">
-    <div class="container split-block">
+
+<BaseLayout title="Pricing" description="Clear MaaxGen pricing for connected strategy, creative, advertising, follow-up, and AI services.">
+  <section class="phase-hero phase-hero--pricing">
+    <div class="container phase-hero__grid">
       <div>
-        <p class="eyebrow">Pricing</p>
-        <h1>Bundle levels for the stage you are in now</h1>
+        <p class="hero-kicker">Clear scope. Visible ownership.</p>
+        <h1>Choose the depth, <span>not a pile of line items.</span></h1>
         <p class="lead">
-          Each tier combines strategy, advertising, creative, web, and practical AI support. Scope is confirmed on a call so the package fits your market, spend, and team capacity.
+          Start with the bundle closest to your stage. We confirm the scope before you sign and
+          explain what changes as your needs grow.
         </p>
       </div>
-      <div class="proof-panel">
-        <h2>How pricing works</h2>
-        <p>
-          Start with the closest bundle, then adjust channel count, creative volume, and automation depth. No mystery line items buried in a PDF.
-        </p>
-        <a class="btn btn--primary" href="/contact">Book a call</a>
+      <div class="pricing-path" aria-label="Three service levels from foundation to performance to scale">
+        {tiers.map((tier, index) => (
+          <div class:list={["pricing-path__step", tier.featured && "pricing-path__step--active"]}>
+            <span>0{index + 1}</span>
+            <strong>{tier.step}</strong>
+            <small>{tier.name}</small>
+          </div>
+        ))}
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section pricing-tiers-section">
     <div class="container">
-      <div class="tier-list">
-        {tiers.map((t, index) => (
-          <article
-            class:list={["tier", t.featured && "tier--featured"]}
-            data-reveal
-            style={`--reveal-delay: ${index * 0.08}s`}
-          >
-            {t.featured && <p class="eyebrow">Most popular</p>}
-            <h2>{t.name}</h2>
-            <p class="price">{t.price}</p>
-            <p class="tier__fit">{t.fit}</p>
-            <p>{t.summary}</p>
-            <ul class="check-list">
-              {t.includes.map((item) => (
-                <li>{item}</li>
-              ))}
-            </ul>
+      <div class="pricing-intro" data-reveal>
+        <p class="eyebrow">Find your starting point</p>
+        <h2>Three levels. One accountable team.</h2>
+        <p>Every level connects strategy to execution. The difference is cadence, channel depth, and operational complexity.</p>
+      </div>
+      <div class="phase-tier-list">
+        {tiers.map((tier, index) => (
+          <article class:list={["phase-tier", tier.featured && "phase-tier--featured"]} data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
+            <div class="phase-tier__topline">
+              <span>{tier.step}</span>
+              {tier.featured && <strong>Most popular</strong>}
+            </div>
+            <h2>{tier.name}</h2>
+            <p class="phase-tier__price">{tier.price}</p>
+            {tier.offer && <p class="phase-tier__offer">{tier.offer}</p>}
+            <p class="phase-tier__fit">{tier.fit}</p>
+            <p class="phase-tier__result">{tier.result}</p>
+            <ul>{tier.includes.map((item) => <li>{item}</li>)}</ul>
+            <a class:list={["btn", tier.featured ? "btn--primary" : "btn--secondary"]} href={`/contact?tier=${tier.name.toLowerCase().replaceAll(" ", "-")}`}>
+              {tier.cta}
+            </a>
           </article>
         ))}
       </div>
-      <div class="terms-strip" data-reveal>
-        <h3>Included in every tier</h3>
-        <ul>
-          {everyTier.map((item) => (
-            <li>{item}</li>
-          ))}
-        </ul>
+      <div class="phase-included" data-reveal>
+        <div>
+          <span>Across every tier</span>
+          <h3>The terms should be as clear as the work.</h3>
+        </div>
+        <ul>{everyTier.map((item) => <li>{item}</li>)}</ul>
       </div>
     </div>
   </section>
 
-  <section class="section section--surface">
+  <section class="section phase-comparison-section">
     <div class="container">
-      <div class="section-heading" data-reveal>
-        <p class="eyebrow">Comparison</p>
-        <h2>What changes as scope grows</h2>
-        <p class="lead">The names match the services bundles so pricing and delivery stay easy to compare.</p>
+      <div class="comparison-heading" data-reveal>
+        <div>
+          <p class="eyebrow">Scope comparison</p>
+          <h2>See what expands as the system grows.</h2>
+        </div>
+        <p>Scroll across on smaller screens. Nothing important is hidden behind a sales call.</p>
       </div>
-      <div class="comparison-table" role="region" aria-label="Pricing comparison" tabindex="0" data-reveal>
+      <div class="comparison-table phase-comparison-table" role="region" aria-label="Pricing comparison" tabindex="0" data-reveal>
         <table>
           <thead>
             <tr>
               <th scope="col">Capability</th>
-              <th scope="col">Growth foundation</th>
-              <th scope="col">Performance engine</th>
-              <th scope="col">AI-accelerated scale</th>
+              <th scope="col">Foundation</th>
+              <th scope="col">Performance</th>
+              <th scope="col">Scale</th>
             </tr>
           </thead>
           <tbody>
             {comparison.map((row) => (
-              <tr>
-                {row.map((cell, index) => (
-                  index === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>
-                ))}
-              </tr>
+              <tr>{row.map((cell, index) => index === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>)}</tr>
             ))}
           </tbody>
         </table>
@@ -205,52 +188,29 @@ const agencyQuestions = [
     </div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="section-heading" data-reveal>
-        <p class="eyebrow">Common questions</p>
-        <h2>The fine print, in plain language</h2>
-        <p class="lead">
-          Honest answers to what owners actually ask before signing with any agency.
-        </p>
+  <section class="section pricing-faq-section">
+    <div class="container pricing-faq-layout">
+      <div data-reveal>
+        <p class="eyebrow">Straight answers</p>
+        <h2>The questions owners ask before signing.</h2>
+        <p>No black-box language. No surprise ownership terms.</p>
       </div>
-      <div class="faq" data-reveal>
+      <div class="faq phase-faq" data-reveal>
         {faqs.map((faq) => (
           <details>
             <summary>{faq.q}</summary>
-            <div class="faq__body">
-              <p>{faq.a}</p>
-            </div>
+            <div class="faq__body"><p>{faq.a}</p></div>
           </details>
         ))}
       </div>
     </div>
   </section>
 
-  <section class="section section--surface">
-    <div class="container">
-      <div class="section-heading" data-reveal>
-        <p class="eyebrow">Before you hire anyone</p>
-        <h2>Five questions to ask any agency, including us</h2>
-        <p class="lead">
-          Take these into every sales call. A good partner answers all five without flinching.
-        </p>
-      </div>
-      <dl class="ask-list">
-        {agencyQuestions.map((item, index) => (
-          <div data-reveal style={`--reveal-delay: ${index * 0.05}s`}>
-            <dt>{item.q}</dt>
-            <dd>
-              <strong>How we answer</strong>
-              {item.a}
-            </dd>
-          </div>
-        ))}
-      </dl>
-      <div class="cta-row">
-        <a class="btn btn--primary" href="/contact">Get started</a>
-        <a class="btn btn--secondary" href="/services">View services</a>
-      </div>
+  <section class="home-final-cta">
+    <div class="container home-final-cta__inner" data-reveal>
+      <p>Still between two levels?</p>
+      <h2>We’ll recommend the smallest scope that can solve the real problem.</h2>
+      <a class="btn btn--primary" href="/contact">Talk through the fit <span aria-hidden="true">→</span></a>
     </div>
   </section>
 </BaseLayout>

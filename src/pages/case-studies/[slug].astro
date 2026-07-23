@@ -4,82 +4,80 @@ import { getCollection, getEntry, render } from "astro:content";
 
 export async function getStaticPaths() {
   const studies = await getCollection("caseStudies");
-  return studies.map((study) => ({
-    params: { slug: study.id },
-  }));
+  return studies.map((study) => ({ params: { slug: study.id } }));
 }
 
 const { slug } = Astro.params;
 const entry = await getEntry("caseStudies", slug!);
-if (!entry) {
-  return Astro.redirect("/case-studies");
-}
+if (!entry) return Astro.redirect("/case-studies");
+
 const { Content } = await render(entry);
 const { data } = entry;
 const industryLabel = data.industry === "local" ? "Local business" : "E-commerce";
 ---
+
 <BaseLayout title={data.title} description={data.summary}>
-  <section class="page-hero page-hero--accent">
-    <div class="container case-study-hero">
+  <section class="case-detail-hero">
+    <div class="container case-detail-hero__grid">
       <div>
-        <p class="eyebrow">{industryLabel} / {data.client}</p>
+        <a class="case-detail-hero__back" href="/case-studies">← All examples</a>
+        <p class="hero-kicker">Illustrative engagement / {industryLabel}</p>
         <h1>{data.title}</h1>
         <p class="lead">{data.summary}</p>
       </div>
-      <aside class="proof-panel" aria-label="Case study summary">
-        <h2>Engagement snapshot</h2>
-        <dl class="snapshot-list">
-          <div>
-            <dt>Client type</dt>
-            <dd>{industryLabel}</dd>
-          </div>
-          <div>
-            <dt>Outcome</dt>
-            <dd>{data.outcome}</dd>
-          </div>
-        </dl>
-        <ul class="case-study-row__tags">
-          {data.services.map((s) => (
-            <li>{s}</li>
-          ))}
+      <aside class="case-detail-snapshot" aria-label="Engagement snapshot">
+        <span>Outcome</span>
+        <strong>{data.outcome}</strong>
+        <ul>
+          {data.services.map((service) => <li>{service}</li>)}
         </ul>
       </aside>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container case-study-detail">
-      <article class="prose case-study-body">
+  <div class="case-detail-disclosure">
+    <div class="container">
+      Illustrative example for demonstrating process and scope. Replace with approved client work
+      and verified metrics before presenting as a documented result.
+    </div>
+  </div>
+
+  <section class="section case-detail-section">
+    <div class="container case-detail-layout">
+      <aside class="case-detail-nav">
+        <p>Engagement map</p>
+        <ol>
+          <li><span>01</span>Context</li>
+          <li><span>02</span>Challenge</li>
+          <li><span>03</span>Connected work</li>
+          <li><span>04</span>Result</li>
+        </ol>
+      </aside>
+      <article class="prose case-study-body case-detail-body">
         <Content />
       </article>
-      <aside class="detail-aside">
-        <p class="eyebrow">Bundle map</p>
-        <h2>What stayed connected</h2>
-        <ul class="check-list">
-          <li>Strategy and offer decisions</li>
-          <li>Campaign creative and landing copy</li>
-          <li>Paid channel testing and reporting</li>
-          <li>AI-supported drafting with human review</li>
-        </ul>
-      </aside>
     </div>
   </section>
 
-  <section class="section section--surface">
-    <div class="container split-block">
-      <div>
-        <p class="eyebrow">Your next story</p>
-        <h2>Want one partner to own the whole growth loop?</h2>
+  <section class="story-principles">
+    <div class="container story-principles__grid">
+      <div data-reveal>
+        <p class="eyebrow">The connected layer</p>
+        <h2>What stayed aligned throughout the engagement.</h2>
       </div>
-      <div>
-        <p>
-          Bring the goals, channels, and friction points. We will help sort the priorities and recommend a bundle that fits the stage you are in now.
-        </p>
-        <div class="cta-row">
-          <a class="btn btn--primary" href="/contact">Book a call</a>
-          <a class="btn btn--secondary" href="/case-studies">All case studies</a>
-        </div>
-      </div>
+      <ol>
+        <li><span>01</span><p>Strategy and offer decisions</p></li>
+        <li><span>02</span><p>Campaign creative and landing copy</p></li>
+        <li><span>03</span><p>Channel testing, follow-up, and reporting</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="home-final-cta">
+    <div class="container home-final-cta__inner" data-reveal>
+      <p>Your business will have a different starting point.</p>
+      <h2>Let’s find the first move that makes the whole system stronger.</h2>
+      <a class="btn btn--primary" href="/contact">Start your conversation <span aria-hidden="true">→</span></a>
     </div>
   </section>
 </BaseLayout>

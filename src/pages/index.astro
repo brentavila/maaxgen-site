@@ -5,254 +5,355 @@ import { getCollection } from "astro:content";
 const proofStories = (await getCollection("caseStudies"))
   .sort((a, b) => Number(b.data.featured) - Number(a.data.featured))
   .slice(0, 2);
+
+const growthLeaks = [
+  {
+    id: "follow-up",
+    shortLabel: "Slow follow-up",
+    title: "Good leads go cold while your team is busy.",
+    problem:
+      "A customer calls, fills out a form, or starts a checkout. Then they wait. The next business to respond gets the opportunity.",
+    fix:
+      "Instant replies, missed-call text back, and clear pipeline reminders keep every inquiry moving.",
+    steps: ["New inquiry", "Instant response", "Booked next step"],
+  },
+  {
+    id: "website",
+    shortLabel: "Weak conversion",
+    title: "Your website gets attention, but not enough action.",
+    problem:
+      "The ad earns the click, then vague copy and a buried next step make the visitor work too hard.",
+    fix:
+      "We align the message, offer, and landing page so the path from interest to action feels obvious.",
+    steps: ["Relevant ad", "Matched landing page", "Clear action"],
+  },
+  {
+    id: "systems",
+    shortLabel: "Disconnected tools",
+    title: "Your tools create more work than they remove.",
+    problem:
+      "Campaigns, customer data, and AI tools live in separate places. Your team spends time moving information instead of using it.",
+    fix:
+      "We connect the useful pieces, remove the noise, and document workflows your team can trust.",
+    steps: ["Clean inputs", "Connected workflow", "Useful output"],
+  },
+];
+
+const fitSignals = [
+  {
+    title: "You want the why, not just the report.",
+    body: "Every recommendation comes with the reasoning, the expected outcome, and the next decision.",
+  },
+  {
+    title: "You care about revenue, not applause.",
+    body: "Qualified leads, acquisition cost, conversion rate, and return matter more than vanity metrics.",
+  },
+  {
+    title: "You are building for the long term.",
+    body: "You want a partner who learns the business and makes every campaign smarter than the last.",
+  },
+  {
+    title: "You choose fit and accountability over the lowest bid.",
+    body: "You value clear ownership, honest answers, and work that does not need to be rebuilt twice.",
+  },
+];
 ---
+
 <BaseLayout
   title="MaaxGen"
-  description="One agency partner for marketing, advertising, and AI - built for local and e-commerce SMBs."
+  description="One agency partner connecting strategy, creative, advertising, and follow-up into a growth system for local and e-commerce businesses."
 >
-  <section class="home-hero">
-    <img
-      class="home-hero__media"
-      src="/images/home/maaxgen-growth-operations.webp"
-      alt=""
-      width="1672"
-      height="941"
-      fetchpriority="high"
-    />
-    <div class="home-hero__shade" aria-hidden="true"></div>
-    <div class="container home-hero__content">
-      <p class="eyebrow">Marketing, advertising, and practical AI</p>
-      <h1>Turn scattered marketing into one growth engine.</h1>
-      <p class="lead">
-        MaaxGen plans the strategy, creates the campaigns, runs the ads, and builds the
-        follow-up systems that help local and e-commerce businesses grow.
-      </p>
-      <ul class="home-hero__scope" aria-label="Core services">
-        <li>Strategy and creative</li>
-        <li>Websites and landing pages</li>
-        <li>Paid media</li>
-        <li>AI-enabled follow-up</li>
-      </ul>
-      <div class="home-hero__offer">
-        <p>
-          <span>Now onboarding</span>
-          Five Performance Engine clients at <strong>$1,700/month</strong>
-          <s>$2,400/month</s>.
+  <section class="engagement-hero">
+    <div class="engagement-hero__glow" aria-hidden="true"></div>
+    <div class="container engagement-hero__grid">
+      <div class="engagement-hero__copy">
+        <p class="hero-kicker">One accountable growth partner</p>
+        <h1>Your marketing should work like a system. <span>Not a pile of projects.</span></h1>
+        <p class="lead">
+          MaaxGen connects strategy, creative, advertising, and follow-up so every part helps the
+          next part perform better.
         </p>
         <div class="cta-row">
-          <a class="btn btn--primary" href="/contact?offer=performance-engine">Claim one of five spots</a>
-          <a class="btn btn--secondary" href="/services">Explore services</a>
+          <a class="btn btn--primary" href="/contact?offer=performance-engine">
+            Build your growth engine
+            <span aria-hidden="true">→</span>
+          </a>
+          <a class="btn btn--secondary" href="/case-studies">See the work</a>
+        </div>
+        <p class="hero-availability">
+          <span aria-hidden="true"></span>
+          Now onboarding five Performance Engine clients at $1,700/month
+        </p>
+      </div>
+
+      <div
+        class="engine-map"
+        role="img"
+        aria-label="Strategy, creative, advertising, and follow-up connected around one growth plan"
+      >
+        <svg class="engine-map__lines" viewBox="0 0 600 520" aria-hidden="true">
+          <path d="M300 260 L136 116" />
+          <path d="M300 260 L464 116" />
+          <path d="M300 260 L136 404" />
+          <path d="M300 260 L464 404" />
+        </svg>
+        <div class="engine-map__core">
+          <span>One plan</span>
+          <strong>Growth</strong>
+          <small>measured and improved</small>
+        </div>
+        <div class="engine-node engine-node--strategy">
+          <span>01</span>
+          <strong>Strategy</strong>
+          <small>the right priority</small>
+        </div>
+        <div class="engine-node engine-node--creative">
+          <span>02</span>
+          <strong>Creative</strong>
+          <small>a message that lands</small>
+        </div>
+        <div class="engine-node engine-node--media">
+          <span>03</span>
+          <strong>Advertising</strong>
+          <small>attention with intent</small>
+        </div>
+        <div class="engine-node engine-node--followup">
+          <span>04</span>
+          <strong>Follow-up</strong>
+          <small>interest into action</small>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <div class="growth-chain" aria-label="The MaaxGen growth process">
+    <div class="container growth-chain__inner">
+      <span>Clear strategy</span>
+      <i aria-hidden="true">→</i>
+      <span>Stronger creative</span>
+      <i aria-hidden="true">→</i>
+      <span>Smarter media</span>
+      <i aria-hidden="true">→</i>
+      <span>Faster follow-up</span>
+    </div>
+  </div>
+
+  <section class="section leak-explorer-section">
     <div class="container">
-      <div class="section-heading" data-reveal>
-        <p class="eyebrow">Where growth leaks out</p>
-        <h2>Three problems that quietly cost you customers</h2>
+      <div class="section-heading section-heading--wide" data-reveal>
+        <p class="eyebrow">Find the leak</p>
+        <h2>Where is growth slipping through?</h2>
         <p class="lead">
-          Most businesses we meet are not short on effort. They are losing revenue in the same
-          three places, and every one of them is fixable.
+          Choose the problem that feels most familiar. We will show you what a connected fix looks
+          like.
         </p>
       </div>
-      <ul class="leak-list">
-        <li data-reveal>
-          <div class="leak__problem">
-            <span class="leak__label">The leak</span>
-            <h3>Leads come in, then go cold</h3>
-            <p>
-              You are paying for clicks and calls, but inquiries sit unanswered for hours. By the
-              time someone follows up, the customer already booked with whoever replied first.
-            </p>
-          </div>
-          <div class="leak__fix">
-            <span class="leak__label">The fix</span>
-            <p>
-              We build the follow-up system: instant replies to new inquiries, missed-call text
-              back, pipeline reminders, and review requests. More of the leads you already get
-              become paying customers.
-            </p>
-          </div>
-        </li>
-        <li data-reveal style="--reveal-delay: 0.08s">
-          <div class="leak__problem">
-            <span class="leak__label">The leak</span>
-            <h3>Your website looks fine but does not sell</h3>
-            <p>
-              Visitors land, skim, and leave. Slow pages, vague offers, and a buried contact
-              button quietly turn ad spend into bounce rates.
-            </p>
-          </div>
-          <div class="leak__fix">
-            <span class="leak__label">The fix</span>
-            <p>
-              We build and tune pages that match your ads, load fast, and make the next step
-              obvious, whether that is a call, a booking, or a checkout.
-            </p>
-          </div>
-        </li>
-        <li data-reveal style="--reveal-delay: 0.16s">
-          <div class="leak__problem">
-            <span class="leak__label">The leak</span>
-            <h3>AI tools that promised the world, then broke</h3>
-            <p>
-              Half-configured chatbots and duct-taped automations create work instead of saving
-              it, and nobody on your team trusts the output.
-            </p>
-          </div>
-          <div class="leak__fix">
-            <span class="leak__label">The fix</span>
-            <p>
-              We set up AI workflows that are documented, tested, and reviewed by humans, doing
-              real jobs: drafting content, routing and answering leads, and prepping reports.
-            </p>
-          </div>
-        </li>
-      </ul>
-      <div class="compound-note" data-reveal>
+
+      <div class="leak-explorer" data-leak-explorer data-reveal>
+        <div class="leak-explorer__tabs" role="tablist" aria-label="Common growth problems">
+          {growthLeaks.map((leak, index) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${leak.id}`}
+              aria-controls={`panel-${leak.id}`}
+              aria-selected={index === 0 ? "true" : "false"}
+              tabindex={index === 0 ? 0 : -1}
+              data-leak-tab
+            >
+              <span>0{index + 1}</span>
+              {leak.shortLabel}
+            </button>
+          ))}
+        </div>
+
+        <div class="leak-explorer__panels">
+          {growthLeaks.map((leak, index) => (
+            <article
+              class="leak-panel"
+              id={`panel-${leak.id}`}
+              role="tabpanel"
+              aria-labelledby={`tab-${leak.id}`}
+              hidden={index !== 0}
+              data-leak-panel
+            >
+              <div class="leak-panel__copy">
+                <p class="leak-panel__signal">What is happening</p>
+                <h3>{leak.title}</h3>
+                <p>{leak.problem}</p>
+                <div class="leak-panel__fix">
+                  <strong>The connected fix</strong>
+                  <p>{leak.fix}</p>
+                </div>
+              </div>
+              <ol class="leak-flow" aria-label={`Connected solution for ${leak.shortLabel}`}>
+                {leak.steps.map((step, stepIndex) => (
+                  <li>
+                    <span>0{stepIndex + 1}</span>
+                    <strong>{step}</strong>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section system-comparison-section">
+    <div class="container comparison-heading" data-reveal>
+      <div>
+        <p class="eyebrow">Drag to compare</p>
+        <h2>From scattered effort to one connected engine.</h2>
+      </div>
+      <p>
+        The work does not disappear. The friction does. Move the slider to see what changes when
+        one partner owns the whole path.
+      </p>
+    </div>
+
+    <div class="system-comparison" data-system-comparison data-reveal style="--split: 50%">
+      <div class="system-comparison__scene system-comparison__scene--connected">
+        <p class="comparison-label">Connected</p>
+        <div class="comparison-system comparison-system--connected">
+          <div><span>Strategy</span><small>one priority</small></div>
+          <div><span>Creative</span><small>one message</small></div>
+          <div><span>Media</span><small>one campaign plan</small></div>
+          <div><span>Follow-up</span><small>one customer path</small></div>
+        </div>
+        <p class="comparison-result">Clear ownership. Faster learning. Better decisions.</p>
+      </div>
+
+      <div class="system-comparison__scene system-comparison__scene--scattered">
+        <p class="comparison-label">Scattered</p>
+        <div class="comparison-system comparison-system--scattered">
+          <div><span>Freelancer</span><small>waiting on copy</small></div>
+          <div><span>Ad vendor</span><small>optimizing clicks</small></div>
+          <div><span>Website</span><small>different message</small></div>
+          <div><span>CRM</span><small>leads sitting cold</small></div>
+        </div>
+        <p class="comparison-result">More handoffs. Slower answers. Nobody owns the outcome.</p>
+      </div>
+
+      <div class="system-comparison__divider" aria-hidden="true">
+        <span>↔</span>
+      </div>
+      <label class="sr-only" for="system-comparison-range">
+        Compare scattered and connected marketing systems
+      </label>
+      <input
+        id="system-comparison-range"
+        class="system-comparison__range"
+        type="range"
+        min="12"
+        max="88"
+        value="50"
+        data-comparison-range
+      />
+    </div>
+  </section>
+
+  <section class="section fit-section">
+    <div class="container fit-layout">
+      <div class="fit-statement" data-reveal>
+        <p class="eyebrow">A better working relationship</p>
+        <h2>You will probably enjoy working with us if...</h2>
         <p>
-          And everything feeds one learning system. <strong>Your results data stays organized and
-          in context</strong>, so every month of campaigns makes the next month smarter instead of
-          starting from zero each quarter.
+          You want a marketing partner who can think, execute, explain, and own the result.
         </p>
+        <a href="/about">Meet MaaxGen <span aria-hidden="true">→</span></a>
       </div>
-    </div>
-  </section>
-
-  <section class="section section--surface">
-    <div class="container grid-2">
-      <div data-reveal>
-        <h2>Built for owners who wear every hat</h2>
-        <p>
-          You need clear plans, on-brand creative, and campaigns that actually run - not another
-          dashboard login. We package what usually takes three vendors into one partner you can hold accountable.
-        </p>
-      </div>
-      <div data-reveal style="--reveal-delay: 0.08s">
-        <h2>Local and e-commerce, same standard</h2>
-        <p>
-          Whether customers walk in or check out online, growth comes from consistent messaging,
-          measurable ads, and AI where it saves time - never as a gimmick.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="section-heading" data-reveal>
-        <p class="eyebrow">Who this is for</p>
-        <h2>You'll probably enjoy working with us if</h2>
-        <p class="lead">
-          MaaxGen is not the right fit for everyone. We work best with business owners who value partnership over transactions and outcomes over activity.
-        </p>
-      </div>
-      <ul class="value-list">
-        <li data-reveal>
-          <h3>You want to understand the why behind every decision</h3>
-          <p>
-            You expect your marketing partner to explain the strategy, not just show you a report. We document what we recommend, why we recommend it, and what result we expect - before and after each campaign.
-          </p>
-        </li>
-        <li data-reveal style="--reveal-delay: 0.08s">
-          <h3>You measure success by revenue, not vanity metrics</h3>
-          <p>
-            Likes and impressions do not pay your bills. You care about the metrics that connect to cash: qualified leads, conversion rates, cost per acquisition, and return on ad spend.
-          </p>
-        </li>
-        <li data-reveal style="--reveal-delay: 0.16s">
-          <h3>You value long-term relationships over one-off projects</h3>
-          <p>
-            Growth compounds when your marketing partner learns your business, your market, and your customers over months and years - not sprints. We build systems that get smarter with every campaign.
-          </p>
-        </li>
-        <li data-reveal style="--reveal-delay: 0.24s">
-          <h3>You believe choosing the right partner beats choosing the cheapest one</h3>
-          <p>
-            You have seen what happens when you hire the lowest bid: rework, missed deadlines, and campaigns that waste more than they cost. You would rather invest in work that delivers results the first time.
-          </p>
-        </li>
-        <li data-reveal style="--reveal-delay: 0.32s">
-          <h3>You want accountability, not excuses</h3>
-          <p>
-            When something is not working, you expect your agency to own it, diagnose it, and fix it - not blame the platform, the season, or the algorithm. One partner, one point of accountability.
-          </p>
-        </li>
-        <li data-reveal style="--reveal-delay: 0.4s">
-          <h3>You value your time more than learning another tool</h3>
-          <p>
-            You need results, not another dashboard to learn or meeting to attend. We handle the execution, send you clear updates, and only pull you in when a decision needs your input.
-          </p>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div data-reveal>
-        <h2>What you get in the bundle</h2>
-        <p class="lead">Core capabilities included across services and pricing tiers.</p>
-      </div>
-      <div class="capability-list">
-        <article class="capability capability--lead" data-reveal>
-          <h3>One team, one plan</h3>
-          <p>
-            Strategy, creative, paid media, and optimization stay aligned. You get a single roadmap and
-            one point of accountability - not three vendors pointing at each other.
-          </p>
-        </article>
-        <article class="capability" data-reveal style="--reveal-delay: 0.08s">
-          <h3>Brand &amp; creative</h3>
-          <p>Positioning, offers, and assets that look like you - not a stock template.</p>
-        </article>
-        <article class="capability" data-reveal style="--reveal-delay: 0.16s">
-          <h3>Paid media &amp; AI ops</h3>
-          <p>Search, social, and retargeting with reporting you can read in five minutes - plus follow-up workflows that keep leads warm and cut busywork.</p>
-        </article>
-      </div>
-      <div class="cta-row">
-        <a class="btn btn--primary" href="/pricing">See pricing</a>
-        <a class="btn btn--secondary" href="/contact">Get started</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--surface">
-    <div class="container">
-      <div class="section-heading" data-reveal>
-        <p class="eyebrow">Proof of work</p>
-        <h2>Client stories built around the full bundle</h2>
-        <p class="lead">
-          Case studies show how strategy, paid media, creative, and practical AI work together for local and e-commerce businesses.
-        </p>
-      </div>
-      <ul class="case-study-list case-study-list--compact">
-        {proofStories.map((study, index) => (
-          <li class="case-study-row" data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
-            <div class="case-study-row__main">
-              <p class="case-study-row__meta">
-                <span class="case-study-row__industry">
-                  {study.data.industry === "local" ? "Local business" : "E-commerce"}
-                </span>
-                {" / "}
-                {study.data.client}
-              </p>
-              <h3>
-                <a href={`/case-studies/${study.id}`}>{study.data.title}</a>
-              </h3>
-              <p>{study.data.outcome}</p>
+      <ol class="fit-signals">
+        {fitSignals.map((signal, index) => (
+          <li data-reveal style={`--reveal-delay: ${index * 0.07}s`}>
+            <span>0{index + 1}</span>
+            <div>
+              <h3>{signal.title}</h3>
+              <p>{signal.body}</p>
             </div>
-            <a class="btn btn--secondary" href={`/case-studies/${study.id}`}>Read story</a>
           </li>
         ))}
-      </ul>
-      <div class="cta-row">
-        <a class="btn btn--primary" href="/case-studies">View case studies</a>
-        <a class="btn btn--secondary" href="/services">View services</a>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section proof-section">
+    <div class="container">
+      <div class="proof-section__heading" data-reveal>
+        <div>
+          <p class="eyebrow">Example engagements</p>
+          <h2>See how the system comes together.</h2>
+        </div>
+        <a class="btn btn--secondary" href="/case-studies">Explore the examples</a>
       </div>
+      <div class="proof-stories">
+        {proofStories.map((study, index) => (
+          <a
+            class="proof-story"
+            href={`/case-studies/${study.id}`}
+            data-reveal
+            style={`--reveal-delay: ${index * 0.1}s`}
+          >
+            <span class="proof-story__type">
+              Example: {study.data.industry === "local" ? "Local business" : "E-commerce"}
+            </span>
+            <h3>{study.data.title}</h3>
+            <p>{study.data.outcome}</p>
+            <span class="proof-story__link">Read the story <i aria-hidden="true">→</i></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="home-final-cta">
+    <div class="container home-final-cta__inner" data-reveal>
+      <p>Ready for fewer moving parts?</p>
+      <h2>Let’s turn your marketing into one accountable growth engine.</h2>
+      <a class="btn btn--primary" href="/contact">Book a strategy call <span aria-hidden="true">→</span></a>
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-leak-explorer]").forEach((explorer) => {
+    const tabs = Array.from(explorer.querySelectorAll<HTMLButtonElement>("[data-leak-tab]"));
+    const panels = Array.from(explorer.querySelectorAll<HTMLElement>("[data-leak-panel]"));
+
+    const activate = (tab: HTMLButtonElement) => {
+      const panelId = tab.getAttribute("aria-controls");
+
+      tabs.forEach((item) => {
+        const selected = item === tab;
+        item.setAttribute("aria-selected", String(selected));
+        item.tabIndex = selected ? 0 : -1;
+      });
+
+      panels.forEach((panel) => {
+        panel.hidden = panel.id !== panelId;
+      });
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => activate(tab));
+      tab.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        const direction = event.key === "ArrowRight" ? 1 : -1;
+        const next = tabs[(index + direction + tabs.length) % tabs.length];
+        activate(next);
+        next.focus();
+      });
+    });
+  });
+
+  document.querySelectorAll<HTMLElement>("[data-system-comparison]").forEach((comparison) => {
+    const range = comparison.querySelector<HTMLInputElement>("[data-comparison-range]");
+    if (!range) return;
+
+    const update = () => comparison.style.setProperty("--split", `${range.value}%`);
+    range.addEventListener("input", update);
+    update();
+  });
+</script>
