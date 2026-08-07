@@ -167,6 +167,15 @@ const SMS_TRANSACTIONAL_CONSENT =
             body: JSON.stringify(payload),
           });
 
+          if (typeof window.fbq === "function") {
+            window.fbq("track", "Lead", {
+              content_name: "Contact Form",
+              content_category: payload.businessType || "unspecified",
+              value: 1,
+              currency: "USD",
+            });
+          }
+
           form.hidden = true;
           successBox.hidden = false;
           successBox.focus();
