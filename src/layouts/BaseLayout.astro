@@ -1,6 +1,8 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import MetaPixel from "../components/analytics/MetaPixel.astro";
+import MetaPixelEvents from "../components/analytics/MetaPixelEvents.astro";
 
 interface Props {
   title?: string;
@@ -30,6 +32,7 @@ const pageTitle = title === "MaaxGen" ? title : `${title} | MaaxGen`;
       rel="stylesheet"
     />
     <title>{pageTitle}</title>
+    <MetaPixel />
     <script is:inline>document.documentElement.classList.add("js");</script>
   </head>
   <body>
@@ -38,6 +41,7 @@ const pageTitle = title === "MaaxGen" ? title : `${title} | MaaxGen`;
       <slot />
     </main>
     <Footer />
+    <MetaPixelEvents />
     <script>
       const targets = document.querySelectorAll("[data-reveal]");
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

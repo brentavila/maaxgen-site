@@ -1,0 +1,35 @@
+---
+import { META_VIEW_CONTENT_PAGES } from "../../lib/analytics/meta-pixel";
+
+const viewContentPagesJson = JSON.stringify(META_VIEW_CONTENT_PAGES);
+---
+
+<script is:inline define:vars={{ viewContentPagesJson }}>
+  const viewContentPages = JSON.parse(viewContentPagesJson);
+
+  function trackMetaEvent(eventName, params) {
+    if (typeof window.fbq !== "function") return;
+    window.fbq("track", eventName, params);
+  }
+
+  const pageLabel = viewContentPages[window.location.pathname];
+  if (pageLabel) {
+    trackMetaEvent("ViewContent", {
+      content_name: pageLabel,
+      content_category: "page",
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest('a[href^="/contact"]');
+    if (!link) return;
+
+    const href = link.getAttribute("href") || "/contact";
+    const params = new URL(href, window.location.origin).searchParams;
+
+    trackMetaEvent("Contact", {
+      content_name: (link.textContent || "Contact CTA").trim().slice(0, 100),
+      content_category: params.get("offer") || params.get("tier") || "general",
+    });
+  });
+</script>
