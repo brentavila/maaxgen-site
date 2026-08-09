@@ -1,36 +1,56 @@
 ﻿---
+interface Props {
+  landing?: boolean;
+}
+
+const { landing = false } = Astro.props;
 const year = new Date().getFullYear();
 ---
-<footer class="site-footer">
+<footer class:list={["site-footer", landing && "site-footer--landing"]}>
   <div class="container">
-    <div class="site-footer__grid">
-      <div>
+    {landing ? (
+      <div class="site-footer__landing">
         <p class="logo">
           <span class="logo__maax">MAAX</span><span class="logo__gen">GEN</span>
         </p>
-        <p class="site-footer__tagline">
-          Marketing, advertising, and AI for local and e-commerce businesses - one bundled partner for growth.
-        </p>
-      </div>
-      <div>
-        <p class="site-footer__heading">Company</p>
-        <ul>
-          <li><a href="/about">About</a></li>
-          <li><a href="/services">Services</a></li>
-          <li><a href="/case-studies">Case studies</a></li>
-          <li><a href="/pricing">Pricing</a></li>
-          <li><a href="/contact">Contact</a></li>
-        </ul>
-      </div>
-      <div>
-        <p class="site-footer__heading">Legal</p>
         <ul>
           <li><a href="/privacy">Privacy</a></li>
           <li><a href="/terms">Terms</a></li>
-          <li><a href="/blog">Blog</a></li>
         </ul>
+        <p class="copyright">&copy; {year} MaaxGen. All rights reserved.</p>
       </div>
-    </div>
-    <p class="copyright">&copy; {year} MaaxGen. All rights reserved.</p>
+    ) : (
+      <>
+        <div class="site-footer__grid">
+          <div>
+            <p class="logo">
+              <span class="logo__maax">MAAX</span><span class="logo__gen">GEN</span>
+            </p>
+            <p class="site-footer__tagline">
+              Marketing, advertising, and AI for local and e-commerce businesses - one bundled partner for growth.
+            </p>
+          </div>
+          <div>
+            <p class="site-footer__heading">Company</p>
+            <ul>
+              <li><a href="/about">About</a></li>
+              <li><a href="/services">Services</a></li>
+              <li><a href="/case-studies">Case studies</a></li>
+              <li><a href="/pricing">Pricing</a></li>
+              <li><a href="/contact">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <p class="site-footer__heading">Legal</p>
+            <ul>
+              <li><a href="/privacy">Privacy</a></li>
+              <li><a href="/terms">Terms</a></li>
+              <li><a href="/blog">Blog</a></li>
+            </ul>
+          </div>
+        </div>
+        <p class="copyright">&copy; {year} MaaxGen. All rights reserved.</p>
+      </>
+    )}
   </div>
 </footer>
