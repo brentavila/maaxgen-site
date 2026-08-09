@@ -3923,6 +3923,57 @@ p { margin: 0 0 1rem; }
   margin-top: 2.5rem;
 }
 
+.ghl-form {
+  width: 100%;
+}
+
+.ghl-form iframe {
+  display: block;
+  width: 100%;
+  min-height: 600px;
+}
+
+.counseling-form-section {
+  scroll-margin-top: 6rem;
+  padding-block: clamp(5rem, 10vw, 9rem);
+  background:
+    radial-gradient(circle at 12% 0%, oklch(0.62 0.14 238 / 0.12), transparent 28rem),
+    oklch(0.97 0.012 238);
+}
+
+.counseling-form-layout {
+  max-width: 48rem;
+}
+
+.counseling-form-intro {
+  margin-bottom: 2rem;
+}
+
+.counseling-form-intro h2 {
+  margin: 0 0 1rem;
+  max-width: 18ch;
+}
+
+.counseling-form-intro p:last-child {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--color-muted);
+}
+
+.counseling-ghl-form {
+  padding: 0.5rem;
+  border-radius: 1rem;
+  background: var(--color-bg);
+  box-shadow:
+    0 0 0 1px oklch(0.82 0.015 245),
+    0 1.25rem 3rem oklch(0.25 0.03 245 / 0.08);
+}
+
+.counseling-ghl-form iframe {
+  min-height: 1487px;
+  border-radius: 15px;
+}
+
 .counseling-section-cta--on-dark {
   margin-top: 0;
   padding-bottom: clamp(3rem, 6vw, 5rem);

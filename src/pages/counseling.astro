@@ -191,7 +191,7 @@ const faqs = [
           that need steady, specialty-matched demand, not a random lead pile.
         </p>
         <div class="cta-row">
-          <a class="btn btn--primary" href="/contact?offer=counseling">
+          <a class="btn btn--primary" href="#counselor-form">
             Book a practice growth call
             <span aria-hidden="true">→</span>
           </a>
@@ -261,7 +261,7 @@ const faqs = [
         </p>
       </div>
       <div class="counseling-section-cta" data-reveal>
-        <a class="btn btn--primary" href="/contact?offer=counseling">
+        <a class="btn btn--primary" href="#counselor-form">
           Book a practice growth call
           <span aria-hidden="true">→</span>
         </a>
@@ -291,7 +291,7 @@ const faqs = [
         ))}
       </ol>
       <div class="counseling-section-cta" data-reveal>
-        <a class="btn btn--primary" href="/contact?offer=counseling">
+        <a class="btn btn--primary" href="#counselor-form">
           Book a practice growth call
           <span aria-hidden="true">→</span>
         </a>
@@ -330,7 +330,7 @@ const faqs = [
         ))}
       </div>
       <div class="counseling-section-cta" data-reveal>
-        <a class="btn btn--primary" href="/contact?offer=counseling">
+        <a class="btn btn--primary" href="#counselor-form">
           Book a practice growth call
           <span aria-hidden="true">→</span>
         </a>
@@ -361,7 +361,7 @@ const faqs = [
       </ol>
     </div>
     <div class="container counseling-section-cta counseling-section-cta--on-dark" data-reveal>
-      <a class="btn btn--primary" href="/contact?offer=counseling">
+      <a class="btn btn--primary" href="#counselor-form">
         Book a practice growth call
         <span aria-hidden="true">→</span>
       </a>
@@ -398,7 +398,7 @@ const faqs = [
             <ul>{tier.includes.map((item) => <li>{item}</li>)}</ul>
             <a
               class:list={["btn", tier.featured ? "btn--primary" : "btn--secondary"]}
-              href={`/contact?offer=counseling&tier=${tier.name.toLowerCase()}`}
+              href="#counselor-form"
             >
               {tier.cta}
             </a>
@@ -413,7 +413,7 @@ const faqs = [
         <ul>{everyTier.map((item) => <li>{item}</li>)}</ul>
       </div>
       <div class="counseling-section-cta" data-reveal>
-        <a class="btn btn--primary" href="/contact?offer=counseling">
+        <a class="btn btn--primary" href="#counselor-form">
           Book a practice growth call
           <span aria-hidden="true">→</span>
         </a>
@@ -438,21 +438,50 @@ const faqs = [
       </div>
     </div>
     <div class="container counseling-section-cta" data-reveal>
-      <a class="btn btn--primary" href="/contact?offer=counseling">
+      <a class="btn btn--primary" href="#counselor-form">
         Book a practice growth call
         <span aria-hidden="true">→</span>
       </a>
     </div>
   </section>
 
-  <section class="home-final-cta">
-    <div class="container home-final-cta__inner" data-reveal>
-      <p>Ready for steadier, better-fit demand?</p>
-      <h2>Tell us about your practice, open capacity, and specialties. We’ll recommend the right plan.</h2>
-      <a class="btn btn--primary" href="/contact?offer=counseling">
-        Book a practice growth call
-        <span aria-hidden="true">→</span>
-      </a>
+  <section class="section counseling-form-section" id="counselor-form">
+    <div class="container counseling-form-layout">
+      <div class="counseling-form-intro" data-reveal>
+        <p class="eyebrow">Book a practice growth call</p>
+        <h2>Tell us about your practice, open capacity, and specialties.</h2>
+        <p>
+          Share a few details and we will recommend the right plan, or an honest no if paid search
+          is not the move yet.
+        </p>
+      </div>
+      <div class="ghl-form counseling-ghl-form" data-reveal>
+        <iframe
+          src="https://brand.maaxgen.com/widget/form/MlZ5hILMDRxuGLCIMF34"
+          style="width:100%;height:100%;border:none;border-radius:15px"
+          id="inline-MlZ5hILMDRxuGLCIMF34"
+          data-layout="{'id':'INLINE'}"
+          data-trigger-type="alwaysShow"
+          data-trigger-value=""
+          data-activation-type="alwaysActivated"
+          data-activation-value=""
+          data-deactivation-type="neverDeactivate"
+          data-deactivation-value=""
+          data-form-name="Counselor Form"
+          data-height="1487"
+          data-layout-iframe-id="inline-MlZ5hILMDRxuGLCIMF34"
+          data-form-id="MlZ5hILMDRxuGLCIMF34"
+          title="Counselor Form"
+        >
+        </iframe>
+      </div>
+      <p class="form-legal">
+        By submitting this form you agree to our <a href="/privacy">Privacy Policy</a> and
+        <a href="/terms">Terms &amp; Conditions</a>. Mobile information and SMS consent are never
+        shared or sold to third parties for marketing.
+      </p>
     </div>
   </section>
+
+  <script is:inline src="https://brand.maaxgen.com/js/form_embed.js"></script>
 </BaseLayout>
