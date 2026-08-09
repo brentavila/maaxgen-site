@@ -3831,19 +3831,295 @@ p { margin: 0 0 1rem; }
   .service-orbit__core,
   .service-orbit__node,
   .story-blueprint > div,
-  .pricing-path__step {
+  .pricing-path__step,
+  .counseling-hero-panel__row {
     opacity: 0;
     animation: engine-node-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
   .service-orbit__core,
   .story-blueprint > div:first-child,
-  .pricing-path__step:first-child { animation-delay: 0.25s; }
+  .pricing-path__step:first-child,
+  .counseling-hero-panel__row:nth-child(2) { animation-delay: 0.25s; }
   .service-orbit__node--01,
   .story-blueprint > div:nth-of-type(2),
-  .pricing-path__step:nth-child(2) { animation-delay: 0.35s; }
+  .pricing-path__step:nth-child(2),
+  .counseling-hero-panel__row:nth-child(3) { animation-delay: 0.35s; }
   .service-orbit__node--02,
   .story-blueprint > div:nth-of-type(3),
-  .pricing-path__step:nth-child(3) { animation-delay: 0.43s; }
+  .pricing-path__step:nth-child(3),
+  .counseling-hero-panel__row:nth-child(4) { animation-delay: 0.43s; }
   .service-orbit__node--03 { animation-delay: 0.51s; }
   .service-orbit__node--04 { animation-delay: 0.59s; }
+}
+
+/* Counseling landing */
+.counseling-hero-panel {
+  display: grid;
+  gap: 0.75rem;
+  width: min(100%, 28rem);
+  margin-inline: auto;
+}
+
+.counseling-hero-panel__label {
+  margin: 0 0 0.35rem;
+  color: oklch(0.72 0.13 238);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.counseling-hero-panel__row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 1.1rem 1.25rem;
+  border-radius: 0.65rem;
+  background: oklch(0.23 0.038 245);
+  box-shadow: 0 0 0 1px oklch(0.74 0.06 238 / 0.16);
+}
+
+.counseling-hero-panel__row > span {
+  color: oklch(0.68 0.12 238);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.counseling-hero-panel__row strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: oklch(0.93 0.01 245);
+  font-size: 1rem;
+}
+
+.counseling-hero-panel__row small {
+  color: oklch(0.67 0.025 245);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.counseling-hero-panel__row--active {
+  background: var(--color-brand);
+  transform: translateX(1.5rem);
+}
+
+.counseling-hero-panel__row--active > span,
+.counseling-hero-panel__row--active small {
+  color: oklch(0.9 0.04 238);
+}
+
+.counseling-hero-panel__row--active strong {
+  color: oklch(0.99 0.005 245);
+}
+
+.counseling-calendar-section {
+  padding-block: clamp(5rem, 10vw, 9rem);
+}
+
+.counseling-calendar-intro {
+  max-width: 46rem;
+  margin-bottom: 3rem;
+}
+
+.counseling-calendar-intro h2 {
+  margin: 0 0 1rem;
+  max-width: 18ch;
+}
+
+.counseling-calendar-intro > p:last-child {
+  color: var(--color-muted);
+  max-width: 42rem;
+}
+
+.counseling-calendar-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.counseling-calendar-list li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  padding-block: 1.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.counseling-calendar-list li:last-child {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.counseling-calendar-list li > span {
+  color: var(--color-brand);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.counseling-calendar-list h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.counseling-calendar-list p {
+  margin: 0;
+  max-width: 48rem;
+  color: var(--color-muted);
+}
+
+.counseling-fit-section {
+  padding-block: clamp(5rem, 10vw, 9rem);
+  background: oklch(0.97 0.012 238);
+}
+
+.counseling-fit-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+
+.counseling-fit-grid article {
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  border-radius: 0.85rem;
+  background: var(--color-bg);
+  box-shadow: 0 0 0 1px oklch(0.82 0.015 245);
+}
+
+.counseling-fit-grid__label {
+  margin: 0 0 1.25rem;
+  color: var(--color-brand);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.counseling-fit-grid h3 {
+  margin: 0 0 0.75rem;
+  max-width: 22ch;
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+}
+
+.counseling-fit-grid p:last-child {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.counseling-ads-section {
+  padding-block: clamp(5rem, 10vw, 9rem);
+}
+
+.counseling-ads-heading {
+  display: grid;
+  gap: 1.5rem 4rem;
+  align-items: end;
+  margin-bottom: 3rem;
+}
+
+.counseling-ads-heading h2 {
+  max-width: 16ch;
+  margin: 0;
+}
+
+.counseling-ads-heading > p {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.counseling-ads-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.counseling-ads-grid article {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-radius: 0.85rem;
+  background: oklch(0.985 0.006 245);
+  box-shadow: 0 0 0 1px oklch(0.82 0.015 245);
+}
+
+.counseling-ads-grid article:first-child {
+  background:
+    radial-gradient(circle at 100% 0, oklch(0.62 0.15 238 / 0.18), transparent 18rem),
+    oklch(0.18 0.032 245);
+  color: oklch(0.85 0.02 245);
+}
+
+.counseling-ads-grid h3 {
+  margin: 0 0 1.5rem;
+  font-size: 1.35rem;
+}
+
+.counseling-ads-grid article:first-child h3 {
+  color: oklch(0.96 0.01 245);
+}
+
+.counseling-ads-grid ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.counseling-ads-grid li {
+  position: relative;
+  margin-bottom: 0.85rem;
+  padding-left: 1.35rem;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.counseling-ads-grid article:first-child li {
+  color: oklch(0.78 0.025 245);
+}
+
+.counseling-ads-grid li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--color-brand);
+}
+
+.counseling-ads-grid article:first-child li::before {
+  background: oklch(0.72 0.13 238);
+}
+
+.counseling-ads-note {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.75rem;
+  background: oklch(0.95 0.025 238);
+}
+
+.counseling-ads-note p {
+  margin: 0;
+  max-width: 52rem;
+  color: var(--color-slate);
+  font-size: 0.95rem;
+}
+
+@media (min-width: 48rem) {
+  .counseling-fit-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .counseling-ads-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .counseling-ads-heading {
+    grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+  }
+}
+
+@media (max-width: 48rem) {
+  .counseling-hero-panel__row--active {
+    transform: none;
+  }
 }
