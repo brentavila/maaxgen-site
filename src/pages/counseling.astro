@@ -1,0 +1,490 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const calendarPoints = [
+  {
+    title: "Every clinician is a growth lever",
+    body: "Empty hours on associate calendars are lost revenue. We build demand that fills the practice, not only the owner’s book.",
+  },
+  {
+    title: "Match caseload to capacity",
+    body: "Campaigns can emphasize specialties, insurance panels, age groups, or modalities so new clients land with the right clinician.",
+  },
+  {
+    title: "Protect quality while you grow",
+    body: "More inquiries only help if they convert into good-fit clients. We optimize for booked consults and retained caseload, not vanity clicks.",
+  },
+];
+
+const fitClients = [
+  {
+    label: "Specialty-first messaging",
+    title: "Speak to the problem you are trained to treat.",
+    body: "Anxiety, trauma, couples work, adolescents, OCD, or substance use: ads and landing pages lead with the care you actually provide.",
+  },
+  {
+    label: "Local intent",
+    title: "Meet people already looking for a therapist nearby.",
+    body: "Search campaigns capture high-intent local queries. You stop competing only on directory listings and word of mouth.",
+  },
+  {
+    label: "Clear next step",
+    title: "Turn interest into a booked consultation.",
+    body: "Ad copy, landing pages, and follow-up work together so a hopeful client knows how to schedule without friction.",
+  },
+];
+
+const adsWorthIt = [
+  {
+    q: "When Google Ads earns its keep",
+    points: [
+      "You have open hours across one or more clinicians",
+      "You want clients matched to a specialty, not whoever calls first",
+      "Referrals and Psychology Today alone leave predictable gaps",
+      "You can respond to new inquiries within one business day",
+    ],
+  },
+  {
+    q: "When to wait or start smaller",
+    points: [
+      "Every clinician is already at capacity with a waitlist",
+      "Your intake process cannot handle more consult requests yet",
+      "You need clearer positioning before spending on traffic",
+      "Tracking calls and form fills is not in place",
+    ],
+  },
+];
+
+const whyMaaxgen = [
+  {
+    title: "We understand practice economics",
+    body: "Filled clinical hours, show rates, and good-fit clients matter more than cheap leads. Reporting stays in those terms.",
+  },
+  {
+    title: "One accountable partner",
+    body: "Strategy, campaign setup, creative, landing pages, and optimization sit with one team. No handoffs between three vendors.",
+  },
+  {
+    title: "Transparent media spend",
+    body: "Ad budget goes to Google (and LinkedIn when requested). Management fees are separate. You own the accounts.",
+  },
+  {
+    title: "Built for solo through multi-clinician groups",
+    body: "Starter supports focused practices. Growth and Concierge scale campaign count and meeting cadence as the roster grows.",
+  },
+];
+
+const integrations = ["Psychology Today", "SimplePractice", "GoHighLevel"];
+
+const tiers = [
+  {
+    step: "Starter",
+    name: "Starter",
+    price: "$550/mo",
+    budget: "Suggested ad budget: $400–$700/mo",
+    fit: "For solo therapists and small practices ready to fill open hours with a focused Google Ads presence.",
+    result: "One well-managed campaign, clear ownership, and a cadence that stays manageable while you see clients.",
+    includes: [
+      "First month: launch call and bi-weekly syncs",
+      "All-inclusive service",
+      "Dedicated Account Manager",
+      "Monthly check-ins",
+      "Set up and management of a single Google Ad campaign",
+    ],
+    cta: "Start with Starter",
+    featured: false,
+  },
+  {
+    step: "Growth",
+    name: "Growth",
+    price: "$550–$800/mo",
+    budget: "Suggested ad budget: $700–$1,000/mo",
+    fit: "For growing practices that need more campaign coverage and room to test new client segments.",
+    result: "One to three Google campaigns, optional LinkedIn, and a partner who keeps pace as clinician capacity expands.",
+    includes: [
+      "First month: launch call and bi-weekly syncs",
+      "All-inclusive service",
+      "Dedicated Account Manager",
+      "Monthly check-ins",
+      "Set up and management of 1–3 Google Ad campaigns",
+      "Requestable LinkedIn Ad campaigns",
+    ],
+    cta: "Grow with Growth",
+    featured: true,
+  },
+  {
+    step: "Concierge",
+    name: "Concierge",
+    price: "$900+/mo",
+    budget: "Suggested ad budget: $1,000+/mo",
+    fit: "For practices with 15 or more therapists that need deeper campaign dedication and higher-touch involvement.",
+    result: "Multi-campaign structure, more meetings, and extra account manager capacity sized for a larger clinical roster.",
+    includes: [
+      "First month: launch call and bi-weekly syncs",
+      "All-inclusive service",
+      "Dedicated Account Manager",
+      "Up to 4 meetings per month",
+      "Set up and management of 4+ Google Ad campaigns",
+      "Requestable LinkedIn Ad campaigns",
+      "Additional account manager involvement and campaign dedication",
+    ],
+    cta: "Talk about Concierge",
+    featured: false,
+  },
+];
+
+const everyTier = [
+  "Ad spend paid directly to platforms with no markup",
+  "You own every ad account, asset, and data source",
+  "Landing page and offer guidance tied to clinical specialties",
+  "Reporting written for practice owners and group directors",
+  "No surprise line items for routine campaign management",
+];
+
+const faqs = [
+  {
+    q: "Is Google Ads worth it for a counseling practice?",
+    a: "It is when you have open clinical hours and a clear specialty or geography to target. Practices that rely only on referrals and directories often see feast-or-famine months. Paid search fills those gaps with people already looking for a therapist. If you are fully booked with a long waitlist, we will tell you to pause or keep spend light until capacity opens.",
+  },
+  {
+    q: "Will ads bring the right clients, or just anyone?",
+    a: "That depends on how campaigns are built. We write for the modalities, ages, and issues your clinicians are trained to treat, then route traffic to pages that set expectations before the consult. The goal is good-fit booked appointments, not a flood of mismatched inquiries.",
+  },
+  {
+    q: "Can you help fill calendars for associates, not only the owner?",
+    a: "Yes. Multi-clinician practices often need demand mapped to specialties and open capacity across the roster. Growth and Concierge plans support multiple campaigns so associate books fill alongside the founder’s.",
+  },
+  {
+    q: "Is ad spend included in the management fee?",
+    a: "No. Platforms bill you directly. Our fee covers strategy, setup, management, creative direction, and optimization. Suggested monthly ad budgets are listed with each plan so you can plan total investment.",
+  },
+  {
+    q: "How quickly can a practice see more consults?",
+    a: "Launch and early learning usually take the first month. Many practices see a steadier inquiry flow within 30 to 60 days when tracking and intake are in place. We share early signals without pretending the first two weeks are the final answer.",
+  },
+  {
+    q: "What if we already advertise on Psychology Today or have a website?",
+    a: "Keep what works. Google Ads complements directories by capturing active search demand. We start from your current positioning and site, then tighten the path from click to booked consult.",
+  },
+  {
+    q: "Who is Concierge for?",
+    a: "Concierge is built for practices with 15 or more therapists that need four or more Google campaigns, up to four meetings per month, and deeper account manager involvement. If you are smaller but need that intensity, we will say so on the strategy call.",
+  },
+  {
+    q: "What happens on the first call?",
+    a: "We review your specialties, open capacity, geography, insurance or cash-pay mix, and current intake process. You leave with a clear recommendation on plan fit and whether paid search is the right next move.",
+  },
+];
+---
+
+<BaseLayout
+  title="Google Ads for Therapists & Counseling Practices"
+  description="MaaxGen helps counseling practices and therapy groups fill clinician calendars with good-fit clients through managed Google Ads."
+  chrome="landing"
+  ctaHref="#counselor-form"
+  ctaLabel="Book a call"
+>
+  <section class="phase-hero phase-hero--counseling">
+    <div class="container phase-hero__grid">
+      <div>
+        <p class="hero-kicker">For therapists and counseling practices</p>
+        <h1>Fill the right calendars. <span>With the right clients.</span></h1>
+        <p class="lead">
+          MaaxGen runs Google Ads for solo therapists, group practices, and multi-clinician clinics
+          that need steady, specialty-matched demand, not a random lead pile.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn--primary" href="#counselor-form">
+            Book a practice growth call
+            <span aria-hidden="true">→</span>
+          </a>
+          <a class="btn btn--secondary" href="#plans">See management plans</a>
+        </div>
+      </div>
+      <figure class="counseling-hero-media">
+        <img
+          src="/images/counseling/hero-practice-team.png"
+          alt="Diverse team of counseling clinicians standing together in a modern practice hallway"
+          width="900"
+          height="900"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <figcaption>Solo practices through multi-clinician groups</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <div class="counseling-trust-bar" aria-label="Platforms and tools we integrate with">
+    <div class="container counseling-trust-bar__inner">
+      <p>Works with the tools practices already use</p>
+      <ul>
+        {integrations.map((name) => (
+          <li>{name}</li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <div class="growth-chain" aria-label="Counseling practice growth path">
+    <div class="container growth-chain__inner">
+      <span>Open capacity</span><i aria-hidden="true">→</i>
+      <span>Specialty match</span><i aria-hidden="true">→</i>
+      <span>Paid search</span><i aria-hidden="true">→</i>
+      <span>Booked consults</span>
+    </div>
+  </div>
+
+  <section class="section counseling-ads-section">
+    <div class="container">
+      <div class="counseling-ads-heading" data-reveal>
+        <div>
+          <p class="eyebrow">Paid search for practices</p>
+          <h2>Is Google Ads worth investing in?</h2>
+        </div>
+        <p>
+          For many counseling practices, yes, when capacity, positioning, and intake are ready.
+          Here is a practical way to decide before you spend.
+        </p>
+      </div>
+      <div class="counseling-ads-grid">
+        {adsWorthIt.map((column, index) => (
+          <article data-reveal style={`--reveal-delay: ${index * 0.1}s`}>
+            <h3>{column.q}</h3>
+            <ul>
+              {column.points.map((point) => <li>{point}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+      <div class="counseling-ads-note" data-reveal>
+        <p>
+          <strong>Our stance:</strong> If paid search is not the right move yet, we will say so on
+          the first call. Better an honest no than a campaign that wastes budget.
+        </p>
+      </div>
+      <div class="counseling-section-cta" data-reveal>
+        <a class="btn btn--primary" href="#counselor-form">
+          Book a practice growth call
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section counseling-calendar-section">
+    <div class="container">
+      <div class="counseling-calendar-intro" data-reveal>
+        <p class="eyebrow">Practice-wide demand</p>
+        <h2>Keep every clinician’s calendar full, not only yours.</h2>
+        <p>
+          Owner-led practices often market one name while associates sit with open hours. We build
+          demand around the whole roster so growth does not bottleneck on a single book.
+        </p>
+      </div>
+      <ol class="counseling-calendar-list">
+        {calendarPoints.map((point, index) => (
+          <li data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
+            <span>0{index + 1}</span>
+            <div>
+              <h3>{point.title}</h3>
+              <p>{point.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div class="counseling-section-cta" data-reveal>
+        <a class="btn btn--primary" href="#counselor-form">
+          Book a practice growth call
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section counseling-fit-section">
+    <div class="container">
+      <div class="counseling-fit-split" data-reveal>
+        <div class="counseling-fit-split__copy">
+          <p class="eyebrow">Client fit</p>
+          <h2>Attract the clients your clinicians are trained to help.</h2>
+          <p class="lead">
+            A full calendar with the wrong caseload burns out your team. Campaigns should protect
+            clinical fit as carefully as they protect ad spend.
+          </p>
+        </div>
+        <figure class="counseling-fit-split__media">
+          <img
+            src="/images/counseling/fit-session.png"
+            alt="Therapist listening attentively to a client during a counseling session"
+            width="900"
+            height="900"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+      <div class="counseling-fit-grid">
+        {fitClients.map((item, index) => (
+          <article data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
+            <p class="counseling-fit-grid__label">{item.label}</p>
+            <h3>{item.title}</h3>
+            <p>{item.body}</p>
+          </article>
+        ))}
+      </div>
+      <div class="counseling-section-cta" data-reveal>
+        <a class="btn btn--primary" href="#counselor-form">
+          Book a practice growth call
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section fit-section counseling-why-section">
+    <div class="container fit-layout">
+      <div class="fit-statement" data-reveal>
+        <p class="eyebrow">Why MaaxGen</p>
+        <h2>A growth partner who respects clinical work.</h2>
+        <p>
+          You did not open a practice to become a media buyer. We handle the campaigns so your
+          team can stay focused on clients.
+        </p>
+      </div>
+      <ol class="fit-signals">
+        {whyMaaxgen.map((item, index) => (
+          <li data-reveal style={`--reveal-delay: ${index * 0.07}s`}>
+            <span>0{index + 1}</span>
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+    <div class="container counseling-section-cta counseling-section-cta--on-dark" data-reveal>
+      <a class="btn btn--primary" href="#counselor-form">
+        Book a practice growth call
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="section pricing-tiers-section" id="plans">
+    <div class="container">
+      <div class="pricing-intro" data-reveal>
+        <p class="eyebrow">Management fees</p>
+        <h2>Plans sized for solo practices through large groups.</h2>
+        <p>
+          Fees cover campaign management. Ad spend is separate and billed by the platforms.
+          Suggested budgets are starting ranges; we tune spend to capacity and results.
+        </p>
+        <p class="counseling-pricing-hint">Most practices start with Growth.</p>
+      </div>
+      <div class="phase-tier-list">
+        {tiers.map((tier, index) => (
+          <article
+            class:list={["phase-tier", tier.featured && "phase-tier--featured"]}
+            data-reveal
+            style={`--reveal-delay: ${index * 0.08}s`}
+          >
+            <div class="phase-tier__topline">
+              <span>{tier.step}</span>
+              {tier.featured && <strong>Most popular</strong>}
+            </div>
+            <h2>{tier.name}</h2>
+            <p class="phase-tier__price">{tier.price}</p>
+            <p class="phase-tier__offer">{tier.budget}</p>
+            <p class="phase-tier__fit">{tier.fit}</p>
+            <p class="phase-tier__result">{tier.result}</p>
+            <ul>{tier.includes.map((item) => <li>{item}</li>)}</ul>
+            <a
+              class:list={["btn", tier.featured ? "btn--primary" : "btn--secondary"]}
+              href="#counselor-form"
+            >
+              {tier.cta}
+            </a>
+          </article>
+        ))}
+      </div>
+      <div class="phase-included" data-reveal>
+        <div>
+          <span>Across every plan</span>
+          <h3>Clear terms for practices that need predictability.</h3>
+        </div>
+        <ul>{everyTier.map((item) => <li>{item}</li>)}</ul>
+      </div>
+      <div class="counseling-section-cta" data-reveal>
+        <a class="btn btn--primary" href="#counselor-form">
+          Book a practice growth call
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section pricing-faq-section">
+    <div class="container pricing-faq-layout">
+      <div data-reveal>
+        <p class="eyebrow">FAQ</p>
+        <h2>Questions practice owners ask before investing.</h2>
+        <p>Straight answers on fit, spend, timing, and what working together looks like.</p>
+      </div>
+      <div class="faq phase-faq" data-reveal>
+        {faqs.map((faq) => (
+          <details>
+            <summary>{faq.q}</summary>
+            <div class="faq__body"><p>{faq.a}</p></div>
+          </details>
+        ))}
+      </div>
+    </div>
+    <div class="container counseling-section-cta" data-reveal>
+      <a class="btn btn--primary" href="#counselor-form">
+        Book a practice growth call
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="section counseling-form-section" id="counselor-form">
+    <div class="container counseling-form-layout">
+      <div class="counseling-form-intro" data-reveal>
+        <p class="eyebrow">Book a practice growth call</p>
+        <h2>Tell us about your practice, open capacity, and specialties.</h2>
+        <p>
+          Share a few details and we will recommend the right plan, or an honest no if paid search
+          is not the move yet.
+        </p>
+      </div>
+      <div class="ghl-form counseling-ghl-form" data-reveal>
+        <iframe
+          src="https://brand.maaxgen.com/widget/form/MlZ5hILMDRxuGLCIMF34"
+          style="width:100%;height:100%;border:none;border-radius:15px"
+          id="inline-MlZ5hILMDRxuGLCIMF34"
+          data-layout="{'id':'INLINE'}"
+          data-trigger-type="alwaysShow"
+          data-trigger-value=""
+          data-activation-type="alwaysActivated"
+          data-activation-value=""
+          data-deactivation-type="neverDeactivate"
+          data-deactivation-value=""
+          data-form-name="Counselor Form"
+          data-height="1487"
+          data-layout-iframe-id="inline-MlZ5hILMDRxuGLCIMF34"
+          data-form-id="MlZ5hILMDRxuGLCIMF34"
+          title="Counselor Form"
+        >
+        </iframe>
+      </div>
+      <p class="form-legal">
+        By submitting this form you agree to our <a href="/privacy">Privacy Policy</a> and
+        <a href="/terms">Terms &amp; Conditions</a>. Mobile information and SMS consent are never
+        shared or sold to third parties for marketing.
+      </p>
+    </div>
+  </section>
+
+  <script is:inline src="https://brand.maaxgen.com/js/form_embed.js"></script>
+</BaseLayout>

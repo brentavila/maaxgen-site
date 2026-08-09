@@ -7,13 +7,20 @@ import MetaPixelEvents from "../components/analytics/MetaPixelEvents.astro";
 interface Props {
   title?: string;
   description?: string;
+  chrome?: "default" | "landing";
+  ctaHref?: string;
+  ctaLabel?: string;
 }
 
 const {
   title = "MaaxGen",
   description = "Marketing, advertising, and AI for local and e-commerce businesses.",
+  chrome = "default",
+  ctaHref = "/contact",
+  ctaLabel = "Get started",
 } = Astro.props;
 
+const landing = chrome === "landing";
 const pageTitle = title === "MaaxGen" ? title : `${title} | MaaxGen`;
 ---
 <!doctype html>
@@ -36,11 +43,15 @@ const pageTitle = title === "MaaxGen" ? title : `${title} | MaaxGen`;
     <script is:inline>document.documentElement.classList.add("js");</script>
   </head>
   <body>
-    <Header />
+    <Header
+      landing={landing}
+      ctaHref={landing ? ctaHref : "/contact"}
+      ctaLabel={landing ? ctaLabel : "Get started"}
+    />
     <main>
       <slot />
     </main>
-    <Footer />
+    <Footer landing={landing} />
     <MetaPixelEvents />
     <script>
       const targets = document.querySelectorAll("[data-reveal]");

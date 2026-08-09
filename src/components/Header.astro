@@ -1,4 +1,16 @@
 ---
+interface Props {
+  landing?: boolean;
+  ctaHref?: string;
+  ctaLabel?: string;
+}
+
+const {
+  landing = false,
+  ctaHref = "/contact",
+  ctaLabel = "Get started",
+} = Astro.props;
+
 const nav = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
@@ -15,17 +27,19 @@ function isActive(href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 ---
-<aside class="promo-bar" aria-label="Current promotion">
-  <div class="container promo-bar__inner">
-    <p>
-      <strong>Performance Engine offer:</strong>
-      Five new client openings at <span>$1,700/month</span>
-      <s>$2,400/month</s>
-    </p>
-    <a href="/contact?offer=performance-engine">Claim a spot</a>
-  </div>
-</aside>
-<header class="site-header">
+{!landing && (
+  <aside class="promo-bar" aria-label="Current promotion">
+    <div class="container promo-bar__inner">
+      <p>
+        <strong>Performance Engine offer:</strong>
+        Five new client openings at <span>$1,700/month</span>
+        <s>$2,400/month</s>
+      </p>
+      <a href="/contact?offer=performance-engine">Claim a spot</a>
+    </div>
+  </aside>
+)}
+<header class:list={["site-header", landing && "site-header--landing"]}>
   <div class="container site-header__inner">
     <a href="/" class="logo" aria-label="MaaxGen home">
       <img
@@ -39,21 +53,23 @@ function isActive(href: string) {
         <span class="logo__maax">MAAX</span><span class="logo__gen">GEN</span>
       </span>
     </a>
-    <nav aria-label="Main">
-      <ul class="nav">
-        {nav.map((item) => (
-          <li>
-            <a
-              href={item.href}
-              aria-current={isActive(item.href) ? "page" : undefined}
-            >
-              {item.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-    <a class="btn btn--primary site-header__cta" href="/contact">Get started</a>
+    {!landing && (
+      <nav aria-label="Main">
+        <ul class="nav">
+          {nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isActive(item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+    <a class="btn btn--primary site-header__cta" href={ctaHref}>{ctaLabel}</a>
   </div>
 </header>
 <script is:inline>
