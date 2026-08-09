@@ -74,6 +74,8 @@ const whyMaaxgen = [
   },
 ];
 
+const integrations = ["Psychology Today", "SimplePractice", "GoHighLevel"];
+
 const tiers = [
   {
     step: "Starter",
@@ -196,32 +198,30 @@ const faqs = [
           <a class="btn btn--secondary" href="#plans">See management plans</a>
         </div>
       </div>
-      <div class="counseling-hero-panel" aria-label="Who this page is for">
-        <p class="counseling-hero-panel__label">Built for</p>
-        <div class="counseling-hero-panel__row">
-          <span>01</span>
-          <div>
-            <strong>Solo &amp; small practices</strong>
-            <small>Fill open hours without becoming a full-time marketer</small>
-          </div>
-        </div>
-        <div class="counseling-hero-panel__row counseling-hero-panel__row--active">
-          <span>02</span>
-          <div>
-            <strong>Growing group practices</strong>
-            <small>Demand that supports every clinician on the roster</small>
-          </div>
-        </div>
-        <div class="counseling-hero-panel__row">
-          <span>03</span>
-          <div>
-            <strong>Larger clinics (15+ therapists)</strong>
-            <small>Concierge support for multi-campaign scale</small>
-          </div>
-        </div>
-      </div>
+      <figure class="counseling-hero-media">
+        <img
+          src="/images/counseling/hero-practice-team.png"
+          alt="Diverse team of counseling clinicians standing together in a modern practice hallway"
+          width="900"
+          height="900"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <figcaption>Solo practices through multi-clinician groups</figcaption>
+      </figure>
     </div>
   </section>
+
+  <div class="counseling-trust-bar" aria-label="Platforms and tools we integrate with">
+    <div class="container counseling-trust-bar__inner">
+      <p>Works with the tools practices already use</p>
+      <ul>
+        {integrations.map((name) => (
+          <li>{name}</li>
+        ))}
+      </ul>
+    </div>
+  </div>
 
   <div class="growth-chain" aria-label="Counseling practice growth path">
     <div class="container growth-chain__inner">
@@ -231,52 +231,6 @@ const faqs = [
       <span>Booked consults</span>
     </div>
   </div>
-
-  <section class="section counseling-calendar-section">
-    <div class="container">
-      <div class="counseling-calendar-intro" data-reveal>
-        <p class="eyebrow">Practice-wide demand</p>
-        <h2>Keep every clinician’s calendar full, not only yours.</h2>
-        <p>
-          Owner-led practices often market one name while associates sit with open hours. We build
-          demand around the whole roster so growth does not bottleneck on a single book.
-        </p>
-      </div>
-      <ol class="counseling-calendar-list">
-        {calendarPoints.map((point, index) => (
-          <li data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
-            <span>0{index + 1}</span>
-            <div>
-              <h3>{point.title}</h3>
-              <p>{point.body}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </div>
-  </section>
-
-  <section class="section counseling-fit-section">
-    <div class="container">
-      <div class="section-heading section-heading--wide" data-reveal>
-        <p class="eyebrow">Client fit</p>
-        <h2>Attract the clients your clinicians are trained to help.</h2>
-        <p class="lead">
-          A full calendar with the wrong caseload burns out your team. Campaigns should protect
-          clinical fit as carefully as they protect ad spend.
-        </p>
-      </div>
-      <div class="counseling-fit-grid">
-        {fitClients.map((item, index) => (
-          <article data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
-            <p class="counseling-fit-grid__label">{item.label}</p>
-            <h3>{item.title}</h3>
-            <p>{item.body}</p>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
 
   <section class="section counseling-ads-section">
     <div class="container">
@@ -306,6 +260,81 @@ const faqs = [
           the first call. Better an honest no than a campaign that wastes budget.
         </p>
       </div>
+      <div class="counseling-section-cta" data-reveal>
+        <a class="btn btn--primary" href="/contact?offer=counseling">
+          Book a practice growth call
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section counseling-calendar-section">
+    <div class="container">
+      <div class="counseling-calendar-intro" data-reveal>
+        <p class="eyebrow">Practice-wide demand</p>
+        <h2>Keep every clinician’s calendar full, not only yours.</h2>
+        <p>
+          Owner-led practices often market one name while associates sit with open hours. We build
+          demand around the whole roster so growth does not bottleneck on a single book.
+        </p>
+      </div>
+      <ol class="counseling-calendar-list">
+        {calendarPoints.map((point, index) => (
+          <li data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
+            <span>0{index + 1}</span>
+            <div>
+              <h3>{point.title}</h3>
+              <p>{point.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div class="counseling-section-cta" data-reveal>
+        <a class="btn btn--primary" href="/contact?offer=counseling">
+          Book a practice growth call
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section counseling-fit-section">
+    <div class="container">
+      <div class="counseling-fit-split" data-reveal>
+        <div class="counseling-fit-split__copy">
+          <p class="eyebrow">Client fit</p>
+          <h2>Attract the clients your clinicians are trained to help.</h2>
+          <p class="lead">
+            A full calendar with the wrong caseload burns out your team. Campaigns should protect
+            clinical fit as carefully as they protect ad spend.
+          </p>
+        </div>
+        <figure class="counseling-fit-split__media">
+          <img
+            src="/images/counseling/fit-session.png"
+            alt="Therapist listening attentively to a client during a counseling session"
+            width="900"
+            height="900"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+      <div class="counseling-fit-grid">
+        {fitClients.map((item, index) => (
+          <article data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
+            <p class="counseling-fit-grid__label">{item.label}</p>
+            <h3>{item.title}</h3>
+            <p>{item.body}</p>
+          </article>
+        ))}
+      </div>
+      <div class="counseling-section-cta" data-reveal>
+        <a class="btn btn--primary" href="/contact?offer=counseling">
+          Book a practice growth call
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
     </div>
   </section>
 
@@ -318,7 +347,6 @@ const faqs = [
           You did not open a practice to become a media buyer. We handle the campaigns so your
           team can stay focused on clients.
         </p>
-        <a href="/contact?offer=counseling">Book a strategy call <span aria-hidden="true">→</span></a>
       </div>
       <ol class="fit-signals">
         {whyMaaxgen.map((item, index) => (
@@ -332,6 +360,12 @@ const faqs = [
         ))}
       </ol>
     </div>
+    <div class="container counseling-section-cta counseling-section-cta--on-dark" data-reveal>
+      <a class="btn btn--primary" href="/contact?offer=counseling">
+        Book a practice growth call
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
   </section>
 
   <section class="section pricing-tiers-section" id="plans">
@@ -343,6 +377,7 @@ const faqs = [
           Fees cover campaign management. Ad spend is separate and billed by the platforms.
           Suggested budgets are starting ranges; we tune spend to capacity and results.
         </p>
+        <p class="counseling-pricing-hint">Most practices start with Growth.</p>
       </div>
       <div class="phase-tier-list">
         {tiers.map((tier, index) => (
@@ -377,6 +412,12 @@ const faqs = [
         </div>
         <ul>{everyTier.map((item) => <li>{item}</li>)}</ul>
       </div>
+      <div class="counseling-section-cta" data-reveal>
+        <a class="btn btn--primary" href="/contact?offer=counseling">
+          Book a practice growth call
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
     </div>
   </section>
 
@@ -395,6 +436,12 @@ const faqs = [
           </details>
         ))}
       </div>
+    </div>
+    <div class="container counseling-section-cta" data-reveal>
+      <a class="btn btn--primary" href="/contact?offer=counseling">
+        Book a practice growth call
+        <span aria-hidden="true">→</span>
+      </a>
     </div>
   </section>
 
