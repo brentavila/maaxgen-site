@@ -8,6 +8,9 @@ export default defineConfig({
   devToolbar: {
     enabled: false,
   },
+  redirects: {
+    "/service": "/services",
+  },
   vite: {
     optimizeDeps: {
       noDiscovery: true,
