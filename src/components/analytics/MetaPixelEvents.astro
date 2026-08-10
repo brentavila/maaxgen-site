@@ -5,31 +5,53 @@ const viewContentPagesJson = JSON.stringify(META_VIEW_CONTENT_PAGES);
 ---
 
 <script is:inline define:vars={{ viewContentPagesJson }}>
-  const viewContentPages = JSON.parse(viewContentPagesJson);
+  (function () {
+    var viewContentPages = JSON.parse(viewContentPagesJson);
+    var viewContentSent = false;
+    var clickBound = false;
 
-  function trackMetaEvent(eventName, params) {
-    if (typeof window.fbq !== "function") return;
-    window.fbq("track", eventName, params);
-  }
+    function trackMetaEvent(eventName, params) {
+      if (typeof window.fbq !== "function") return;
+      window.fbq("track", eventName, params);
+    }
 
-  const pageLabel = viewContentPages[window.location.pathname];
-  if (pageLabel) {
-    trackMetaEvent("ViewContent", {
-      content_name: pageLabel,
-      content_category: "page",
+    function sendViewContent() {
+      if (viewContentSent) return;
+      var pageLabel = viewContentPages[window.location.pathname];
+      if (!pageLabel) return;
+      trackMetaEvent("ViewContent", {
+        content_name: pageLabel,
+        content_category: "page",
+      });
+      viewContentSent = true;
+    }
+
+    function bindContactClicks() {
+      if (clickBound) return;
+      clickBound = true;
+      document.addEventListener("click", function (event) {
+        var link = event.target.closest('a[href^="/contact"]');
+        if (!link) return;
+
+        var href = link.getAttribute("href") || "/contact";
+        var params = new URL(href, window.location.origin).searchParams;
+
+        trackMetaEvent("Contact", {
+          content_name: (link.textContent || "Contact CTA").trim().slice(0, 100),
+          content_category: params.get("offer") || params.get("tier") || "general",
+        });
+      });
+    }
+
+    function onAdvertisingConsent() {
+      sendViewContent();
+      bindContactClicks();
+    }
+
+    if (typeof window.fbq === "function") onAdvertisingConsent();
+
+    window.addEventListener("maaxgen:consent", function (event) {
+      if (event.detail && event.detail.advertising) onAdvertisingConsent();
     });
-  }
-
-  document.addEventListener("click", (event) => {
-    const link = event.target.closest('a[href^="/contact"]');
-    if (!link) return;
-
-    const href = link.getAttribute("href") || "/contact";
-    const params = new URL(href, window.location.origin).searchParams;
-
-    trackMetaEvent("Contact", {
-      content_name: (link.textContent || "Contact CTA").trim().slice(0, 100),
-      content_category: params.get("offer") || params.get("tier") || "general",
-    });
-  });
+  })();
 </script>

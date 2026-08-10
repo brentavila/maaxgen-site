@@ -1,0 +1,132 @@
+---
+import {
+  CONSENT_STORAGE_KEY,
+  GTM_CONTAINER_ID,
+  META_PIXEL_ID,
+} from "../../lib/analytics/consent";
+---
+
+<script
+  is:inline
+  define:vars={{ CONSENT_STORAGE_KEY, GTM_CONTAINER_ID, META_PIXEL_ID }}
+>
+  (function () {
+    var STORAGE_KEY = CONSENT_STORAGE_KEY;
+    var state = {
+      gtmLoaded: false,
+      metaLoaded: false,
+    };
+
+    function readConsent() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        var parsed = JSON.parse(raw);
+        if (!parsed || parsed.version !== 1) return null;
+        return {
+          version: 1,
+          analytics: !!parsed.analytics,
+          advertising: !!parsed.advertising,
+          updatedAt: parsed.updatedAt || "",
+        };
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function writeConsent(prefs) {
+      var next = {
+        version: 1,
+        analytics: !!prefs.analytics,
+        advertising: !!prefs.advertising,
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    }
+
+    function loadGtm() {
+      if (state.gtmLoaded) return;
+      state.gtmLoaded = true;
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        "gtm.start": new Date().getTime(),
+        event: "gtm.js",
+      });
+      var first = document.getElementsByTagName("script")[0];
+      var script = document.createElement("script");
+      script.async = true;
+      script.src =
+        "https://www.googletagmanager.com/gtm.js?id=" + GTM_CONTAINER_ID;
+      first.parentNode.insertBefore(script, first);
+    }
+
+    function loadMetaPixel() {
+      if (state.metaLoaded) return;
+      state.metaLoaded = true;
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod
+            ? n.callMethod.apply(n, arguments)
+            : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = "2.0";
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = !0;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(
+        window,
+        document,
+        "script",
+        "https://connect.facebook.net/en_US/fbevents.js"
+      );
+      window.fbq("init", META_PIXEL_ID);
+      window.fbq("track", "PageView");
+    }
+
+    function applyConsent(prefs) {
+      if (prefs.analytics) loadGtm();
+      if (prefs.advertising) loadMetaPixel();
+      window.dispatchEvent(
+        new CustomEvent("maaxgen:consent", {
+          detail: prefs,
+        })
+      );
+    }
+
+    function saveAndApply(prefs) {
+      var saved = writeConsent(prefs);
+      applyConsent(saved);
+      return saved;
+    }
+
+    window.MaaxConsent = {
+      get: readConsent,
+      hasChoice: function () {
+        return !!readConsent();
+      },
+      acceptAll: function () {
+        return saveAndApply({ analytics: true, advertising: true });
+      },
+      rejectAll: function () {
+        return saveAndApply({ analytics: false, advertising: false });
+      },
+      save: function (prefs) {
+        return saveAndApply(prefs);
+      },
+      openPreferences: function () {
+        window.dispatchEvent(new CustomEvent("maaxgen:consent-open"));
+      },
+    };
+
+    var existing = readConsent();
+    if (existing) applyConsent(existing);
+  })();
+</script>

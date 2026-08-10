@@ -1,0 +1,275 @@
+---
+/**
+ * Cookie / tracking consent banner (US-first, opt-in for analytics + ads).
+ * Essential site function does not require consent.
+ */
+---
+
+<div
+  id="consent-banner"
+  class="consent-banner"
+  hidden
+  role="dialog"
+  aria-modal="false"
+  aria-labelledby="consent-banner-title"
+  aria-describedby="consent-banner-desc"
+>
+  <div class="consent-banner__panel">
+    <div class="consent-banner__copy">
+      <p class="consent-banner__eyebrow">Your privacy</p>
+      <h2 id="consent-banner-title">Choose how we use cookies</h2>
+      <p id="consent-banner-desc">
+        We use analytics and advertising cookies to understand site performance and measure ads.
+        Essential cookies keep the site working. Read our
+        <a href="/privacy">Privacy Policy</a>
+        or manage preferences below.
+      </p>
+    </div>
+
+    <div class="consent-banner__actions" data-consent-actions>
+      <button type="button" class="btn btn--primary" data-consent-accept>
+        Accept all
+      </button>
+      <button type="button" class="btn btn--secondary" data-consent-preferences>
+        Your preferences
+      </button>
+      <button type="button" class="btn btn--secondary" data-consent-reject>
+        Reject all
+      </button>
+    </div>
+
+    <form class="consent-banner__prefs" data-consent-prefs hidden>
+      <fieldset>
+        <legend>Cookie preferences</legend>
+        <label class="consent-banner__option consent-banner__option--locked">
+          <input type="checkbox" checked disabled />
+          <span>
+            <strong>Essential</strong>
+            Required for security and basic site function. Always on.
+          </span>
+        </label>
+        <label class="consent-banner__option">
+          <input type="checkbox" name="analytics" data-consent-analytics />
+          <span>
+            <strong>Analytics</strong>
+            Google Tag Manager and Google Analytics 4 help us understand page performance.
+          </span>
+        </label>
+        <label class="consent-banner__option">
+          <input type="checkbox" name="advertising" data-consent-advertising />
+          <span>
+            <strong>Advertising</strong>
+            Meta Pixel helps measure and improve advertising effectiveness.
+          </span>
+        </label>
+      </fieldset>
+      <div class="consent-banner__prefs-actions">
+        <button type="submit" class="btn btn--primary">Save preferences</button>
+        <button type="button" class="btn btn--secondary" data-consent-back>
+          Back
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById("consent-banner");
+    if (!root || !window.MaaxConsent) return;
+
+    var actions = root.querySelector("[data-consent-actions]");
+    var prefs = root.querySelector("[data-consent-prefs]");
+    var analyticsInput = root.querySelector("[data-consent-analytics]");
+    var advertisingInput = root.querySelector("[data-consent-advertising]");
+
+    function showBanner() {
+      root.hidden = false;
+      document.documentElement.classList.add("consent-banner-open");
+    }
+
+    function hideBanner() {
+      root.hidden = true;
+      document.documentElement.classList.remove("consent-banner-open");
+      showActions();
+    }
+
+    function showActions() {
+      if (actions) actions.hidden = false;
+      if (prefs) prefs.hidden = true;
+    }
+
+    function showPrefs() {
+      var current = window.MaaxConsent.get() || {
+        analytics: false,
+        advertising: false,
+      };
+      if (analyticsInput) analyticsInput.checked = !!current.analytics;
+      if (advertisingInput) advertisingInput.checked = !!current.advertising;
+      if (actions) actions.hidden = true;
+      if (prefs) prefs.hidden = false;
+    }
+
+    if (!window.MaaxConsent.hasChoice()) showBanner();
+
+    root.querySelector("[data-consent-accept]")?.addEventListener("click", function () {
+      window.MaaxConsent.acceptAll();
+      hideBanner();
+    });
+
+    root.querySelector("[data-consent-reject]")?.addEventListener("click", function () {
+      window.MaaxConsent.rejectAll();
+      hideBanner();
+    });
+
+    root.querySelector("[data-consent-preferences]")?.addEventListener("click", function () {
+      showPrefs();
+    });
+
+    root.querySelector("[data-consent-back]")?.addEventListener("click", function () {
+      showActions();
+    });
+
+    prefs?.addEventListener("submit", function (event) {
+      event.preventDefault();
+      window.MaaxConsent.save({
+        analytics: !!(analyticsInput && analyticsInput.checked),
+        advertising: !!(advertisingInput && advertisingInput.checked),
+      });
+      hideBanner();
+    });
+
+    window.addEventListener("maaxgen:consent-open", function () {
+      showBanner();
+      showPrefs();
+    });
+  })();
+</script>
+
+<style is:global>
+  .consent-banner {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 80;
+    padding: 1rem;
+    pointer-events: none;
+  }
+
+  .consent-banner__panel {
+    pointer-events: auto;
+    max-width: 40rem;
+    margin-inline: auto;
+    padding: 1.25rem 1.35rem 1.35rem;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background: oklch(0.995 0.005 245);
+    box-shadow: 0 -0.5rem 2rem oklch(0.3 0.03 250 / 0.12);
+  }
+
+  .consent-banner__eyebrow {
+    margin: 0 0 0.35rem;
+    color: var(--color-brand);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .consent-banner__copy h2 {
+    margin: 0 0 0.5rem;
+    color: var(--color-slate);
+    font-size: clamp(1.15rem, 2.5vw, 1.35rem);
+  }
+
+  .consent-banner__copy p {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
+  .consent-banner__copy a {
+    color: var(--color-brand);
+    font-weight: 600;
+  }
+
+  .consent-banner__actions {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 1.1rem;
+  }
+
+  .consent-banner__actions .btn,
+  .consent-banner__prefs-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .consent-banner__prefs {
+    margin-top: 1rem;
+  }
+
+  .consent-banner__prefs fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .consent-banner__prefs legend {
+    margin-bottom: 0.75rem;
+    font-weight: 800;
+    color: var(--color-slate);
+  }
+
+  .consent-banner__option {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    align-items: start;
+    margin: 0 0 0.75rem;
+    padding: 0.85rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+    cursor: pointer;
+  }
+
+  .consent-banner__option--locked {
+    cursor: default;
+    opacity: 0.9;
+  }
+
+  .consent-banner__option input {
+    margin-top: 0.2rem;
+  }
+
+  .consent-banner__option strong {
+    display: block;
+    margin-bottom: 0.15rem;
+    color: var(--color-slate);
+  }
+
+  .consent-banner__option span {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .consent-banner__prefs-actions {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+  }
+
+  @media (min-width: 40rem) {
+    .consent-banner {
+      inset: auto 1.25rem 1.25rem auto;
+      padding: 0;
+      width: min(24rem, calc(100vw - 2.5rem));
+    }
+
+    .consent-banner__panel {
+      margin: 0;
+    }
+  }
+</style>
