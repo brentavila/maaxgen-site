@@ -1,0 +1,177 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const nextSteps = [
+  {
+    index: "01",
+    title: "We review your context",
+    detail: "Business goals, current channels, and what you want off your plate.",
+  },
+  {
+    index: "02",
+    title: "We find the first leverage point",
+    detail: "No generic audit deck or prewritten pitch.",
+  },
+  {
+    index: "03",
+    title: "You get a clear next step",
+    detail: "A fit recommendation, useful direction, or an honest no.",
+  },
+];
+---
+
+<BaseLayout
+  title="Thank you"
+  description="Your message reached MaaxGen. We will review your context and follow up with a useful next step."
+>
+  <section class="thank-you">
+    <div class="container thank-you__inner" data-reveal>
+      <div class="thank-you__mark" aria-hidden="true">✓</div>
+      <p class="hero-kicker">Message received</p>
+      <h1>Thank you — we have your message.</h1>
+      <p class="lead">
+        We will review the context and follow up within one business day with a useful next step or
+        booking link.
+      </p>
+    </div>
+  </section>
+
+  <section class="thank-you-next">
+    <div class="container thank-you-next__grid">
+      <div class="thank-you-next__intro" data-reveal>
+        <p class="eyebrow">What happens next</p>
+        <h2>A focused reply, not a generic sales sequence</h2>
+      </div>
+      <ol class="thank-you-next__list">
+        {
+          nextSteps.map((step, index) => (
+            <li data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
+              <span>{step.index}</span>
+              <div>
+                <strong>{step.title}</strong>
+                <small>{step.detail}</small>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <script is:inline>
+    if (typeof window.fbq === "function") {
+      window.fbq("track", "Lead", {
+        content_name: "Thank You Page",
+        content_category: "form_redirect",
+        value: 1,
+        currency: "USD",
+      });
+    }
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "generate_lead",
+      form_name: "contact",
+      page_path: window.location.pathname,
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  .thank-you {
+    padding-block: clamp(4rem, 12vw, 7rem) clamp(3rem, 8vw, 5rem);
+    background: linear-gradient(
+      180deg,
+      oklch(0.98 0.01 245) 0%,
+      var(--color-bg) 100%
+    );
+  }
+
+  .thank-you__inner {
+    max-width: 42rem;
+    text-align: center;
+  }
+
+  .thank-you__mark {
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    background: oklch(0.91 0.08 150);
+    color: oklch(0.4 0.12 150);
+    font-size: 1.75rem;
+    font-weight: 800;
+  }
+
+  .thank-you h1 {
+    margin: 0 0 1rem;
+    color: var(--color-slate);
+  }
+
+  .thank-you .lead {
+    margin: 0 auto;
+    max-width: 34rem;
+    color: var(--color-muted);
+  }
+
+  .thank-you-next {
+    padding-block: var(--space-section);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .thank-you-next__grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .thank-you-next__intro h2 {
+    margin: 0.75rem 0 0;
+    max-width: 22rem;
+    color: var(--color-slate);
+  }
+
+  .thank-you-next__list {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .thank-you-next__list li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background: var(--color-surface);
+  }
+
+  .thank-you-next__list span {
+    font-weight: 800;
+    color: var(--color-brand);
+  }
+
+  .thank-you-next__list strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--color-slate);
+  }
+
+  .thank-you-next__list small {
+    color: var(--color-muted);
+    line-height: 1.5;
+  }
+
+  @media (min-width: 48rem) {
+    .thank-you-next__grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      align-items: start;
+      gap: 3rem;
+    }
+  }
+</style>
