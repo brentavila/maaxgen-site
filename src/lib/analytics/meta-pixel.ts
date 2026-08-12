@@ -5,6 +5,7 @@ export const META_VIEW_CONTENT_PAGES: Record<string, string> = {
   "/services": "Services",
   "/case-studies": "Case Studies",
   "/about": "About",
+  "/counseling": "Counseling",
 };
 
 declare global {
