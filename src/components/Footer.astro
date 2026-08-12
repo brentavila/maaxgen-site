@@ -10,9 +10,19 @@ const year = new Date().getFullYear();
   <div class="container">
     {landing ? (
       <div class="site-footer__landing">
-        <p class="logo">
-          <span class="logo__maax">MAAX</span><span class="logo__gen">GEN</span>
-        </p>
+        <a href="/" class="logo" aria-label="MaaxGen home">
+          <img
+            src="/brand/Maaxgen Vector Logo with Icon.svg"
+            alt="MaaxGen"
+            width="400"
+            height="246"
+            class="logo__img"
+            loading="lazy"
+          />
+          <span class="logo__fallback" hidden>
+            <span class="logo__maax">MAAX</span><span class="logo__gen">GEN</span>
+          </span>
+        </a>
         <ul>
           <li><a href="/privacy">Privacy</a></li>
           <li><a href="/terms">Terms</a></li>
@@ -28,9 +38,19 @@ const year = new Date().getFullYear();
       <>
         <div class="site-footer__grid">
           <div>
-            <p class="logo">
-              <span class="logo__maax">MAAX</span><span class="logo__gen">GEN</span>
-            </p>
+            <a href="/" class="logo" aria-label="MaaxGen home">
+              <img
+                src="/brand/Maaxgen Vector Logo with Icon.svg"
+                alt="MaaxGen"
+                width="400"
+                height="246"
+                class="logo__img"
+                loading="lazy"
+              />
+              <span class="logo__fallback" hidden>
+                <span class="logo__maax">MAAX</span><span class="logo__gen">GEN</span>
+              </span>
+            </a>
             <p class="site-footer__tagline">
               Marketing, advertising, and AI for local and e-commerce businesses - one bundled partner for growth.
             </p>

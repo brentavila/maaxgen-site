@@ -45,11 +45,11 @@ function isActive(href: string) {
       <img
         src="/brand/Maaxgen Vector Logo with Icon.svg"
         alt="MaaxGen"
-        width="160"
-        height="36"
-        id="logo-img"
+        width="400"
+        height="246"
+        class="logo__img"
       />
-      <span id="logo-fallback" hidden>
+      <span class="logo__fallback" hidden>
         <span class="logo__maax">MAAX</span><span class="logo__gen">GEN</span>
       </span>
     </a>
@@ -74,16 +74,17 @@ function isActive(href: string) {
 </header>
 <script is:inline>
   (function () {
-    var img = document.getElementById("logo-img");
-    var fallback = document.getElementById("logo-fallback");
-    if (!img || !fallback) return;
-    function showFallback() {
-      img.hidden = true;
-      fallback.hidden = false;
-    }
-    img.addEventListener("error", showFallback);
-    if (!img.complete || img.naturalWidth === 0) {
-      if (img.complete) showFallback();
-    }
+    document.querySelectorAll(".logo__img").forEach(function (img) {
+      var fallback = img.nextElementSibling;
+      if (!fallback || !fallback.classList.contains("logo__fallback")) return;
+      function showFallback() {
+        img.hidden = true;
+        fallback.hidden = false;
+      }
+      img.addEventListener("error", showFallback);
+      if (!img.complete || img.naturalWidth === 0) {
+        if (img.complete) showFallback();
+      }
+    });
   })();
 </script>
