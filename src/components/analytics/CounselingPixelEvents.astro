@@ -1,0 +1,88 @@
+---
+/** Counseling landing page Meta Pixel events (CTA clicks + GHL form leads). */
+---
+
+<script is:inline>
+  (function () {
+    var leadSent = false;
+    var clickBound = false;
+
+    function hasAdvertisingConsent() {
+      return window.MaaxConsent && window.MaaxConsent.get() && window.MaaxConsent.get().advertising;
+    }
+
+    function hasAnalyticsConsent() {
+      return window.MaaxConsent && window.MaaxConsent.get() && window.MaaxConsent.get().analytics;
+    }
+
+    function trackMetaEvent(eventName, params) {
+      if (!hasAdvertisingConsent() || typeof window.fbq !== "function") return;
+      window.fbq("track", eventName, params);
+    }
+
+    function pushAnalyticsEvent(eventName, params) {
+      if (!hasAnalyticsConsent()) return;
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push(Object.assign({ event: eventName }, params || {}));
+    }
+
+    function bindCounselingClicks() {
+      if (clickBound) return;
+      clickBound = true;
+      document.addEventListener("click", function (event) {
+        var link = event.target.closest('a[href="#counselor-form"]');
+        if (!link) return;
+        trackMetaEvent("Contact", {
+          content_name: (link.textContent || "Counseling CTA").trim().slice(0, 100),
+          content_category: "counseling",
+        });
+      });
+    }
+
+    function fireLead() {
+      if (leadSent) return;
+      leadSent = true;
+      trackMetaEvent("Lead", {
+        content_name: "Counselor Form",
+        content_category: "counseling",
+        value: 1,
+        currency: "USD",
+      });
+      pushAnalyticsEvent("ghl_form_submit", {
+        form_name: "Counselor Form",
+        form_id: "MlZ5hILMDRxuGLCIMF34",
+        page_path: window.location.pathname,
+      });
+    }
+
+    function isAllowedOrigin(origin) {
+      return /maaxgen\.com|leadconnectorhq\.com|msgsndr\.com|gohighlevel\.com/i.test(origin);
+    }
+
+    function isGhlFormSubmit(data) {
+      if (!Array.isArray(data)) return false;
+      if (data[0] === "submit-success" || data[0] === "msgsndr-form-submit") return true;
+      var payload = data[2];
+      if (typeof payload === "string") {
+        return payload.indexOf("email") !== -1 && payload.indexOf("full_name") !== -1;
+      }
+      return false;
+    }
+
+    window.addEventListener("message", function (event) {
+      if (!isAllowedOrigin(event.origin)) return;
+      if (!isGhlFormSubmit(event.data)) return;
+      fireLead();
+    });
+
+    function onConsentReady() {
+      bindCounselingClicks();
+    }
+
+    if (hasAdvertisingConsent()) onConsentReady();
+
+    window.addEventListener("maaxgen:consent", function (event) {
+      if (event.detail && event.detail.advertising) onConsentReady();
+    });
+  })();
+</script>

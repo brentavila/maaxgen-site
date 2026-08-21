@@ -1,0 +1,171 @@
+---
+import { CALENDAR_CONFIG, resolveCalendarEmbedUrl } from "../../funnel/config";
+import type { CalendarProvider } from "../../funnel/types";
+
+interface Props {
+  provider?: CalendarProvider;
+  embedUrl?: string;
+  title?: string;
+  segment?: "HIGHLY_QUALIFIED" | "POTENTIALLY_QUALIFIED";
+}
+
+const provider = Astro.props.provider ?? CALENDAR_CONFIG.provider;
+const embedUrl = (Astro.props.embedUrl ?? resolveCalendarEmbedUrl()).trim();
+const title = Astro.props.title ?? CALENDAR_CONFIG.title;
+const segment = Astro.props.segment ?? "HIGHLY_QUALIFIED";
+---
+
+<div
+  class="funnel-calendar"
+  data-funnel-calendar
+  data-provider={provider}
+  data-segment={segment}
+  data-has-embed={embedUrl ? "true" : "false"}
+>
+  {embedUrl ? (
+    <div class="funnel-calendar__frame">
+      <iframe
+        data-calendar-iframe
+        src={embedUrl}
+        title={title}
+        loading="lazy"
+        allow="payment *"
+      />
+    </div>
+  ) : (
+    <div class="funnel-calendar__placeholder" role="region" aria-label="Calendar placeholder">
+      <p class="funnel-calendar__placeholder-label">Scheduling</p>
+      <p>
+        Connect your calendar by setting <code>PUBLIC_VSL_CALENDAR_EMBED_URL</code>
+        (GoHighLevel, Calendly, or any embeddable scheduling URL).
+      </p>
+      <p class="funnel-calendar__hint">
+        Prospect details from the questionnaire are preserved in this session and can be passed
+        into the booking provider once the embed URL supports prefill.
+      </p>
+      <button type="button" class="btn btn--secondary" data-calendar-simulate-booked>
+        Mark appointment booked (dev)
+      </button>
+    </div>
+  )}
+</div>
+
+<script>
+  import { readFunnelState } from "../../funnel/state";
+  import { trackFunnelEvent } from "../../funnel/track";
+
+  function withPrefill(url: string): string {
+    if (!url) return url;
+    try {
+      const state = readFunnelState();
+      const parsed = new URL(url, window.location.origin);
+      const { contact } = state;
+      if (contact.firstName) parsed.searchParams.set("first_name", contact.firstName);
+      if (contact.lastName) parsed.searchParams.set("last_name", contact.lastName);
+      if (contact.email) parsed.searchParams.set("email", contact.email);
+      if (contact.phone) parsed.searchParams.set("phone", contact.phone);
+      if (contact.businessName) {
+        parsed.searchParams.set("company_name", contact.businessName);
+      }
+      if (state.qualificationStatus) {
+        parsed.searchParams.set("qualification_status", state.qualificationStatus);
+      }
+      // Absolute external URLs: return href; relative stays path+search
+      if (url.startsWith("http")) return parsed.href;
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    } catch {
+      return url;
+    }
+  }
+
+  function isVisible(root: HTMLElement) {
+    return !root.closest("[hidden]");
+  }
+
+  function initCalendar(root: HTMLElement) {
+    if (root.dataset.bound === "true") return;
+    if (!isVisible(root)) return;
+    root.dataset.bound = "true";
+
+    const segment = root.dataset.segment || "HIGHLY_QUALIFIED";
+    trackFunnelEvent(
+      "calendar_viewed",
+      { qualification_status: segment },
+      { onceKey: `calendar_viewed:${segment}` }
+    );
+
+    const iframe = root.querySelector<HTMLIFrameElement>("[data-calendar-iframe]");
+    if (iframe) {
+      const nextSrc = withPrefill(iframe.getAttribute("src") || "");
+      if (nextSrc && nextSrc !== iframe.getAttribute("src")) {
+        iframe.setAttribute("src", nextSrc);
+      }
+      iframe.addEventListener(
+        "pointerdown",
+        () => {
+          trackFunnelEvent(
+            "calendar_booking_started",
+            { qualification_status: segment },
+            { onceKey: `calendar_booking_started:${segment}` }
+          );
+        },
+        { once: true }
+      );
+    }
+
+    root.addEventListener(
+      "pointerdown",
+      () => {
+        trackFunnelEvent(
+          "calendar_booking_started",
+          { qualification_status: segment },
+          { onceKey: `calendar_booking_started:${segment}` }
+        );
+      },
+      { once: true }
+    );
+
+    const simulate = root.querySelector<HTMLButtonElement>("[data-calendar-simulate-booked]");
+    simulate?.addEventListener("click", () => {
+      trackFunnelEvent(
+        "appointment_booked",
+        { qualification_status: segment },
+        {
+          onceKey: `appointment_booked:${segment}`,
+          metaStandard: "Schedule",
+        }
+      );
+      simulate.textContent = "Appointment marked booked";
+      simulate.disabled = true;
+    });
+
+    window.addEventListener("message", (event) => {
+      const origin = event.origin || "";
+      const allowed =
+        /calendly\.com|leadconnectorhq\.com|msgsndr\.com|gohighlevel\.com|maaxgen\.com/i.test(
+          origin
+        );
+      if (!allowed) return;
+
+      const data = event.data;
+      const text = typeof data === "string" ? data : JSON.stringify(data ?? "");
+      if (/calendly\.event_scheduled|booking.?complet|appointment.?book/i.test(text)) {
+        trackFunnelEvent(
+          "appointment_booked",
+          { qualification_status: segment },
+          {
+            onceKey: `appointment_booked:${segment}`,
+            metaStandard: "Schedule",
+          }
+        );
+      }
+    });
+  }
+
+  function tryInitAll() {
+    document.querySelectorAll<HTMLElement>("[data-funnel-calendar]").forEach(initCalendar);
+  }
+
+  // Pages set segment (if needed) then dispatch funnel:calendar-ready.
+  document.addEventListener("funnel:calendar-ready", tryInitAll);
+</script>

@@ -10,6 +10,7 @@ export default defineConfig({
   },
   redirects: {
     "/service": "/services",
+    "/book-call": "/growth-system/book",
   },
   vite: {
     optimizeDeps: {

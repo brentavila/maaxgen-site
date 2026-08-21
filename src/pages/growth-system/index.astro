@@ -1,0 +1,156 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AttributionCapture from "../../components/funnel/AttributionCapture.astro";
+import VslPlayer from "../../components/funnel/VslPlayer.astro";
+import { FUNNEL_ROUTES, getVariant } from "../../funnel/config";
+import { supportingSections, vslScript } from "../../funnel/content/vsl";
+
+const copy = getVariant();
+const qualifyHref = FUNNEL_ROUTES.qualify;
+---
+
+<BaseLayout
+  title="Customer Acquisition System"
+  description="See if MaaxGen can help your service business connect advertising, follow-up, CRM, and revenue tracking into one customer acquisition system."
+  chrome="landing"
+  ctaHref={qualifyHref}
+  ctaLabel={copy.primaryCta}
+>
+  <AttributionCapture />
+
+  <section class="funnel-hero">
+    <div class="container funnel-hero__grid">
+      <div class="funnel-hero__copy">
+        <p class="eyebrow">{copy.eyebrow}</p>
+        <h1>{copy.headline}</h1>
+        <p class="lead funnel-hero__lead">{copy.subheadline}</p>
+        <div class="funnel-hero__cta">
+          <a class="btn btn--primary" href={qualifyHref}>{copy.primaryCta}</a>
+          <p class="funnel-micro">{copy.primaryCtaMicro}</p>
+        </div>
+      </div>
+      <div class="funnel-hero__media">
+        <VslPlayer />
+      </div>
+    </div>
+  </section>
+
+  <section class="section funnel-section" id="system">
+    <div class="container funnel-narrow">
+      <p class="eyebrow">The problem</p>
+      <h2>{vslScript.hook.title}</h2>
+      <p class="lead">{vslScript.hook.body}</p>
+      <h3 class="funnel-subhead">{vslScript.problem.title}</h3>
+      <ul class="funnel-plain-list">
+        {vslScript.problem.points.map((point) => <li>{point}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--surface funnel-section">
+    <div class="container funnel-narrow">
+      <p class="eyebrow">The mechanism</p>
+      <h2>{vslScript.mechanism.title}</h2>
+      <p class="lead">{vslScript.mechanism.intro}</p>
+      <p class="funnel-positioning">{vslScript.mechanism.positioning}</p>
+      <ol class="funnel-flow">
+        {vslScript.mechanism.flow.map((item) => <li>{item}</li>)}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section funnel-section">
+    <div class="container">
+      <div class="funnel-narrow">
+        <p class="eyebrow">Process</p>
+        <h2>{vslScript.process.title}</h2>
+      </div>
+      <ol class="funnel-process">
+        {vslScript.process.steps.map((step) => (
+          <li>
+            <span>{step.number}</span>
+            <div>
+              <h3>{step.title}</h3>
+              <p>{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--surface funnel-section" id="offer">
+    <div class="container funnel-narrow">
+      <p class="eyebrow">{copy.offer.eyebrow}</p>
+      <h2>{copy.offer.title}</h2>
+      <p class="lead">{copy.offer.body}</p>
+    </div>
+  </section>
+
+  <section class="section funnel-section">
+    <div class="container">
+      <div class="funnel-narrow">
+        <p class="eyebrow">{supportingSections.whatWeBuild.eyebrow}</p>
+        <h2>{supportingSections.whatWeBuild.title}</h2>
+      </div>
+      <ol class="funnel-build-flow">
+        {supportingSections.whatWeBuild.flow.map((item) => <li>{item}</li>)}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--surface funnel-section">
+    <div class="container">
+      <div class="funnel-narrow">
+        <p class="eyebrow">{supportingSections.whyAdsAlone.eyebrow}</p>
+        <h2>{supportingSections.whyAdsAlone.title}</h2>
+      </div>
+      <ul class="funnel-objection-list">
+        {supportingSections.whyAdsAlone.points.map((item) => (
+          <li>
+            <h3>{item.title}</h3>
+            <p>{item.body}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section funnel-section">
+    <div class="container funnel-fit-grid">
+      <div>
+        <p class="eyebrow">{supportingSections.whoFor.eyebrow}</p>
+        <h2>{supportingSections.whoFor.title}</h2>
+        <ul class="funnel-plain-list">
+          {supportingSections.whoFor.points.map((point) => <li>{point}</li>)}
+        </ul>
+      </div>
+      <div>
+        <p class="eyebrow">{supportingSections.whoNotFor.eyebrow}</p>
+        <h2>{supportingSections.whoNotFor.title}</h2>
+        <ul class="funnel-plain-list">
+          {supportingSections.whoNotFor.points.map((point) => <li>{point}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface funnel-final-cta">
+    <div class="container funnel-narrow">
+      <h2>{vslScript.ctaTransition.title}</h2>
+      <p class="lead">{vslScript.ctaTransition.body}</p>
+      <a class="btn btn--primary" href={qualifyHref}>{copy.finalCta}</a>
+      <p class="funnel-micro">{copy.primaryCtaMicro}</p>
+    </div>
+  </section>
+
+  <script>
+    import { trackFunnelEvent } from "../../funnel/track";
+
+    trackFunnelEvent("vsl_page_view", { page_path: "/growth-system" });
+
+    window.addEventListener("maaxgen:consent", () => {
+      trackFunnelEvent("vsl_page_view", { page_path: "/growth-system" });
+    });
+  </script>
+</BaseLayout>

@@ -1,0 +1,522 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const spendOptions = [
+  { value: "under-1k", label: "Under $1,000", note: "Early testing or a focused local campaign" },
+  { value: "1k-3k", label: "$1,000–$3,000", note: "Consistent local or focused product spend" },
+  { value: "3k-10k", label: "$3,000–$10,000", note: "Enough volume for active optimization" },
+  { value: "10k-plus", label: "$10,000+", note: "Multiple campaigns, offers, or markets" },
+];
+
+const trackingOptions = [
+  { value: "none", label: "No consistent tracking", note: "We mostly go by calls, sales, or gut feel" },
+  { value: "spreadsheet", label: "Spreadsheet or manual notes", note: "Leads are recorded, but the process takes work" },
+  { value: "crm", label: "CRM or connected reporting", note: "Lead source and outcomes live in one system" },
+];
+
+const managerOptions = [
+  { value: "me", label: "I manage it", note: "Campaign decisions compete with running the business" },
+  { value: "employee", label: "An employee", note: "Someone in-house owns day-to-day changes" },
+  { value: "agency", label: "An agency or freelancer", note: "An outside partner manages the account" },
+  { value: "nobody", label: "Nobody consistently", note: "It gets attention when there is time" },
+];
+
+const frustrationOptions = [
+  { value: "low-leads", label: "Not enough qualified leads or sales" },
+  { value: "high-cost", label: "The cost per lead or sale feels too high" },
+  { value: "no-idea", label: "I cannot tell if the ads are working" },
+  { value: "too-much-time", label: "The account takes too much of my time" },
+];
+---
+
+<BaseLayout
+  title="Free Ad Account Grader"
+  description="Answer five plain-language questions and get a practical grade for your ad account measurement, ownership, and optimization readiness."
+>
+  <section class="grader-page">
+    <div class="container grader-layout">
+      <aside class="grader-intro">
+        <p class="hero-kicker">Free two-minute diagnostic</p>
+        <h1>Are your ads falling short, or just <span>hard to read?</span></h1>
+        <p class="lead">
+          Answer five questions you already know. Get a clear grade, the likely weak point, and the
+          next move worth making.
+        </p>
+        <ul class="grader-trust" aria-label="About this diagnostic">
+          <li><span aria-hidden="true">✓</span> No ad platform login</li>
+          <li><span aria-hidden="true">✓</span> No ROAS math required</li>
+          <li><span aria-hidden="true">✓</span> Results shown immediately</li>
+        </ul>
+        <p class="grader-disclaimer">
+          This grades the operating foundation around your ads. It does not claim to audit campaign
+          data it cannot see.
+        </p>
+      </aside>
+
+      <div class="grader-card" data-ad-grader>
+        <form class="grader-form" data-grader-form novalidate>
+          <header class="grader-progress">
+            <div class="grader-progress__copy">
+              <span data-progress-label>Question 1 of 5</span>
+              <span data-progress-percent>20% complete</span>
+            </div>
+            <div
+              class="grader-progress__track"
+              role="progressbar"
+              aria-label="Ad account grader progress"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="20"
+              data-progress
+            >
+              <span data-progress-bar></span>
+            </div>
+          </header>
+
+          <div class="grader-stage" aria-live="polite">
+            <fieldset class="grader-step is-current" data-step="0">
+              <legend>About how much do you spend on ads each month?</legend>
+              <p id="spend-help">A range is enough. This helps us judge whether the account has enough data to learn.</p>
+              <div class="grader-options grader-options--two" aria-describedby="spend-help">
+                {spendOptions.map((option) => (
+                  <label class="grader-option">
+                    <input type="radio" name="spend" value={option.value} />
+                    <span>
+                      <strong>{option.label}</strong>
+                      <small>{option.note}</small>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="grader-step" data-step="1" hidden>
+              <legend>How are leads or sales tracked today?</legend>
+              <p id="tracking-help">Choose the option that reflects what your team actually uses.</p>
+              <div class="grader-options" aria-describedby="tracking-help">
+                {trackingOptions.map((option) => (
+                  <label class="grader-option">
+                    <input type="radio" name="tracking" value={option.value} />
+                    <span>
+                      <strong>{option.label}</strong>
+                      <small>{option.note}</small>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="grader-step" data-step="2" hidden>
+              <legend>Who owns the ad account week to week?</legend>
+              <p id="manager-help">Ownership matters more than job title.</p>
+              <div class="grader-options grader-options--two" aria-describedby="manager-help">
+                {managerOptions.map((option) => (
+                  <label class="grader-option">
+                    <input type="radio" name="manager" value={option.value} />
+                    <span>
+                      <strong>{option.label}</strong>
+                      <small>{option.note}</small>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="grader-step" data-step="3" hidden>
+              <legend>What is the biggest frustration right now?</legend>
+              <p id="frustration-help">Pick the one you would fix first if you could.</p>
+              <div class="grader-options" aria-describedby="frustration-help">
+                {frustrationOptions.map((option) => (
+                  <label class="grader-option grader-option--compact">
+                    <input type="radio" name="frustration" value={option.value} />
+                    <span><strong>{option.label}</strong></span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="grader-step" data-step="4" hidden>
+              <legend>Which industry is closest to your business?</legend>
+              <p id="industry-help">This changes the benchmark and the first KPI we recommend watching.</p>
+              <label class="grader-select-label" for="grader-industry">Industry</label>
+              <select id="grader-industry" name="industry" aria-describedby="industry-help" required>
+                <option value="">Choose an industry</option>
+                <option value="home-services">Home and local services</option>
+                <option value="professional-services">Professional services</option>
+                <option value="health-wellness">Health and wellness</option>
+                <option value="retail-ecommerce">Retail and e-commerce</option>
+                <option value="hospitality">Hospitality and food service</option>
+                <option value="real-estate">Real estate</option>
+                <option value="other">Another industry</option>
+              </select>
+              <p class="grader-error" role="alert" data-grader-error hidden>Please choose an industry.</p>
+              <button class="btn btn--primary grader-submit" type="submit">
+                Show my grade <span aria-hidden="true">→</span>
+              </button>
+            </fieldset>
+          </div>
+
+          <footer class="grader-actions">
+            <button type="button" class="grader-back" data-grader-back hidden>
+              <span aria-hidden="true">←</span> Back
+            </button>
+            <span data-auto-advance>Choose one answer to continue</span>
+          </footer>
+        </form>
+
+        <section class="grader-results" data-grader-results tabindex="-1" hidden>
+          <div class="grader-results__topline">
+            <p>Your ad account operating grade</p>
+            <button type="button" data-grader-restart>Retake</button>
+          </div>
+
+          <div class="grader-score-row">
+            <div class="grader-grade" aria-label="Account grade">
+              <span data-result-grade>C</span>
+              <small data-result-score>58 / 100</small>
+            </div>
+            <div>
+              <p class="grader-result-kicker" data-result-label>Promising, but hard to read</p>
+              <h2 data-result-title>Your biggest leak is measurement.</h2>
+              <p data-result-summary></p>
+            </div>
+          </div>
+
+          <div class="grader-result-section grader-benchmark">
+            <span>What healthy looks like in <strong data-result-industry>your industry</strong></span>
+            <p data-result-benchmark></p>
+          </div>
+
+          <div class="grader-result-section">
+            <h3>Your three highest-impact moves</h3>
+            <ol class="grader-priorities" data-result-priorities></ol>
+          </div>
+
+          <div class="grader-result-cta">
+            <div>
+              <strong>Want a human read on the result?</strong>
+              <p>We will start with your grade and the answers behind it. No need to brief us twice.</p>
+            </div>
+            <a class="btn btn--primary" href="/contact?source=ad-account-grader" data-result-cta>
+              Review my result <span aria-hidden="true">→</span>
+            </a>
+          </div>
+
+          <p class="grader-method-note">
+            Your score reflects measurement, ownership, budget signal, and optimization readiness.
+            It is a diagnostic starting point, not a guarantee of campaign performance.
+          </p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="grader-aftercare">
+    <div class="container grader-aftercare__inner">
+      <p>Not ready to share an ad account?</p>
+      <div>
+        <h2>That is exactly why the grader starts with the operating system around it.</h2>
+        <a href="/services">See how MaaxGen connects strategy, ads, creative, and follow-up <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const roots = document.querySelectorAll<HTMLElement>("[data-ad-grader]");
+
+  roots.forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>("[data-grader-form]");
+    const panels = Array.from(root.querySelectorAll<HTMLElement>("[data-step]"));
+    const progress = root.querySelector<HTMLElement>("[data-progress]");
+    const progressBar = root.querySelector<HTMLElement>("[data-progress-bar]");
+    const progressLabel = root.querySelector<HTMLElement>("[data-progress-label]");
+    const progressPercent = root.querySelector<HTMLElement>("[data-progress-percent]");
+    const backButton = root.querySelector<HTMLButtonElement>("[data-grader-back]");
+    const helper = root.querySelector<HTMLElement>("[data-auto-advance]");
+    const results = root.querySelector<HTMLElement>("[data-grader-results]");
+    const restartButton = root.querySelector<HTMLButtonElement>("[data-grader-restart]");
+    const error = root.querySelector<HTMLElement>("[data-grader-error]");
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    if (!form || !progress || !progressBar || !progressLabel || !progressPercent || !backButton || !helper || !results) return;
+
+    let currentStep = 0;
+    let transitionLocked = false;
+    const answerLabels: Record<string, string> = {};
+
+    root.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach((input) => {
+      const label = input.closest("label")?.querySelector("strong")?.textContent?.trim();
+      if (label) answerLabels[input.value] = label;
+    });
+
+    const industrySelect = root.querySelector<HTMLSelectElement>('[name="industry"]');
+
+    const scores = {
+      spend: { "under-1k": 8, "1k-3k": 15, "3k-10k": 21, "10k-plus": 25 },
+      tracking: { none: 0, spreadsheet: 16, crm: 30 },
+      manager: { me: 12, employee: 20, agency: 25, nobody: 0 },
+      frustration: { "low-leads": 14, "high-cost": 16, "no-idea": 0, "too-much-time": 7 },
+    } as const;
+
+    const industryBenchmarks: Record<string, { name: string; benchmark: string; priority: string }> = {
+      "home-services": {
+        name: "home and local services",
+        benchmark: "A healthy account connects every call and form to a booked job, responds quickly, and separates service-area demand from wasted clicks.",
+        priority: "Track booked jobs and revenue by campaign, not form fills alone.",
+      },
+      "professional-services": {
+        name: "professional services",
+        benchmark: "A healthy account distinguishes a qualified consultation from a low-intent inquiry and follows the lead through to signed business.",
+        priority: "Feed qualified-opportunity and closed-client outcomes back into campaign decisions.",
+      },
+      "health-wellness": {
+        name: "health and wellness",
+        benchmark: "A healthy account measures booked appointments and show rate, keeps call and form tracking consistent, and reviews lead quality by service line.",
+        priority: "Make booked appointments and show rate the primary conversion signals.",
+      },
+      "retail-ecommerce": {
+        name: "retail and e-commerce",
+        benchmark: "A healthy account reads acquisition cost beside margin, blended return, and repeat purchase behavior instead of treating platform ROAS as the whole story.",
+        priority: "Review contribution margin and blended acquisition cost beside platform reporting.",
+      },
+      hospitality: {
+        name: "hospitality and food service",
+        benchmark: "A healthy account links local demand to reservations, orders, or visits and separates high-intent searches from broad awareness traffic.",
+        priority: "Track reservations or orders by campaign and protect branded local demand.",
+      },
+      "real-estate": {
+        name: "real estate",
+        benchmark: "A healthy account follows inquiries through qualification and appointment, since raw lead volume hides large differences in intent and readiness.",
+        priority: "Measure qualified appointments and speed-to-lead, not lead count alone.",
+      },
+      other: {
+        name: "your industry",
+        benchmark: "A healthy account can connect spend to a qualified opportunity, assign clear ownership, and make weekly decisions from outcomes rather than clicks alone.",
+        priority: "Choose one qualified conversion and one revenue outcome to review every week.",
+      },
+    };
+
+    const updateProgress = () => {
+      const percent = Math.round(((currentStep + 1) / panels.length) * 100);
+      progress.style.setProperty("--grader-progress", `${percent / 100}`);
+      progress.setAttribute("aria-valuenow", String(percent));
+      progressLabel.textContent = `Question ${currentStep + 1} of ${panels.length}`;
+      progressPercent.textContent = `${percent}% complete`;
+      backButton.hidden = currentStep === 0;
+      helper.textContent = currentStep === panels.length - 1
+        ? "One last answer, then your result is ready"
+        : "Choose one answer to continue";
+    };
+
+    const showStep = (nextStep: number, direction: "forward" | "back" = "forward") => {
+      if (transitionLocked || nextStep < 0 || nextStep >= panels.length || nextStep === currentStep) return;
+      transitionLocked = true;
+
+      const currentPanel = panels[currentStep];
+      const nextPanel = panels[nextStep];
+      const exitClass = direction === "forward" ? "is-exiting-forward" : "is-exiting-back";
+      const enterClass = direction === "forward" ? "is-entering-forward" : "is-entering-back";
+      const swapDelay = prefersReducedMotion.matches ? 0 : 150;
+
+      currentPanel.classList.add(exitClass);
+      window.setTimeout(() => {
+        currentPanel.hidden = true;
+        currentPanel.classList.remove("is-current", exitClass);
+        nextPanel.hidden = false;
+        nextPanel.classList.add("is-current", enterClass);
+        currentStep = nextStep;
+        updateProgress();
+
+        window.requestAnimationFrame(() => {
+          const firstControl = nextPanel.querySelector<HTMLElement>("input, select, button");
+          firstControl?.focus({ preventScroll: true });
+          window.setTimeout(() => {
+            nextPanel.classList.remove(enterClass);
+            transitionLocked = false;
+          }, prefersReducedMotion.matches ? 0 : 320);
+        });
+      }, swapDelay);
+    };
+
+    const getAnswer = (name: string) =>
+      form.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value || "";
+
+    const gradeResult = (score: number) => {
+      if (score >= 85) return { grade: "A", label: "Strong operating foundation" };
+      if (score >= 70) return { grade: "B", label: "Good structure with a few leaks" };
+      if (score >= 50) return { grade: "C", label: "Promising, but hard to read" };
+      if (score >= 30) return { grade: "D", label: "Money is moving faster than the measurement" };
+      return { grade: "F", label: "Start with the foundation" };
+    };
+
+    const buildPriorities = (answers: Record<string, string>, industryPriority: string) => {
+      const priorities: Array<{ weight: number; text: string }> = [];
+
+      if (answers.tracking === "none") priorities.push({ weight: 100, text: "Install call, form, and sale tracking before increasing spend." });
+      if (answers.tracking === "spreadsheet") priorities.push({ weight: 88, text: "Connect lead source to qualified and won revenue so manual notes become decision-ready." });
+      if (answers.tracking === "crm") priorities.push({ weight: 46, text: "Close the loop by sending qualified and closed outcomes back to the ad platform." });
+
+      if (answers.manager === "nobody") priorities.push({ weight: 96, text: "Give one person a weekly scorecard and clear authority to make campaign changes." });
+      if (answers.manager === "me") priorities.push({ weight: 72, text: "Protect owner time with a short weekly review and documented decision rules." });
+      if (answers.manager === "employee") priorities.push({ weight: 52, text: "Define the decisions your in-house owner can make without waiting for approval." });
+      if (answers.manager === "agency") priorities.push({ weight: 48, text: "Require reporting that connects campaign changes to business outcomes, not activity." });
+
+      if (answers.frustration === "no-idea") priorities.push({ weight: 94, text: "Define three weekly numbers: qualified opportunities, acquisition cost, and won revenue." });
+      if (answers.frustration === "too-much-time") priorities.push({ weight: 84, text: "Automate reporting and lead follow-up before adding more campaigns to manage." });
+      if (answers.frustration === "low-leads") priorities.push({ weight: 70, text: "Audit the match between search intent, ad promise, landing page, and follow-up speed." });
+      if (answers.frustration === "high-cost") priorities.push({ weight: 74, text: "Separate lead quality from lead cost before cutting campaigns that may be producing better customers." });
+
+      if (answers.spend === "under-1k") priorities.push({ weight: 62, text: "Concentrate the budget around one audience, one offer, and one conversion goal." });
+      priorities.push({ weight: 58, text: industryPriority });
+
+      return priorities.sort((a, b) => b.weight - a.weight).slice(0, 3);
+    };
+
+    form.addEventListener("change", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.type !== "radio") return;
+      if (currentStep < panels.length - 1) {
+        window.setTimeout(() => showStep(currentStep + 1, "forward"), prefersReducedMotion.matches ? 0 : 180);
+      }
+    });
+
+    backButton.addEventListener("click", () => showStep(currentStep - 1, "back"));
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const industry = industrySelect?.value || "";
+      if (!industry) {
+        if (error) error.hidden = false;
+        industrySelect?.focus();
+        return;
+      }
+      if (error) error.hidden = true;
+
+      const answers = {
+        spend: getAnswer("spend"),
+        tracking: getAnswer("tracking"),
+        manager: getAnswer("manager"),
+        frustration: getAnswer("frustration"),
+        industry,
+      };
+
+      const rawScore =
+        scores.spend[answers.spend as keyof typeof scores.spend] +
+        scores.tracking[answers.tracking as keyof typeof scores.tracking] +
+        scores.manager[answers.manager as keyof typeof scores.manager] +
+        scores.frustration[answers.frustration as keyof typeof scores.frustration];
+      const score = Math.round((rawScore / 96) * 100);
+      const grade = gradeResult(score);
+      const benchmark = industryBenchmarks[industry] || industryBenchmarks.other;
+      const priorities = buildPriorities(answers, benchmark.priority);
+
+      const gradeEl = results.querySelector<HTMLElement>("[data-result-grade]");
+      const scoreEl = results.querySelector<HTMLElement>("[data-result-score]");
+      const labelEl = results.querySelector<HTMLElement>("[data-result-label]");
+      const titleEl = results.querySelector<HTMLElement>("[data-result-title]");
+      const summaryEl = results.querySelector<HTMLElement>("[data-result-summary]");
+      const industryEl = results.querySelector<HTMLElement>("[data-result-industry]");
+      const benchmarkEl = results.querySelector<HTMLElement>("[data-result-benchmark]");
+      const priorityList = results.querySelector<HTMLOListElement>("[data-result-priorities]");
+      const cta = results.querySelector<HTMLAnchorElement>("[data-result-cta]");
+
+      if (gradeEl) gradeEl.textContent = grade.grade;
+      if (scoreEl) scoreEl.textContent = `${score} / 100`;
+      if (labelEl) labelEl.textContent = grade.label;
+      if (titleEl) {
+        titleEl.textContent = answers.tracking === "none"
+          ? "Your first fix is visibility, not more spend."
+          : answers.manager === "nobody"
+            ? "The account needs an owner before it needs another tactic."
+            : answers.frustration === "no-idea"
+              ? "The missing piece is a decision-ready scorecard."
+              : "Your next gain is likely in the handoff between ads and outcomes.";
+      }
+      if (summaryEl) {
+        const trackingSummary: Record<string, string> = {
+          none: "no consistent tracking",
+          spreadsheet: "a spreadsheet or manual notes",
+          crm: "a CRM or connected reporting",
+        };
+        const managerSummary: Record<string, string> = {
+          me: "you",
+          employee: "an employee",
+          agency: "an agency or freelancer",
+        };
+        const ownershipSummary = answers.manager === "nobody"
+          ? "has no consistent owner"
+          : `is managed by ${managerSummary[answers.manager]}`;
+        summaryEl.textContent = `At ${answerLabels[answers.spend]?.toLowerCase()} per month, your account uses ${trackingSummary[answers.tracking]} and ${ownershipSummary}. That combination points to the priorities below.`;
+      }
+      if (industryEl) industryEl.textContent = benchmark.name;
+      if (benchmarkEl) benchmarkEl.textContent = benchmark.benchmark;
+      if (priorityList) {
+        priorityList.replaceChildren(...priorities.map((priority, index) => {
+          const item = document.createElement("li");
+          const number = document.createElement("span");
+          const copy = document.createElement("p");
+          number.textContent = `0${index + 1}`;
+          copy.textContent = priority.text;
+          item.append(number, copy);
+          return item;
+        }));
+      }
+
+      const resultRecord = {
+        source: "ad-account-grader",
+        grade: grade.grade,
+        score,
+        industry: benchmark.name,
+        frustration: answerLabels[answers.frustration] || answers.frustration,
+        spend: answerLabels[answers.spend] || answers.spend,
+        tracking: answerLabels[answers.tracking] || answers.tracking,
+        manager: answerLabels[answers.manager] || answers.manager,
+      };
+
+      try {
+        window.sessionStorage.setItem("maaxgen-ad-grader-result", JSON.stringify(resultRecord));
+      } catch {}
+
+      if (cta) {
+        const params = new URLSearchParams({
+          source: resultRecord.source,
+          grade: resultRecord.grade,
+          score: String(resultRecord.score),
+          industry: resultRecord.industry,
+          frustration: resultRecord.frustration,
+        });
+        cta.href = `/contact?${params.toString()}`;
+      }
+
+      if (typeof window.fbq === "function") {
+        window.fbq("trackCustom", "AdAccountGraderCompleted", {
+          content_name: "Ad Account Grader",
+          content_category: benchmark.name,
+          value: score,
+        });
+      }
+
+      form.hidden = true;
+      results.hidden = false;
+      results.focus({ preventScroll: true });
+      root.scrollIntoView({ behavior: prefersReducedMotion.matches ? "auto" : "smooth", block: "start" });
+    });
+
+    restartButton?.addEventListener("click", () => {
+      form.reset();
+      currentStep = 0;
+      panels.forEach((panel, index) => {
+        panel.hidden = index !== 0;
+        panel.classList.toggle("is-current", index === 0);
+        panel.classList.remove("is-entering-forward", "is-entering-back", "is-exiting-forward", "is-exiting-back");
+      });
+      results.hidden = true;
+      form.hidden = false;
+      updateProgress();
+      panels[0].querySelector<HTMLElement>("input")?.focus({ preventScroll: true });
+    });
+
+    updateProgress();
+  });
+</script>

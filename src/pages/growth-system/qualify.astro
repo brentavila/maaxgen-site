@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AttributionCapture from "../../components/funnel/AttributionCapture.astro";
+import QualificationWizard from "../../components/funnel/QualificationWizard.astro";
+import { FUNNEL_ROUTES } from "../../funnel/config";
+---
+
+<BaseLayout
+  title="Check Your Fit"
+  description="Answer a few questions so MaaxGen can determine whether a connected customer acquisition system is a fit for your service business."
+  chrome="landing"
+  ctaHref={FUNNEL_ROUTES.vsl}
+  ctaLabel="Back to overview"
+>
+  <AttributionCapture />
+
+  <section class="section funnel-qualify-page">
+    <div class="container funnel-qualify-shell">
+      <p class="eyebrow">Qualification</p>
+      <p class="funnel-qualify-intro">
+        A few focused questions. Your answers stay with you as you move through the funnel.
+      </p>
+      <QualificationWizard />
+    </div>
+  </section>
+</BaseLayout>

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import CounselingPixelEvents from "../components/analytics/CounselingPixelEvents.astro";
 
 const calendarPoints = [
   {
@@ -70,7 +71,7 @@ const whyMaaxgen = [
   },
   {
     title: "Built for solo through multi-clinician groups",
-    body: "Starter supports focused practices. Growth and Concierge scale campaign count and meeting cadence as the roster grows.",
+    body: "Essential supports focused practices. Professional and Enterprise scale campaign count and meeting cadence as the roster grows.",
   },
 ];
 
@@ -78,9 +79,9 @@ const integrations = ["Psychology Today", "SimplePractice", "GoHighLevel"];
 
 const tiers = [
   {
-    step: "Starter",
-    name: "Starter",
-    price: "$550/mo",
+    step: "Essential",
+    name: "Essential",
+    price: "$350/mo",
     budget: "Suggested ad budget: $400–$700/mo",
     fit: "For solo therapists and small practices ready to fill open hours with a focused Google Ads presence.",
     result: "One well-managed campaign, clear ownership, and a cadence that stays manageable while you see clients.",
@@ -91,13 +92,13 @@ const tiers = [
       "Monthly check-ins",
       "Set up and management of a single Google Ad campaign",
     ],
-    cta: "Start with Starter",
+    cta: "Start with Essential",
     featured: false,
   },
   {
-    step: "Growth",
-    name: "Growth",
-    price: "$550–$800/mo",
+    step: "Professional",
+    name: "Professional",
+    price: "$500/mo",
     budget: "Suggested ad budget: $700–$1,000/mo",
     fit: "For growing practices that need more campaign coverage and room to test new client segments.",
     result: "One to three Google campaigns, optional LinkedIn, and a partner who keeps pace as clinician capacity expands.",
@@ -109,13 +110,13 @@ const tiers = [
       "Set up and management of 1–3 Google Ad campaigns",
       "Requestable LinkedIn Ad campaigns",
     ],
-    cta: "Grow with Growth",
+    cta: "Start with Professional",
     featured: true,
   },
   {
-    step: "Concierge",
-    name: "Concierge",
-    price: "$900+/mo",
+    step: "Enterprise",
+    name: "Enterprise",
+    price: "$800+/mo",
     budget: "Suggested ad budget: $1,000+/mo",
     fit: "For practices with 15 or more therapists that need deeper campaign dedication and higher-touch involvement.",
     result: "Multi-campaign structure, more meetings, and extra account manager capacity sized for a larger clinical roster.",
@@ -128,7 +129,7 @@ const tiers = [
       "Requestable LinkedIn Ad campaigns",
       "Additional account manager involvement and campaign dedication",
     ],
-    cta: "Talk about Concierge",
+    cta: "Talk about Enterprise",
     featured: false,
   },
 ];
@@ -152,7 +153,7 @@ const faqs = [
   },
   {
     q: "Can you help fill calendars for associates, not only the owner?",
-    a: "Yes. Multi-clinician practices often need demand mapped to specialties and open capacity across the roster. Growth and Concierge plans support multiple campaigns so associate books fill alongside the founder’s.",
+    a: "Yes. Multi-clinician practices often need demand mapped to specialties and open capacity across the roster. Professional and Enterprise plans support multiple campaigns so associate books fill alongside the founder’s.",
   },
   {
     q: "Is ad spend included in the management fee?",
@@ -167,8 +168,8 @@ const faqs = [
     a: "Keep what works. Google Ads complements directories by capturing active search demand. We start from your current positioning and site, then tighten the path from click to booked consult.",
   },
   {
-    q: "Who is Concierge for?",
-    a: "Concierge is built for practices with 15 or more therapists that need four or more Google campaigns, up to four meetings per month, and deeper account manager involvement. If you are smaller but need that intensity, we will say so on the strategy call.",
+    q: "Who is Enterprise for?",
+    a: "Enterprise is built for practices with 15 or more therapists that need four or more Google campaigns, up to four meetings per month, and deeper account manager involvement. If you are smaller but need that intensity, we will say so on the strategy call.",
   },
   {
     q: "What happens on the first call?",
@@ -380,7 +381,7 @@ const faqs = [
           Fees cover campaign management. Ad spend is separate and billed by the platforms.
           Suggested budgets are starting ranges; we tune spend to capacity and results.
         </p>
-        <p class="counseling-pricing-hint">Most practices start with Growth.</p>
+        <p class="counseling-pricing-hint">Most practices start with Professional.</p>
       </div>
       <div class="phase-tier-list">
         {tiers.map((tier, index) => (
@@ -487,4 +488,5 @@ const faqs = [
   </section>
 
   <script is:inline src="https://brand.maaxgen.com/js/form_embed.js"></script>
+  <CounselingPixelEvents />
 </BaseLayout>

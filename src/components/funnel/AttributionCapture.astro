@@ -1,0 +1,10 @@
+---
+/** Captures UTM + click IDs into sessionStorage on funnel entry. */
+---
+<script>
+  import { captureAttributionFromLocation } from "../../funnel/attribution";
+  import { updateFunnelState } from "../../funnel/state";
+
+  const attribution = captureAttributionFromLocation();
+  updateFunnelState({ attribution });
+</script>

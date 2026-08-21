@@ -25,16 +25,28 @@ const SMS_TRANSACTIONAL_CONSENT =
           <li><span>03</span><div><strong>You get a clear next step</strong><small>A fit recommendation, useful direction, or an honest no.</small></div></li>
         </ol>
         <p class="contact-stage__note">Typical response: within one business day.</p>
+        <p class="contact-stage__grader-link">
+          Not sure where the friction is? <a href="/ad-account-grader">Grade your ads first</a>.
+        </p>
       </div>
 
       <div class="contact-stage__form-wrap">
         <div class="contact-form-heading">
           <span>Strategy conversation</span>
-          <h2>What are you trying to grow?</h2>
+          <h2 data-contact-form-title>What are you trying to grow?</h2>
           <p>Required fields are kept short. Helpful context makes the first reply more useful.</p>
+          <div class="contact-grader-context" data-grader-context hidden>
+            <strong data-grader-context-title>Your ad grader result is attached.</strong>
+            <p data-grader-context-copy>We will use it as the starting point for this conversation.</p>
+          </div>
         </div>
 
         <form id="contact-form" class="form phase-contact-form" action={WEBHOOK_URL} method="post">
+          <input type="hidden" name="lead-source" value="contact-page" />
+          <input type="hidden" name="grader-grade" value="" />
+          <input type="hidden" name="grader-score" value="" />
+          <input type="hidden" name="grader-industry" value="" />
+          <input type="hidden" name="grader-frustration" value="" />
           <div class="field-grid">
             <div>
               <label for="name">Name</label>
@@ -131,6 +143,61 @@ const SMS_TRANSACTIONAL_CONSENT =
     const statusEl = document.getElementById("form-status");
 
     if (form) {
+      const params = new URLSearchParams(window.location.search);
+      let graderResult = null;
+
+      if (params.get("source") === "ad-account-grader") {
+        graderResult = {
+          source: "ad-account-grader",
+          grade: params.get("grade") || "",
+          score: params.get("score") || "",
+          industry: params.get("industry") || "",
+          frustration: params.get("frustration") || "",
+        };
+      } else {
+        try {
+          const stored = window.sessionStorage.getItem("maaxgen-ad-grader-result");
+          if (stored) graderResult = JSON.parse(stored);
+        } catch {}
+      }
+
+      if (graderResult && graderResult.grade && graderResult.score) {
+        const contextBox = document.querySelector("[data-grader-context]");
+        const contextTitle = document.querySelector("[data-grader-context-title]");
+        const contextCopy = document.querySelector("[data-grader-context-copy]");
+        const formTitle = document.querySelector("[data-contact-form-title]");
+        const message = form.querySelector('[name="message"]');
+        const hiddenValues = {
+          "lead-source": "ad-account-grader",
+          "grader-grade": graderResult.grade,
+          "grader-score": graderResult.score,
+          "grader-industry": graderResult.industry || "",
+          "grader-frustration": graderResult.frustration || "",
+        };
+
+        Object.entries(hiddenValues).forEach(function ([name, value]) {
+          const input = form.querySelector(`[name="${name}"]`);
+          if (input) input.value = value;
+        });
+
+        if (formTitle) formTitle.textContent = "Let’s review your ad account.";
+        if (contextTitle) contextTitle.textContent = `Grade ${graderResult.grade}, ${graderResult.score}/100`;
+        if (contextCopy) {
+          contextCopy.textContent = `Industry context: ${graderResult.industry || "not specified"}. We will start with the diagnostic instead of asking you to explain it again.`;
+        }
+        if (contextBox) contextBox.hidden = false;
+        if (message && !message.value) {
+          message.value = `I completed the Ad Account Grader and scored ${graderResult.score}/100 (Grade ${graderResult.grade}). The issue I want to solve first: ${String(graderResult.frustration || "improving ad performance").toLowerCase()}. I would like help identifying the highest-impact fix.`;
+        }
+
+        const businessType = form.querySelector('[name="business-type"]');
+        if (businessType && graderResult.industry) {
+          businessType.value = String(graderResult.industry).includes("e-commerce") ? "ecommerce" : "local";
+        }
+      }
+    }
+
+    if (form) {
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
@@ -145,6 +212,13 @@ const SMS_TRANSACTIONAL_CONSENT =
           phone: data.get("phone") || "",
           businessType: data.get("business-type") || "",
           message: data.get("message"),
+          leadSource: data.get("lead-source") || "contact-page",
+          adGrader: {
+            grade: data.get("grader-grade") || "",
+            score: data.get("grader-score") || "",
+            industry: data.get("grader-industry") || "",
+            frustration: data.get("grader-frustration") || "",
+          },
           smsMarketingConsent: marketingConsent,
           smsTransactionalConsent: transactionalConsent,
           consentLanguage: {
