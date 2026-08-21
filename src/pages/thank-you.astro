@@ -59,38 +59,21 @@ const nextSteps = [
   </section>
 
   <script is:inline>
-    (function () {
-      var leadSent = false;
-      var analyticsSent = false;
+    if (typeof window.fbq === "function") {
+      window.fbq("track", "Lead", {
+        content_name: "Thank You Page",
+        content_category: "form_redirect",
+        value: 1,
+        currency: "USD",
+      });
+    }
 
-      function fireThankYouConversions() {
-        var consent = window.MaaxConsent && window.MaaxConsent.get();
-        if (!consent) return;
-
-        if (consent.advertising && !leadSent && typeof window.fbq === "function") {
-          window.fbq("track", "Lead", {
-            content_name: "Thank You Page",
-            content_category: "form_redirect",
-            value: 1,
-            currency: "USD",
-          });
-          leadSent = true;
-        }
-
-        if (consent.analytics && !analyticsSent) {
-          window.dataLayer = window.dataLayer || [];
-          window.dataLayer.push({
-            event: "generate_lead",
-            form_name: "contact",
-            page_path: window.location.pathname,
-          });
-          analyticsSent = true;
-        }
-      }
-
-      fireThankYouConversions();
-      window.addEventListener("maaxgen:consent", fireThankYouConversions);
-    })();
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "generate_lead",
+      form_name: "contact",
+      page_path: window.location.pathname,
+    });
   </script>
 </BaseLayout>
 
