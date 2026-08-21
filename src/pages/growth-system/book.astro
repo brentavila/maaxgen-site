@@ -1,0 +1,47 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AttributionCapture from "../../components/funnel/AttributionCapture.astro";
+import CalendarEmbed from "../../components/funnel/CalendarEmbed.astro";
+import { FUNNEL_ROUTES } from "../../funnel/config";
+---
+
+<BaseLayout
+  title="Book a Strategy Conversation"
+  description="Choose a time to review your customer acquisition system with MaaxGen."
+  chrome="landing"
+  ctaHref={FUNNEL_ROUTES.results}
+  ctaLabel="Back to results"
+>
+  <AttributionCapture />
+
+  <section class="section funnel-book-page">
+    <div class="container funnel-narrow">
+      <div data-book-root>
+        <p class="eyebrow">Strategy conversation</p>
+        <h1 data-book-title>Choose a time that works.</h1>
+        <p class="lead" data-book-body>
+          We’ll review your current acquisition process, advertising, follow-up, and whether a
+          connected system makes financial sense.
+        </p>
+        <div data-book-calendar>
+          <CalendarEmbed />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    import { readFunnelState } from "../../funnel/state";
+
+    const state = readFunnelState();
+    const calendar = document.querySelector<HTMLElement>("[data-funnel-calendar]");
+    if (calendar && state.qualificationStatus && state.qualificationStatus !== "NOT_QUALIFIED") {
+      calendar.dataset.segment = state.qualificationStatus;
+    }
+    document.dispatchEvent(
+      new CustomEvent("funnel:calendar-ready", {
+        detail: { segment: calendar?.dataset.segment || "HIGHLY_QUALIFIED" },
+      })
+    );
+  </script>
+</BaseLayout>

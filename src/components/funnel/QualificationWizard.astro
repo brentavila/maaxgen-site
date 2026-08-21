@@ -1,0 +1,326 @@
+---
+import { FUNNEL_ROUTES } from "../../funnel/config";
+import { QUALIFICATION_STEPS } from "../../funnel/questions";
+
+const stepsJson = JSON.stringify(QUALIFICATION_STEPS);
+const resultsPath = FUNNEL_ROUTES.results;
+---
+
+<div
+  class="qualify-wizard"
+  data-qualify-wizard
+  data-steps={stepsJson}
+  data-results-path={resultsPath}
+>
+  <div class="qualify-wizard__progress" aria-hidden="true">
+    <div class="qualify-wizard__progress-bar" data-progress-bar></div>
+  </div>
+  <p class="qualify-wizard__step-meta" data-step-meta></p>
+
+  <div class="qualify-wizard__panel" data-step-panel tabindex="-1">
+    <!-- filled by script -->
+  </div>
+
+  <div class="qualify-wizard__actions">
+    <button type="button" class="btn btn--secondary" data-back hidden>Back</button>
+    <button type="button" class="btn btn--primary" data-next>Continue</button>
+  </div>
+  <p class="qualify-wizard__error" data-error role="alert" hidden></p>
+</div>
+
+<script>
+  import { captureAttributionFromLocation } from "../../funnel/attribution";
+  import { buildLeadPayload } from "../../funnel/crm/payload";
+  import { submitLead } from "../../funnel/crm/submit";
+  import { scoreAnswers, statusEventName } from "../../funnel/scoring";
+  import {
+    readFunnelState,
+    saveAnswers,
+    saveContact,
+    saveQualification,
+    updateFunnelState,
+  } from "../../funnel/state";
+  import { trackFunnelEvent } from "../../funnel/track";
+  import type { ContactInfo, QuestionField, QuestionStep } from "../../funnel/types";
+
+  const root = document.querySelector<HTMLElement>("[data-qualify-wizard]");
+  if (root) {
+    const steps = JSON.parse(root.dataset.steps || "[]") as QuestionStep[];
+    const resultsPath = root.dataset.resultsPath || "/growth-system/results";
+    const panel = root.querySelector<HTMLElement>("[data-step-panel]")!;
+    const meta = root.querySelector<HTMLElement>("[data-step-meta]")!;
+    const progressBar = root.querySelector<HTMLElement>("[data-progress-bar]")!;
+    const backBtn = root.querySelector<HTMLButtonElement>("[data-back]")!;
+    const nextBtn = root.querySelector<HTMLButtonElement>("[data-next]")!;
+    const errorEl = root.querySelector<HTMLElement>("[data-error]")!;
+
+    let state = readFunnelState();
+    let index = Math.min(state.currentStepIndex || 0, steps.length - 1);
+    let submitting = false;
+
+    captureAttributionFromLocation();
+    state = updateFunnelState({
+      attribution: captureAttributionFromLocation(),
+      startedAt: state.startedAt || new Date().toISOString(),
+    });
+
+    trackFunnelEvent("qualification_started", {
+      variant: state.variant,
+    });
+
+    function currentStep(): QuestionStep {
+      return steps[index];
+    }
+
+    function showError(message: string) {
+      errorEl.hidden = !message;
+      errorEl.textContent = message;
+    }
+
+    function isFieldVisible(field: QuestionField): boolean {
+      if (field.type === "contact") return true;
+      if (!("showWhen" in field) || !field.showWhen) return true;
+      const value = state.answers[field.showWhen.fieldId];
+      if (Array.isArray(value)) return value.includes(field.showWhen.equals);
+      return value === field.showWhen.equals;
+    }
+
+    function renderOptions(
+      field: Extract<QuestionField, { type: "single" | "multi" }>,
+      selected: string | string[]
+    ) {
+      const selectedSet = new Set(Array.isArray(selected) ? selected : selected ? [selected] : []);
+      return field.options
+        .map((opt) => {
+          const active = selectedSet.has(opt.value);
+          return `<button type="button" class="qualify-option${active ? " is-selected" : ""}" data-option data-field="${field.id}" data-value="${opt.value}" data-mode="${field.type}" aria-pressed="${active}">
+            <span>${opt.label}</span>
+          </button>`;
+        })
+        .join("");
+    }
+
+    function renderContact(field: Extract<QuestionField, { type: "contact" }>) {
+      return `<div class="qualify-contact">${field.fields
+        .map((f) => {
+          const value = (state.contact[f.id] as string) || "";
+          return `<div class="qualify-contact__field">
+            <label for="q-${f.id}">${f.label}${f.required ? "" : ' <span class="field-optional">(optional)</span>'}</label>
+            <input id="q-${f.id}" name="${f.id}" type="${f.inputType}" value="${value.replace(/"/g, "&quot;")}" autocomplete="${f.autocomplete || ""}" ${f.required ? "required" : ""} ${f.inputType === "tel" ? 'inputmode="tel"' : ""} />
+          </div>`;
+        })
+        .join("")}</div>`;
+    }
+
+    function render() {
+      const step = currentStep();
+      const total = steps.length;
+      meta.textContent = `Step ${index + 1} of ${total}`;
+      progressBar.style.width = `${((index + 1) / total) * 100}%`;
+      backBtn.hidden = index === 0;
+      nextBtn.textContent = index === total - 1 ? "See My Results" : "Continue";
+      nextBtn.disabled = submitting;
+      showError("");
+
+      const body = step.fields
+        .filter(isFieldVisible)
+        .map((field) => {
+          if (field.type === "single" || field.type === "multi") {
+            const selected = state.answers[field.id] ?? (field.type === "multi" ? [] : "");
+            return `<fieldset class="qualify-fieldset">
+              <legend class="sr-only">${field.label}</legend>
+              <div class="qualify-options" data-options="${field.id}">${renderOptions(field, selected as string | string[])}</div>
+            </fieldset>`;
+          }
+          if (field.type === "text") {
+            const value = (state.answers[field.id] as string) || "";
+            return `<div class="qualify-text">
+              <label for="q-${field.id}">${field.label}</label>
+              <input id="q-${field.id}" data-text-field="${field.id}" type="text" value="${value.replace(/"/g, "&quot;")}" placeholder="${field.placeholder || ""}" ${field.required ? "required" : ""} />
+            </div>`;
+          }
+          if (field.type === "contact") return renderContact(field);
+          return "";
+        })
+        .join("");
+
+      panel.innerHTML = `
+        <h1 class="qualify-wizard__title">${step.title}</h1>
+        ${step.description ? `<p class="qualify-wizard__desc">${step.description}</p>` : ""}
+        ${body}
+      `;
+      panel.focus({ preventScroll: true });
+    }
+
+    function readDomIntoState() {
+      const step = currentStep();
+      for (const field of step.fields) {
+        if (!isFieldVisible(field)) continue;
+        if (field.type === "text") {
+          const input = panel.querySelector<HTMLInputElement>(`[data-text-field="${field.id}"]`);
+          if (input) {
+            state = saveAnswers({ [field.id]: input.value.trim() });
+          }
+        }
+        if (field.type === "contact") {
+          const contact: Partial<ContactInfo> = {};
+          for (const f of field.fields) {
+            const input = panel.querySelector<HTMLInputElement>(`#q-${f.id}`);
+            if (input) contact[f.id] = input.value.trim();
+          }
+          state = saveContact(contact);
+        }
+      }
+    }
+
+    function validateStep(): string | null {
+      const step = currentStep();
+      for (const field of step.fields) {
+        if (!isFieldVisible(field)) continue;
+
+        if (field.type === "single") {
+          const value = state.answers[field.id];
+          if (field.required !== false && !value) return "Please select an option to continue.";
+        }
+
+        if (field.type === "multi") {
+          const value = state.answers[field.id];
+          const arr = Array.isArray(value) ? value : [];
+          if ((field.minSelected ?? 1) > 0 && arr.length < (field.minSelected ?? 1)) {
+            return "Please select at least one option.";
+          }
+        }
+
+        if (field.type === "text") {
+          const input = panel.querySelector<HTMLInputElement>(`[data-text-field="${field.id}"]`);
+          const value = input?.value.trim() || "";
+          if (field.required && !value) return "Please complete the field above.";
+        }
+
+        if (field.type === "contact") {
+          for (const f of field.fields) {
+            const input = panel.querySelector<HTMLInputElement>(`#q-${f.id}`);
+            const value = input?.value.trim() || "";
+            if (f.required && !value) return `Please enter your ${f.label.toLowerCase()}.`;
+            if (f.inputType === "email" && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+              return "Please enter a valid email address.";
+            }
+            if (f.inputType === "tel" && value && value.replace(/\D/g, "").length < 7) {
+              return "Please enter a valid phone number.";
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    panel.addEventListener("click", (event) => {
+      const target = (event.target as HTMLElement).closest<HTMLElement>("[data-option]");
+      if (!target) return;
+      const fieldId = target.dataset.field!;
+      const value = target.dataset.value!;
+      const mode = target.dataset.mode;
+
+      if (mode === "single") {
+        state = saveAnswers({ [fieldId]: value });
+        render();
+        return;
+      }
+
+      if (mode === "multi") {
+        const current = state.answers[fieldId];
+        let next = Array.isArray(current) ? [...current] : [];
+        if (value === "none") {
+          next = ["none"];
+        } else {
+          next = next.filter((v) => v !== "none");
+          if (next.includes(value)) next = next.filter((v) => v !== value);
+          else next.push(value);
+        }
+        state = saveAnswers({ [fieldId]: next });
+        render();
+      }
+    });
+
+    backBtn.addEventListener("click", () => {
+      readDomIntoState();
+      index = Math.max(0, index - 1);
+      state = updateFunnelState({ currentStepIndex: index });
+      render();
+    });
+
+    nextBtn.addEventListener("click", async () => {
+      readDomIntoState();
+      state = readFunnelState();
+      const error = validateStep();
+      if (error) {
+        showError(error);
+        return;
+      }
+
+      trackFunnelEvent(
+        "qualification_step_completed",
+        { step_id: currentStep().id, step_index: index + 1 },
+        { onceKey: `qualification_step_completed:${currentStep().id}` }
+      );
+
+      if (index < steps.length - 1) {
+        index += 1;
+        state = updateFunnelState({ currentStepIndex: index });
+        render();
+        return;
+      }
+
+      if (submitting) return;
+      submitting = true;
+      nextBtn.disabled = true;
+      nextBtn.textContent = "Checking fit…";
+
+      const scored = scoreAnswers(state.answers);
+      state = saveQualification(scored.score, scored.status);
+
+      trackFunnelEvent(
+        "qualification_completed",
+        {
+          lead_score: scored.score,
+          qualification_status: scored.status,
+        },
+        { onceKey: "qualification_completed" }
+      );
+
+      trackFunnelEvent(
+        statusEventName(scored.status),
+        {
+          lead_score: scored.score,
+          qualification_status: scored.status,
+        },
+        {
+          onceKey: statusEventName(scored.status),
+          metaStandard: scored.status === "NOT_QUALIFIED" ? undefined : "Lead",
+        }
+      );
+
+      const payload = buildLeadPayload({
+        answers: state.answers,
+        contact: state.contact,
+        attribution: state.attribution,
+        qualificationScore: scored.score,
+        qualificationStatus: scored.status,
+        variant: state.variant,
+      });
+
+      const result = await submitLead(payload);
+      if (!result.ok) {
+        submitting = false;
+        nextBtn.disabled = false;
+        nextBtn.textContent = "See My Results";
+        showError(result.error);
+        return;
+      }
+
+      window.location.href = resultsPath;
+    });
+
+    render();
+  }
+</script>

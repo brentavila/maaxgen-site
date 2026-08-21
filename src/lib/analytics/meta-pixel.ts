@@ -6,6 +6,8 @@ export const META_VIEW_CONTENT_PAGES: Record<string, string> = {
   "/case-studies": "Case Studies",
   "/about": "About",
   "/counseling": "Counseling",
+  "/growth-system": "Growth System VSL",
+  "/ad-account-grader": "Ad Account Grader",
 };
 
 declare global {

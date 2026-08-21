@@ -1,0 +1,149 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AttributionCapture from "../../components/funnel/AttributionCapture.astro";
+import CalendarEmbed from "../../components/funnel/CalendarEmbed.astro";
+import { FUNNEL_ROUTES } from "../../funnel/config";
+import { resultsCopy } from "../../funnel/content/vsl";
+---
+
+<BaseLayout
+  title="Your Results"
+  description="Based on your answers, here is the recommended next step with MaaxGen."
+  chrome="landing"
+  ctaHref={FUNNEL_ROUTES.qualify}
+  ctaLabel="Review answers"
+>
+  <AttributionCapture />
+
+  <section class="section funnel-results-page">
+    <div class="container funnel-narrow">
+      <div data-results-root hidden>
+        <p class="eyebrow">Next step</p>
+        <h1 data-results-title></h1>
+        <p class="lead" data-results-body></p>
+
+        <div data-results-book hidden>
+          <p class="funnel-results-cta-label" data-results-cta></p>
+          <div class="funnel-results-calendar" data-calendar-host>
+            <CalendarEmbed segment="HIGHLY_QUALIFIED" />
+          </div>
+          <p class="funnel-micro">
+            Prefer a direct link?
+            <a href={FUNNEL_ROUTES.book}>Open the booking page</a>
+          </p>
+        </div>
+
+        <div data-results-nq hidden>
+          <form class="funnel-nq-form form" data-nq-form>
+            <label for="nq-email">Email</label>
+            <input id="nq-email" name="email" type="email" required autocomplete="email" />
+            <button type="submit" class="btn btn--primary" data-nq-submit>
+              Get The Customer Acquisition Checklist
+            </button>
+            <p class="form-status" data-nq-status role="alert" hidden></p>
+          </form>
+          <div class="funnel-nq-success" data-nq-success hidden>
+            <h2>Checklist on the way.</h2>
+            <p>
+              We’ll send practical next steps for tightening lead response, follow-up, and tracking
+              before a full acquisition system is the right move.
+            </p>
+            <a class="btn btn--secondary" href="/">Return home</a>
+          </div>
+        </div>
+      </div>
+
+      <div data-results-empty hidden>
+        <p class="eyebrow">Qualification</p>
+        <h1>Let’s start with a few questions.</h1>
+        <p class="lead">
+          We don’t have questionnaire answers for this session yet. Complete the short fit check to
+          see your recommended next step.
+        </p>
+        <a class="btn btn--primary" href={FUNNEL_ROUTES.qualify}>See If Your Business Qualifies</a>
+      </div>
+    </div>
+  </section>
+
+  <script define:vars={{ resultsCopyJson: JSON.stringify(resultsCopy) }}>
+    import { readFunnelState } from "../../funnel/state";
+    import { submitNqResourceRequest } from "../../funnel/crm/submit";
+    import { trackFunnelEvent } from "../../funnel/track";
+
+    const resultsCopy = JSON.parse(resultsCopyJson);
+    const state = readFunnelState();
+    const root = document.querySelector("[data-results-root]");
+    const empty = document.querySelector("[data-results-empty]");
+
+    if (!state.qualificationStatus || state.qualificationScore == null) {
+      if (empty) empty.hidden = false;
+    } else if (root) {
+      root.hidden = false;
+      const copy = resultsCopy[state.qualificationStatus];
+      const title = document.querySelector("[data-results-title]");
+      const body = document.querySelector("[data-results-body]");
+      if (title) title.textContent = copy.title;
+      if (body) body.textContent = copy.body;
+
+      if (state.qualificationStatus === "NOT_QUALIFIED") {
+        const nq = document.querySelector("[data-results-nq]");
+        if (nq) nq.hidden = false;
+
+        const form = document.querySelector("[data-nq-form]");
+        const status = document.querySelector("[data-nq-status]");
+        const success = document.querySelector("[data-nq-success]");
+        const emailInput = document.querySelector("#nq-email");
+        if (emailInput && state.contact?.email) emailInput.value = state.contact.email;
+
+        form?.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const email = (emailInput?.value || "").trim();
+          if (!email) return;
+          const btn = document.querySelector("[data-nq-submit]");
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = "Sending…";
+          }
+          const result = await submitNqResourceRequest({
+            email,
+            firstName: state.contact?.firstName || "",
+            payloadExtras: {
+              qualificationStatus: state.qualificationStatus,
+              attribution: state.attribution,
+            },
+          });
+          if (!result.ok) {
+            if (status) {
+              status.hidden = false;
+              status.textContent = result.error;
+            }
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = "Get The Customer Acquisition Checklist";
+            }
+            return;
+          }
+          trackFunnelEvent("nq_resource_requested", {
+            email_domain: email.split("@")[1] || "",
+          });
+          if (form) form.hidden = true;
+          if (success) success.hidden = false;
+        });
+      } else {
+        const book = document.querySelector("[data-results-book]");
+        const cta = document.querySelector("[data-results-cta]");
+        const calendar = document.querySelector("[data-funnel-calendar]");
+        if (book) book.hidden = false;
+        if (cta) cta.textContent = copy.cta;
+        if (calendar) {
+          calendar.dataset.segment = state.qualificationStatus;
+          document.dispatchEvent(
+            new CustomEvent("funnel:calendar-ready", {
+              detail: { segment: state.qualificationStatus },
+            })
+          );
+        }
+      }
+    }
+  </script>
+</BaseLayout>
