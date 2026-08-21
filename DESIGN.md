@@ -52,11 +52,12 @@ Marketing site weighting (design-motion-principles): Jakub primary, Jhey seconda
 
 ## Components (v1)
 
-- Site header with logo, nav (Home, Services, Case studies, Pricing, Blog, Contact)
+- Site header with logo, nav (Home, Services, Case studies, Ad grader, Blog, Contact)
 - Footer with About, Privacy, Terms links
 - Primary button (brand blue), secondary button (outline slate)
 - Service bundle cards on Services page
 - Case study index: asymmetric `.case-study-list` rows (not identical card grid)
 - Case study detail: prose body from content collection
-- Pricing tiers on Pricing page
+- Scope-led engagement tiers on the legacy `/pricing` page; no public MaaxGen fees
+- Ad account grader as the primary global acquisition CTA
 - Contact form placeholder (name, email, message)

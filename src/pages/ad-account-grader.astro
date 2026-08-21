@@ -1,5 +1,9 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { LEAD_WEBHOOK_URL } from "../lib/leads";
+
+const GRADER_SMS_CONSENT =
+  "I agree to receive automated SMS messages from MaaxGen about my Ad Account Grader result, review request, and related follow-up. Some message content may be drafted with AI assistance to provide relevant context. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not a condition of purchase.";
 
 const spendOptions = [
   { value: "under-1k", label: "Under $1,000", note: "Early testing or a focused local campaign" },
@@ -53,7 +57,7 @@ const frustrationOptions = [
         </p>
       </aside>
 
-      <div class="grader-card" data-ad-grader>
+      <div class="grader-card" data-ad-grader data-webhook-url={LEAD_WEBHOOK_URL}>
         <form class="grader-form" data-grader-form novalidate>
           <header class="grader-progress">
             <div class="grader-progress__copy">
@@ -194,11 +198,40 @@ const frustrationOptions = [
 
           <div class="grader-result-cta">
             <div>
-              <strong>Want a human read on the result?</strong>
-              <p>We will start with your grade and the answers behind it. No need to brief us twice.</p>
+              <strong>Want MaaxGen to review the result by text?</strong>
+              <p>Share your mobile number after seeing the score. We will start with your answers and follow up with a useful next step.</p>
             </div>
-            <a class="btn btn--primary" href="/contact?source=ad-account-grader" data-result-cta>
-              Review my result <span aria-hidden="true">→</span>
+            <form class="grader-result-lead" data-result-lead-form data-sms-consent={GRADER_SMS_CONSENT}>
+              <label class="grader-result-lead__field-label" for="grader-result-phone">Mobile number</label>
+              <div>
+                <input
+                  id="grader-result-phone"
+                  name="phone"
+                  type="tel"
+                  autocomplete="tel"
+                  inputmode="tel"
+                  placeholder="(555) 555-5555"
+                  required
+                />
+                <button class="btn btn--primary" type="submit">Request a text review</button>
+              </div>
+              <label class="grader-result-lead__consent">
+                <input type="checkbox" name="sms-review-consent" value="yes" required />
+                <span>
+                  I agree to receive automated SMS messages from MaaxGen about my Ad Account
+                  Grader result, review request, and related follow-up. Some message content may be
+                  drafted with AI assistance to provide relevant context. Message frequency varies.
+                  Message and data rates may apply. Reply STOP to opt out or HELP for help. Consent
+                  is not a condition of purchase.
+                </span>
+              </label>
+              <p class="grader-result-lead__status" role="status" data-result-lead-status hidden></p>
+              <small>
+                Your result is attached automatically. See our <a href="/terms">terms</a> and <a href="/privacy">privacy policy</a>.
+              </small>
+            </form>
+            <a class="grader-result-cta__link" href="/contact?source=ad-account-grader" data-result-cta>
+              Prefer to add more context? Open the full form <span aria-hidden="true">→</span>
             </a>
           </div>
 
@@ -237,12 +270,16 @@ const frustrationOptions = [
     const results = root.querySelector<HTMLElement>("[data-grader-results]");
     const restartButton = root.querySelector<HTMLButtonElement>("[data-grader-restart]");
     const error = root.querySelector<HTMLElement>("[data-grader-error]");
+    const leadForm = root.querySelector<HTMLFormElement>("[data-result-lead-form]");
+    const leadStatus = root.querySelector<HTMLElement>("[data-result-lead-status]");
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     if (!form || !progress || !progressBar || !progressLabel || !progressPercent || !backButton || !helper || !results) return;
 
     let currentStep = 0;
     let transitionLocked = false;
+    let graderStarted = false;
+    let latestResultRecord: Record<string, string | number> | null = null;
     const answerLabels: Record<string, string> = {};
 
     root.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach((input) => {
@@ -376,6 +413,12 @@ const frustrationOptions = [
     form.addEventListener("change", (event) => {
       const target = event.target;
       if (!(target instanceof HTMLInputElement) || target.type !== "radio") return;
+      if (!graderStarted && typeof window.fbq === "function") {
+        graderStarted = true;
+        window.fbq("trackCustom", "AdAccountGraderStarted", {
+          content_name: "Ad Account Grader",
+        });
+      }
       if (currentStep < panels.length - 1) {
         window.setTimeout(() => showStep(currentStep + 1, "forward"), prefersReducedMotion.matches ? 0 : 180);
       }
@@ -473,6 +516,7 @@ const frustrationOptions = [
         tracking: answerLabels[answers.tracking] || answers.tracking,
         manager: answerLabels[answers.manager] || answers.manager,
       };
+      latestResultRecord = resultRecord;
 
       try {
         window.sessionStorage.setItem("maaxgen-ad-grader-result", JSON.stringify(resultRecord));
@@ -503,8 +547,82 @@ const frustrationOptions = [
       root.scrollIntoView({ behavior: prefersReducedMotion.matches ? "auto" : "smooth", block: "start" });
     });
 
+    leadForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const phoneInput = leadForm.querySelector<HTMLInputElement>('[name="phone"]');
+      const consentInput = leadForm.querySelector<HTMLInputElement>('[name="sms-review-consent"]');
+      const submitButton = leadForm.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const webhookUrl = root.dataset.webhookUrl || "";
+
+      if (!leadForm.checkValidity() || !phoneInput || !consentInput?.checked || !latestResultRecord || !submitButton) {
+        leadForm.reportValidity();
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = "Sending…";
+      if (leadStatus) leadStatus.hidden = true;
+
+      const payload = {
+        type: "ad_account_grader_review_request",
+        source: "ad-account-grader",
+        phone: phoneInput.value.trim(),
+        adGrader: latestResultRecord,
+        smsTransactionalConsent: true,
+        smsConsentLanguage: leadForm.dataset.smsConsent || "",
+        smsConsentMethod: "ad-account-grader-required-checkbox",
+        submittedAt: new Date().toISOString(),
+        pageUrl: window.location.href,
+      };
+
+      try {
+        await fetch(webhookUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (typeof window.fbq === "function") {
+          window.fbq("track", "Lead", {
+            content_name: "Ad Account Grader Review",
+            content_category: String(latestResultRecord.industry || "unspecified"),
+            value: 1,
+            currency: "USD",
+          });
+        }
+
+        phoneInput.disabled = true;
+        consentInput.disabled = true;
+        submitButton.textContent = "Review requested";
+        if (leadStatus) {
+          leadStatus.textContent = "Your result is with us. We will follow up by text within one business day.";
+          leadStatus.hidden = false;
+        }
+      } catch {
+        submitButton.disabled = false;
+        submitButton.textContent = "Request a text review";
+        if (leadStatus) {
+          leadStatus.textContent = "Sorry, we could not send this yet. Please use the full contact form.";
+          leadStatus.hidden = false;
+        }
+      }
+    });
+
     restartButton?.addEventListener("click", () => {
       form.reset();
+      leadForm?.reset();
+      latestResultRecord = null;
+      if (leadStatus) leadStatus.hidden = true;
+      const leadPhone = leadForm?.querySelector<HTMLInputElement>('[name="phone"]');
+      const leadConsent = leadForm?.querySelector<HTMLInputElement>('[name="sms-review-consent"]');
+      const leadButton = leadForm?.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (leadPhone) leadPhone.disabled = false;
+      if (leadConsent) leadConsent.disabled = false;
+      if (leadButton) {
+        leadButton.disabled = false;
+        leadButton.textContent = "Request a text review";
+      }
       currentStep = 0;
       panels.forEach((panel, index) => {
         panel.hidden = index !== 0;

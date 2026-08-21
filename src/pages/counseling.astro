@@ -67,7 +67,7 @@ const whyMaaxgen = [
   },
   {
     title: "Transparent media spend",
-    body: "Ad budget goes to Google (and LinkedIn when requested). Management fees are separate. You own the accounts.",
+    body: "Ad budget goes directly to Google (and LinkedIn when requested). MaaxGen scope is agreed separately, and you own the accounts.",
   },
   {
     title: "Built for solo through multi-clinician groups",
@@ -81,8 +81,7 @@ const tiers = [
   {
     step: "Essential",
     name: "Essential",
-    price: "$350/mo",
-    budget: "Suggested ad budget: $400–$700/mo",
+    scope: "Focused campaign scope",
     fit: "For solo therapists and small practices ready to fill open hours with a focused Google Ads presence.",
     result: "One well-managed campaign, clear ownership, and a cadence that stays manageable while you see clients.",
     includes: [
@@ -98,8 +97,7 @@ const tiers = [
   {
     step: "Professional",
     name: "Professional",
-    price: "$500/mo",
-    budget: "Suggested ad budget: $700–$1,000/mo",
+    scope: "Multi-campaign growth scope",
     fit: "For growing practices that need more campaign coverage and room to test new client segments.",
     result: "One to three Google campaigns, optional LinkedIn, and a partner who keeps pace as clinician capacity expands.",
     includes: [
@@ -116,8 +114,7 @@ const tiers = [
   {
     step: "Enterprise",
     name: "Enterprise",
-    price: "$800+/mo",
-    budget: "Suggested ad budget: $1,000+/mo",
+    scope: "High-touch practice scope",
     fit: "For practices with 15 or more therapists that need deeper campaign dedication and higher-touch involvement.",
     result: "Multi-campaign structure, more meetings, and extra account manager capacity sized for a larger clinical roster.",
     includes: [
@@ -156,8 +153,8 @@ const faqs = [
     a: "Yes. Multi-clinician practices often need demand mapped to specialties and open capacity across the roster. Professional and Enterprise plans support multiple campaigns so associate books fill alongside the founder’s.",
   },
   {
-    q: "Is ad spend included in the management fee?",
-    a: "No. Platforms bill you directly. Our fee covers strategy, setup, management, creative direction, and optimization. Suggested monthly ad budgets are listed with each plan so you can plan total investment.",
+    q: "How are management scope and ad spend determined?",
+    a: "Platforms bill you directly for ad spend. We recommend media budget and MaaxGen scope after reviewing your open clinical capacity, specialties, geography, intake process, and campaign complexity. You receive clear terms before deciding whether to move forward.",
   },
   {
     q: "How quickly can a practice see more consults?",
@@ -199,7 +196,7 @@ const faqs = [
             Book a practice growth call
             <span aria-hidden="true">→</span>
           </a>
-          <a class="btn btn--secondary" href="#plans">See management plans</a>
+          <a class="btn btn--secondary" href="#plans">Compare engagement levels</a>
         </div>
       </div>
       <figure class="counseling-hero-media">
@@ -375,11 +372,11 @@ const faqs = [
   <section class="section pricing-tiers-section" id="plans">
     <div class="container">
       <div class="pricing-intro" data-reveal>
-        <p class="eyebrow">Management fees</p>
-        <h2>Plans sized for solo practices through large groups.</h2>
+        <p class="eyebrow">Engagement levels</p>
+        <h2>Scope sized for solo practices through large groups.</h2>
         <p>
-          Fees cover campaign management. Ad spend is separate and billed by the platforms.
-          Suggested budgets are starting ranges; we tune spend to capacity and results.
+          Campaign count, meeting cadence, specialties, and open clinical capacity shape the
+          recommendation. Ad spend is separate and billed directly by the platforms.
         </p>
         <p class="counseling-pricing-hint">Most practices start with Professional.</p>
       </div>
@@ -392,11 +389,10 @@ const faqs = [
           >
             <div class="phase-tier__topline">
               <span>{tier.step}</span>
-              {tier.featured && <strong>Most popular</strong>}
+              {tier.featured && <strong>Most common fit</strong>}
             </div>
             <h2>{tier.name}</h2>
-            <p class="phase-tier__price">{tier.price}</p>
-            <p class="phase-tier__offer">{tier.budget}</p>
+            <p class="phase-tier__scope">{tier.scope}</p>
             <p class="phase-tier__fit">{tier.fit}</p>
             <p class="phase-tier__result">{tier.result}</p>
             <ul>{tier.includes.map((item) => <li>{item}</li>)}</ul>

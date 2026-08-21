@@ -23,7 +23,8 @@ Professional, modern, and growth-oriented. Confident without hype. Plain languag
 
 - Lead with the bundle and all-in-one positioning (one partner, not three vendors)
 - Speak to both local and e-commerce audiences without splitting the brand
-- Every page should support a path to services, pricing, case studies, or contact
+- Every page should support a path to the ad account grader, services, case studies, or contact
+- Keep MaaxGen fees off the public site; explain engagement depth and confirm scope after diagnosis
 - Trust and clarity over flashy effects
 - Case studies show real outcomes and scope (marketing + ads + AI), not vanity metrics
 
@@ -35,13 +36,14 @@ Professional, modern, and growth-oriented. Confident without hype. Plain languag
 | `/services` | Bundled capabilities (marketing, advertising, AI) |
 | `/case-studies` | Proof — index of client stories |
 | `/case-studies/[slug]` | Individual case study detail |
-| `/pricing` | Packages / tiers |
+| `/pricing` | Engagement levels and scope comparison (legacy URL; no public fees) |
+| `/ad-account-grader` | Free diagnostic, immediate result, optional review request |
 | `/contact` | Lead capture |
 | `/blog` | Articles (SEO, authority) |
 | `/about` | Agency story, trust |
 | `/privacy`, `/terms` | Legal |
 
-**Main nav:** Home → Services → Case studies → Pricing → Blog → Contact
+**Main nav:** Home → Services → Case studies → Ad grader → Blog → Contact
 
 ## Case studies (v1)
 
@@ -72,5 +74,5 @@ Generic AI-agency aesthetic: purple gradients on white, Inter as the default fon
 
 ## CTAs
 
-- Primary: Book a call, Get started
-- Secondary: View services, See pricing, View case studies
+- Primary: Grade my ads, Book a call
+- Secondary: View services, Compare engagements, View case studies

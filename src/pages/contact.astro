@@ -1,7 +1,8 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { LEAD_WEBHOOK_URL } from "../lib/leads";
 
-const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/yumx8KoOhRfNc1pxaesc/webhook-trigger/99267a30-84fa-46d6-9772-66e2c9c6ac42";
+const WEBHOOK_URL = LEAD_WEBHOOK_URL;
 
 const SMS_MARKETING_CONSENT =
   "I consent to receive marketing text messages, about special offers, discounts, and service updates, from MaaxGen at the phone number provided. Message frequency may vary. Message & data rates may apply. Text HELP for assistance, reply STOP to opt out.";

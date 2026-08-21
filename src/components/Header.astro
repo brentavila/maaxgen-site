@@ -7,15 +7,15 @@ interface Props {
 
 const {
   landing = false,
-  ctaHref = "/contact",
-  ctaLabel = "Get started",
+  ctaHref = "/ad-account-grader",
+  ctaLabel = "Grade my ads",
 } = Astro.props;
 
 const nav = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
   { href: "/case-studies", label: "Case studies" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/ad-account-grader", label: "Ad grader" },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
@@ -28,14 +28,13 @@ function isActive(href: string) {
 }
 ---
 {!landing && (
-  <aside class="promo-bar" aria-label="Current promotion">
+  <aside class="promo-bar" aria-label="Free ad account grader">
     <div class="container promo-bar__inner">
       <p>
-        <strong>Performance Engine offer:</strong>
-        Five new client openings at <span>$1,700/month</span>
-        <s>$2,400/month</s>
+        <strong>Free two-minute diagnostic:</strong>
+        Find the weak point in the system around your ads.
       </p>
-      <a href="/contact?offer=performance-engine">Claim a spot</a>
+      <a href="/ad-account-grader">Get my grade</a>
     </div>
   </aside>
 )}

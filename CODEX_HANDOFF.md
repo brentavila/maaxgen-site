@@ -28,7 +28,7 @@ Context: Cursor + Impeccable scaffolded an Astro 6 marketing site for MaaxGen. E
 
 ## Build next (priority)
 1. **Case studies** — Polish index + detail templates; improve placeholder MDX/markdown stories; add optional home section linking to /case-studies; ensure asymmetric layouts (case-study-list), not icon card grids
-2. **Pricing** — Align tier names with services bundles; add comparison detail; CTAs
+2. **Engagements** — Keep `/pricing` as the legacy URL, compare scope without public fees, and lead into the grader
 3. **About** — Agency story, trust, local + e-commerce
 4. **Blog** — content collection + index listing (+ optional sample post)
 5. **Contact** — Improve layout/copy; keep form as placeholder unless told otherwise
@@ -60,7 +60,7 @@ Uncomment one line in the prompt above or tell Codex in a follow-up:
 ## What changed for Case studies v1
 
 - PRODUCT.md — full site map + case study requirements
-- Nav — Case studies between Services and Pricing
+- Nav — Ad grader after Case studies; Pricing is not a main-nav item
 - Routes — `/case-studies`, `/case-studies/[slug]`
 - Content — `src/content/case-studies/` (2 samples)
 

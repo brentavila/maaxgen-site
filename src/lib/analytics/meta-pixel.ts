@@ -1,7 +1,7 @@
 export const META_PIXEL_ID = "1528990838912009";
 
 export const META_VIEW_CONTENT_PAGES: Record<string, string> = {
-  "/pricing": "Pricing",
+  "/pricing": "Engagements",
   "/services": "Services",
   "/case-studies": "Case Studies",
   "/about": "About",

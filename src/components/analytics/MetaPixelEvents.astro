@@ -22,10 +22,21 @@ const viewContentPagesJson = JSON.stringify(META_VIEW_CONTENT_PAGES);
     }
 
     document.addEventListener("click", function (event) {
-      var link = event.target.closest('a[href^="/contact"]');
+      var link = event.target.closest("a");
       if (!link) return;
 
-      var href = link.getAttribute("href") || "/contact";
+      var href = link.getAttribute("href") || "";
+      if (href.indexOf("/ad-account-grader") === 0) {
+        if (typeof window.fbq === "function") {
+          window.fbq("trackCustom", "AdAccountGraderCTA", {
+            content_name: (link.textContent || "Ad Account Grader CTA").trim().slice(0, 100),
+            content_category: window.location.pathname,
+          });
+        }
+        return;
+      }
+
+      if (href.indexOf("/contact") !== 0) return;
       var params = new URL(href, window.location.origin).searchParams;
 
       trackMetaEvent("Contact", {

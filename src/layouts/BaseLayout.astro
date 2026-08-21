@@ -17,8 +17,8 @@ const {
   title = "MaaxGen",
   description = "Marketing, advertising, and AI for local and e-commerce businesses.",
   chrome = "default",
-  ctaHref = "/contact",
-  ctaLabel = "Get started",
+  ctaHref = "/ad-account-grader",
+  ctaLabel = "Grade my ads",
 } = Astro.props;
 
 const landing = chrome === "landing";
@@ -46,8 +46,8 @@ const pageTitle = title === "MaaxGen" ? title : `${title} | MaaxGen`;
   <body>
     <Header
       landing={landing}
-      ctaHref={landing ? ctaHref : "/contact"}
-      ctaLabel={landing ? ctaLabel : "Get started"}
+      ctaHref={ctaHref}
+      ctaLabel={ctaLabel}
     />
     <main>
       <slot />

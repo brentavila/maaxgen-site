@@ -5,7 +5,7 @@ const tiers = [
   {
     step: "Start",
     name: "Growth foundation",
-    price: "From $1,200/mo",
+    scope: "Focused starting scope",
     fit: "For businesses putting consistent marketing basics in place.",
     result: "A clear message, a focused channel, and the tracking to know what happens next.",
     includes: [
@@ -21,8 +21,7 @@ const tiers = [
   {
     step: "Grow",
     name: "Performance engine",
-    price: "From $2,400/mo",
-    offer: "$1,700/mo for five current openings",
+    scope: "Ongoing growth scope",
     fit: "For owners ready to improve paid acquisition every month.",
     result: "Ongoing media, fresh creative, conversion pages, and follow-up under one plan.",
     includes: [
@@ -34,12 +33,12 @@ const tiers = [
       "Monthly optimization review",
     ],
     featured: true,
-    cta: "Claim a current opening",
+    cta: "Explore the performance scope",
   },
   {
     step: "Scale",
     name: "AI-accelerated scale",
-    price: "Custom",
+    scope: "Integrated scale scope",
     fit: "For higher-volume teams that need deeper automation and strategy.",
     result: "A connected operating layer for content, campaigns, reporting, and conversion.",
     includes: [
@@ -55,12 +54,12 @@ const tiers = [
 ];
 
 const everyTier = [
-  "No setup fee",
   "You own every account, asset, and data source",
   "Three-month initial term, then month to month",
   "Ad spend paid directly to platforms with no markup",
   "Reporting written for business owners",
   "30-day notice after the initial term",
+  "Scope and terms documented before work begins",
 ];
 
 const comparison = [
@@ -74,12 +73,16 @@ const comparison = [
 
 const faqs = [
   {
+    q: "Why are prices not listed here?",
+    a: "The right scope depends on your channels, creative cadence, conversion path, follow-up needs, and reporting complexity. We first understand the business and recommend the smallest engagement that can solve the real problem. You receive clear scope and terms before making a decision.",
+  },
+  {
     q: "How fast will we see results?",
     a: "Follow-up and landing-page fixes can improve existing demand within weeks. Paid campaigns usually need 60 to 90 days of testing before returns become reliable. We will show you early signals without pretending they are final answers.",
   },
   {
     q: "Is ad spend included?",
-    a: "No. Platforms bill you directly, so media costs remain transparent. Our fee covers strategy, creative, management, conversion work, and the systems around the campaigns.",
+    a: "No. Platforms bill you directly, so media costs remain transparent. MaaxGen scope is confirmed separately after we understand the channels, creative, conversion work, and systems the engagement needs.",
   },
   {
     q: "What is the commitment?",
@@ -100,15 +103,15 @@ const faqs = [
 ];
 ---
 
-<BaseLayout title="Pricing" description="Clear MaaxGen pricing for connected strategy, creative, advertising, follow-up, and AI services.">
+<BaseLayout title="Engagements" description="Compare MaaxGen engagement levels for connected strategy, creative, advertising, follow-up, and AI services.">
   <section class="phase-hero phase-hero--pricing">
     <div class="container phase-hero__grid">
       <div>
         <p class="hero-kicker">Clear scope. Visible ownership.</p>
-        <h1>Choose the depth, <span>not a pile of line items.</span></h1>
+        <h1>Choose the depth, <span>not a prebuilt package.</span></h1>
         <p class="lead">
-          Start with the bundle closest to your stage. We confirm the scope before you sign and
-          explain what changes as your needs grow.
+          Your channels, creative needs, follow-up, and operating complexity shape the work. We
+          recommend a scope after we understand the system, then document it before you decide.
         </p>
       </div>
       <div class="pricing-path" aria-label="Three service levels from foundation to performance to scale">
@@ -126,20 +129,19 @@ const faqs = [
   <section class="section pricing-tiers-section">
     <div class="container">
       <div class="pricing-intro" data-reveal>
-        <p class="eyebrow">Find your starting point</p>
+        <p class="eyebrow">Engagement levels</p>
         <h2>Three levels. One accountable team.</h2>
-        <p>Every level connects strategy to execution. The difference is cadence, channel depth, and operational complexity.</p>
+        <p>Every level connects strategy to execution. The difference is cadence, channel depth, and operational complexity—not a one-size-fits-all price.</p>
       </div>
       <div class="phase-tier-list">
         {tiers.map((tier, index) => (
           <article class:list={["phase-tier", tier.featured && "phase-tier--featured"]} data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
             <div class="phase-tier__topline">
               <span>{tier.step}</span>
-              {tier.featured && <strong>Most popular</strong>}
+              {tier.featured && <strong>Most common fit</strong>}
             </div>
             <h2>{tier.name}</h2>
-            <p class="phase-tier__price">{tier.price}</p>
-            {tier.offer && <p class="phase-tier__offer">{tier.offer}</p>}
+            <p class="phase-tier__scope">{tier.scope}</p>
             <p class="phase-tier__fit">{tier.fit}</p>
             <p class="phase-tier__result">{tier.result}</p>
             <ul>{tier.includes.map((item) => <li>{item}</li>)}</ul>
@@ -168,7 +170,7 @@ const faqs = [
         </div>
         <p>Scroll across on smaller screens. Nothing important is hidden behind a sales call.</p>
       </div>
-      <div class="comparison-table phase-comparison-table" role="region" aria-label="Pricing comparison" tabindex="0" data-reveal>
+      <div class="comparison-table phase-comparison-table" role="region" aria-label="Engagement scope comparison" tabindex="0" data-reveal>
         <table>
           <thead>
             <tr>
@@ -208,9 +210,9 @@ const faqs = [
 
   <section class="home-final-cta">
     <div class="container home-final-cta__inner" data-reveal>
-      <p>Still between two levels?</p>
-      <h2>We’ll recommend the smallest scope that can solve the real problem.</h2>
-      <a class="btn btn--primary" href="/contact">Talk through the fit <span aria-hidden="true">→</span></a>
+      <p>Not sure where the weak point is?</p>
+      <h2>Start with a free diagnostic before discussing scope.</h2>
+      <a class="btn btn--primary" href="/ad-account-grader">Grade my ads <span aria-hidden="true">→</span></a>
     </div>
   </section>
 </BaseLayout>
