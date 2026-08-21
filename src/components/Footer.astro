@@ -26,11 +26,6 @@ const year = new Date().getFullYear();
         <ul>
           <li><a href="/privacy">Privacy</a></li>
           <li><a href="/terms">Terms</a></li>
-          <li>
-            <button type="button" class="footer-consent-link" data-open-consent>
-              Cookie preferences
-            </button>
-          </li>
         </ul>
         <p class="copyright">&copy; {year} MaaxGen. All rights reserved.</p>
       </div>
@@ -72,11 +67,6 @@ const year = new Date().getFullYear();
               <li><a href="/privacy">Privacy</a></li>
               <li><a href="/terms">Terms</a></li>
               <li><a href="/blog">Blog</a></li>
-              <li>
-                <button type="button" class="footer-consent-link" data-open-consent>
-                  Cookie preferences
-                </button>
-              </li>
             </ul>
           </div>
         </div>
@@ -85,30 +75,3 @@ const year = new Date().getFullYear();
     )}
   </div>
 </footer>
-
-<script is:inline>
-  document.querySelectorAll("[data-open-consent]").forEach(function (button) {
-    button.addEventListener("click", function () {
-      if (window.MaaxConsent) window.MaaxConsent.openPreferences();
-    });
-  });
-</script>
-
-<style>
-  .footer-consent-link {
-    appearance: none;
-    border: 0;
-    padding: 0;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 0.15em;
-  }
-
-  .footer-consent-link:hover {
-    color: var(--color-brand);
-  }
-</style>
