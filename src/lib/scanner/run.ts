@@ -113,8 +113,9 @@ export async function runScan(
         });
       }
       if (data.recommendability) recommendability = data.recommendability;
-      sources.push("Site HTML and AI recommendation test");
-      onStage("api", "done");
+      sources.push(recommendability.available ? "site HTML and a live AI recommendation test" : "site HTML");
+      // The stage is named for the AI test; without a model key the API only did the HTML pass.
+      onStage("api", recommendability.available ? "done" : "skipped");
     } catch {
       onStage("api", "failed");
     }

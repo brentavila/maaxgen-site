@@ -291,6 +291,12 @@ function buildHeadline(input: ScanInput, pillars: PillarReport[], rec: Recommend
     pillars.flatMap((pillar) => pillar.checks.filter((item) => item.status === "fail").map((item) => item.id)),
   );
 
+  if (pillars.every((pillar) => pillar.score === null)) {
+    return {
+      headline: "We could not complete the live checks from your browser.",
+      summary: `Your site may be blocking automated visitors, or the check services were unavailable. We will run every test for ${input.businessName} and send the full scorecard by email.`,
+    };
+  }
   if (rec.available && rec.mentioned && failed.size === 0) {
     return {
       headline: "AI already recommends you. Now protect the lead.",
@@ -425,7 +431,7 @@ export function buildReport(
   const possible = measured.reduce((sum, pillar) => sum + pillar.max, 0);
   const earned = measured.reduce((sum, pillar) => sum + (pillar.score ?? 0), 0);
   const score = possible > 0 ? Math.round((earned / possible) * 100) : 0;
-  const { grade, label } = gradeFor(score);
+  const { grade, label } = possible > 0 ? gradeFor(score) : { grade: "F" as const, label: "Scan pending" };
   const { headline, summary } = buildHeadline(input, pillars, recommendability, signals);
 
   const allChecks = pillars.flatMap((pillar) => pillar.checks);

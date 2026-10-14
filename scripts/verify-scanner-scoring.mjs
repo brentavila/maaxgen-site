@@ -125,6 +125,7 @@ section("Scoring: nothing measured");
   ok("Every pillar is pending", report.pillars.every((p) => p.score === null));
   ok("Report is provisional with 0 measured checks", report.provisional && report.measuredChecks === 0);
   ok("Still offers three next moves", report.nextMoves.length === 3);
+  ok("Does not pretend to grade an empty scan", report.label === "Scan pending" && /could not complete/.test(report.headline));
 }
 
 section("Scoring: demo fixture (typical SMB)");

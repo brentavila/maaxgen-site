@@ -418,15 +418,16 @@ const facts = [
     };
 
     const renderReport = (report: ScanReport, input: ScanInput, sample: boolean) => {
-      results.querySelector<HTMLElement>("[data-result-score]")!.textContent = String(report.score);
-      results.querySelector<HTMLElement>("[data-result-grade]")!.textContent = `/ 100 · Grade ${report.grade}`;
+      const nothingMeasured = report.measuredChecks === 0;
+      results.querySelector<HTMLElement>("[data-result-score]")!.textContent = nothingMeasured ? "—" : String(report.score);
+      results.querySelector<HTMLElement>("[data-result-grade]")!.textContent = nothingMeasured ? "Pending" : `/ 100 · Grade ${report.grade}`;
       results.querySelector<HTMLElement>("[data-result-label]")!.textContent = report.label;
       results.querySelector<HTMLElement>("[data-result-headline]")!.textContent = report.headline;
       results.querySelector<HTMLElement>("[data-result-summary]")!.textContent = report.summary;
       results.querySelector<HTMLElement>("[data-sample-note]")!.hidden = !sample;
 
       const grade = results.querySelector<HTMLElement>(".scanner-grade")!;
-      grade.dataset.grade = report.grade;
+      grade.dataset.grade = nothingMeasured ? "pending" : report.grade;
 
       renderRecommendability(report, input);
       renderPillars(report);

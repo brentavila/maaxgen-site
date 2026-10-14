@@ -137,7 +137,7 @@ export function analyzeHtml(html, baseUrl) {
   };
 }
 
-async function fetchSite(url) {
+async function fetchOnce(url) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
   try {
@@ -150,6 +150,18 @@ async function fetchSite(url) {
     return { status: response.status, finalUrl: response.url || url, html: html.slice(0, 2_000_000) };
   } finally {
     clearTimeout(timer);
+  }
+}
+
+/** Sites without TLS still exist; if https fails at the network layer, retry over http. */
+async function fetchSite(url) {
+  try {
+    return await fetchOnce(url);
+  } catch (error) {
+    if (!/^https:/i.test(url) || error.name === "AbortError") throw error;
+    const insecure = url.replace(/^https:/i, "http:");
+    const result = await fetchOnce(insecure);
+    return { ...result, insecure: true };
   }
 }
 
