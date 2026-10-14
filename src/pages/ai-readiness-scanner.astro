@@ -1,0 +1,592 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SprintOffer from "../components/SprintOffer.astro";
+import { LEAD_WEBHOOK_URL } from "../lib/leads";
+
+const env = import.meta.env as Record<string, string | undefined>;
+const SCANNER_API_URL = (env.PUBLIC_SCANNER_API_URL ?? "").trim();
+const PSI_API_KEY = (env.PUBLIC_PSI_API_KEY ?? "").trim();
+
+const SMS_CONSENT =
+  "I agree to receive automated SMS messages from MaaxGen about my AI & Agent Readiness scorecard and related follow-up. Some message content may be drafted with AI assistance. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not a condition of purchase.";
+
+const scanStages = [
+  {
+    id: "api",
+    title: "Asking AI what it knows about you",
+    detail: "We query the model the way a customer would: what does this business sell, and who are the top providers nearby?",
+  },
+  {
+    id: "psi",
+    title: "Loading your site like a shopping agent",
+    detail: "A headless mobile browser opens your homepage and records every script, tag, and blocker it meets.",
+  },
+  {
+    id: "signals",
+    title: "Reading your tracking and follow-up signals",
+    detail: "Meta Pixel, Google tags, server-side endpoints, booking tools, and instant-response widgets.",
+  },
+];
+
+const facts = [
+  "Instinct now searches Shopify merchants and checks out directly through Shop Pay.",
+  "Meta Muse opens a headless browser to fill out forms and book services on a customer's behalf.",
+  "AI agents do not see your colors or slogans. They read schema, pricing tables, and review sentiment.",
+  "'Call for a quote' is the point where most shopping agents abandon a small business site.",
+  "Browser-only tracking can hide a large share of conversions from Meta and Google's optimization.",
+];
+---
+
+<BaseLayout
+  title="Free AI & Agent Readiness Scanner"
+  description="Enter your website and find out what ChatGPT thinks you sell, whether AI agents can book or buy from you, and whether your ad tracking is feeding the algorithms real data."
+  ctaHref="#scanner"
+  ctaLabel="Scan my site"
+>
+  <section class="grader-page scanner-page" id="scanner">
+    <div class="container grader-layout">
+      <aside class="grader-intro">
+        <p class="hero-kicker">Free 60-second scan</p>
+        <h1>Will AI recommend your business, <span>or your competitor?</span></h1>
+        <p class="lead">
+          Enter your website. We test what ChatGPT actually thinks you sell, whether agents like
+          Meta Muse and Instinct can book or buy from you, and whether your ads are tracked.
+        </p>
+        <ul class="grader-trust" aria-label="About this scan">
+          <li><span aria-hidden="true">✓</span> No ad account login</li>
+          <li><span aria-hidden="true">✓</span> Live checks, not a quiz</li>
+          <li><span aria-hidden="true">✓</span> Results on screen in about a minute</li>
+        </ul>
+        <p class="grader-disclaimer">
+          The scan reads your public homepage and public AI model knowledge. It does not access
+          private accounts, and it reports exactly which checks it could and could not run.
+        </p>
+      </aside>
+
+      <div
+        class="grader-card scanner-card"
+        data-ai-scanner
+        data-webhook-url={LEAD_WEBHOOK_URL}
+        data-api-url={SCANNER_API_URL}
+        data-psi-key={PSI_API_KEY}
+        data-sms-consent={SMS_CONSENT}
+      >
+        <form class="scanner-form" data-scanner-form novalidate>
+          <header class="scanner-form__head">
+            <p class="scanner-form__kicker">AI &amp; Agent Readiness Scan</p>
+            <h2>Three tests. One score. About a minute.</h2>
+          </header>
+
+          <div class="scanner-fields">
+            <label class="scanner-field scanner-field--wide">
+              <span>Website URL</span>
+              <input name="url" type="text" inputmode="url" autocomplete="url" placeholder="yourbusiness.com" required />
+              <small data-error-for="url" class="grader-error" hidden>Enter a valid website address.</small>
+            </label>
+            <label class="scanner-field">
+              <span>Business name</span>
+              <input name="businessName" type="text" autocomplete="organization" placeholder="Northside Dental" required />
+              <small data-error-for="businessName" class="grader-error" hidden>Enter your business name.</small>
+            </label>
+            <label class="scanner-field">
+              <span>City</span>
+              <input name="city" type="text" autocomplete="address-level2" placeholder="Austin, TX" required />
+              <small data-error-for="city" class="grader-error" hidden>Enter your city.</small>
+            </label>
+            <label class="scanner-field">
+              <span>Email for the full scorecard</span>
+              <input name="email" type="email" autocomplete="email" placeholder="you@yourbusiness.com" required />
+              <small data-error-for="email" class="grader-error" hidden>Enter a valid email.</small>
+            </label>
+            <label class="scanner-field">
+              <span>Mobile <em>(optional, for a text walkthrough)</em></span>
+              <input name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(555) 555-5555" />
+            </label>
+          </div>
+
+          <label class="scanner-consent" data-sms-consent-row hidden>
+            <input type="checkbox" name="smsConsent" value="yes" />
+            <span>{SMS_CONSENT}</span>
+          </label>
+          <small class="grader-error" data-error-for="smsConsent" hidden>Check the box to receive texts, or clear the mobile field.</small>
+
+          <button class="btn btn--primary grader-submit" type="submit">
+            Run my free scan <span aria-hidden="true">→</span>
+          </button>
+          <p class="scanner-form__fine">
+            Your scorecard is emailed automatically. See our <a href="/terms">terms</a> and
+            <a href="/privacy">privacy policy</a>.
+          </p>
+        </form>
+
+        <section class="scanner-progress" data-scanner-progress tabindex="-1" hidden aria-live="polite">
+          <div class="scanner-progress__head">
+            <p>Scanning <strong data-progress-site>your site</strong></p>
+            <span data-progress-eta>about 20 seconds</span>
+          </div>
+          <div class="grader-progress__track" role="progressbar" aria-label="Scan progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress>
+            <span data-progress-bar></span>
+          </div>
+          <ol class="scanner-stages">
+            {scanStages.map((stage) => (
+              <li data-stage={stage.id} data-status="queued">
+                <span class="scanner-stages__mark" aria-hidden="true"></span>
+                <div>
+                  <strong>{stage.title}</strong>
+                  <small>{stage.detail}</small>
+                </div>
+                <em data-stage-status>Queued</em>
+              </li>
+            ))}
+          </ol>
+          <p class="scanner-fact"><span>While you wait</span> <em data-scan-fact>{facts[0]}</em></p>
+          <script type="application/json" data-scan-facts set:html={JSON.stringify(facts)} />
+        </section>
+
+        <section class="grader-results scanner-results" data-scanner-results tabindex="-1" hidden>
+          <div class="grader-results__topline">
+            <p>Your AI &amp; Agent Readiness Score</p>
+            <button type="button" data-scanner-restart>Scan another site</button>
+          </div>
+
+          <p class="scanner-sample-note" data-sample-note hidden>
+            Sample result. Configure <code>PUBLIC_PSI_API_KEY</code> and <code>PUBLIC_SCANNER_API_URL</code> for live scans.
+          </p>
+
+          <div class="grader-score-row">
+            <div class="grader-grade scanner-grade" aria-label="Readiness score">
+              <span data-result-score>42</span>
+              <small data-result-grade>/ 100 · Grade C</small>
+            </div>
+            <div>
+              <p class="grader-result-kicker" data-result-label>Findable by humans, unclear to machines</p>
+              <h2 data-result-headline>AI is sending your customers somewhere else.</h2>
+              <p data-result-summary></p>
+            </div>
+          </div>
+
+          <div class="grader-result-section scanner-quote" data-rec-panel>
+            <span>What ChatGPT actually thinks you sell</span>
+            <blockquote data-rec-summary></blockquote>
+            <p class="scanner-quote__verdict" data-rec-verdict></p>
+          </div>
+
+          <div class="grader-result-section">
+            <h3>The three tests</h3>
+            <div class="scanner-pillars" data-result-pillars></div>
+          </div>
+
+          <div class="grader-result-section">
+            <h3>Your three next moves</h3>
+            <ol class="grader-priorities" data-result-moves></ol>
+          </div>
+
+          <div class="grader-result-cta scanner-cta">
+            <div>
+              <strong>Fix all three in 14 days.</strong>
+              <p>
+                The AI &amp; Growth Foundation Sprint sets up your AI agents, makes your brand
+                machine-legible, and locks in airtight tracking. Fixed scope, two weeks.
+              </p>
+            </div>
+            <div class="scanner-cta__actions">
+              <a class="btn btn--primary" href="/contact?source=ai-readiness-scanner&offer=foundation-sprint" data-result-cta>
+                Book my sprint call <span aria-hidden="true">→</span>
+              </a>
+              <a class="grader-result-cta__link" href="#foundation-sprint">What the sprint includes <span aria-hidden="true">↓</span></a>
+            </div>
+            <p class="grader-result-lead__status" role="status" data-result-status hidden></p>
+          </div>
+
+          <p class="grader-method-note" data-method-note>
+            Score reflects the checks we could run against your public homepage. Unmeasured checks
+            are shown, not guessed, and are completed in your emailed scorecard.
+          </p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <SprintOffer source="ai-readiness-scanner" eyebrow="After the scan" />
+
+  <section class="grader-aftercare">
+    <div class="container grader-aftercare__inner">
+      <p>Prefer a quicker read on just your ads?</p>
+      <div>
+        <h2>The two-minute Ad Account Grader is still here.</h2>
+        <a href="/ad-account-grader">Grade the system around your ads instead <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { normalizeUrl, runScan, type ScanStage, type StageStatus } from "../lib/scanner/run";
+  import { buildReport } from "../lib/scanner/score";
+  import { DEMO_SIGNALS, demoRecommendability } from "../lib/scanner/demo";
+  import type { Check, ScanInput, ScanReport } from "../lib/scanner/types";
+
+  const MIN_SCAN_MS = 14000;
+  const SOURCE_TIMEOUT_MS = 45000;
+
+  const root = document.querySelector<HTMLElement>("[data-ai-scanner]");
+
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>("[data-scanner-form]")!;
+    const progress = root.querySelector<HTMLElement>("[data-scanner-progress]")!;
+    const results = root.querySelector<HTMLElement>("[data-scanner-results]")!;
+    const progressTrack = progress.querySelector<HTMLElement>("[data-progress]")!;
+    const progressSite = progress.querySelector<HTMLElement>("[data-progress-site]")!;
+    const progressEta = progress.querySelector<HTMLElement>("[data-progress-eta]")!;
+    const factEl = progress.querySelector<HTMLElement>("[data-scan-fact]")!;
+    const facts = JSON.parse(progress.querySelector("[data-scan-facts]")?.textContent || "[]") as string[];
+    const phoneInput = form.querySelector<HTMLInputElement>('[name="phone"]')!;
+    const consentRow = form.querySelector<HTMLElement>("[data-sms-consent-row]")!;
+    const consentInput = form.querySelector<HTMLInputElement>('[name="smsConsent"]')!;
+    const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const isDemo = new URLSearchParams(window.location.search).get("demo") === "1";
+
+    const config = {
+      apiUrl: root.dataset.apiUrl || "",
+      psiKey: root.dataset.psiKey || "",
+      timeoutMs: SOURCE_TIMEOUT_MS,
+    };
+
+    let progressTimer = 0;
+    let factTimer = 0;
+
+    phoneInput.addEventListener("input", () => {
+      consentRow.hidden = phoneInput.value.trim().length === 0;
+      if (consentRow.hidden) consentInput.checked = false;
+    });
+
+    const showError = (name: string, show: boolean) => {
+      const el = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+      if (el) el.hidden = !show;
+      const input = form.querySelector<HTMLInputElement>(`[name="${name}"]`);
+      input?.setAttribute("aria-invalid", String(show));
+    };
+
+    const readInput = (): ScanInput | null => {
+      const data = new FormData(form);
+      const url = normalizeUrl(String(data.get("url") || ""));
+      const businessName = String(data.get("businessName") || "").trim();
+      const city = String(data.get("city") || "").trim();
+      const email = String(data.get("email") || "").trim();
+      const phone = String(data.get("phone") || "").trim();
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      const consentOk = !phone || consentInput.checked;
+
+      showError("url", !url);
+      showError("businessName", !businessName);
+      showError("city", !city);
+      showError("email", !emailOk);
+      showError("smsConsent", !consentOk);
+
+      if (!url || !businessName || !city || !emailOk || !consentOk) {
+        form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+        return null;
+      }
+      return { url, businessName, city, email, phone: phone || undefined };
+    };
+
+    const postWebhook = (payload: Record<string, unknown>) => {
+      const webhookUrl = root.dataset.webhookUrl || "";
+      if (!webhookUrl || isDemo) return Promise.resolve();
+      return fetch(webhookUrl, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, submittedAt: new Date().toISOString(), pageUrl: window.location.href }),
+      }).catch(() => undefined);
+    };
+
+    const setStage = (stage: ScanStage | "signals", status: StageStatus | "queued") => {
+      const row = progress.querySelector<HTMLElement>(`[data-stage="${stage}"]`);
+      if (!row) return;
+      row.dataset.status = status;
+      const label = row.querySelector<HTMLElement>("[data-stage-status]");
+      if (label) {
+        label.textContent =
+          status === "running" ? "Running" : status === "done" ? "Done" : status === "skipped" ? "Queued for scorecard" : status === "failed" ? "Unavailable" : "Queued";
+      }
+    };
+
+    const startProgress = (durationMs: number) => {
+      const startedAt = performance.now();
+      const tick = () => {
+        const elapsed = performance.now() - startedAt;
+        const fraction = Math.min(0.96, elapsed / durationMs);
+        progressTrack.style.setProperty("--grader-progress", String(fraction));
+        progressTrack.setAttribute("aria-valuenow", String(Math.round(fraction * 100)));
+        const remaining = Math.max(0, Math.ceil((durationMs - elapsed) / 1000));
+        progressEta.textContent = remaining > 0 ? `about ${remaining} seconds` : "finishing up";
+        progressTimer = window.requestAnimationFrame(tick);
+      };
+      progressTimer = window.requestAnimationFrame(tick);
+
+      let factIndex = 0;
+      factTimer = window.setInterval(() => {
+        factIndex = (factIndex + 1) % facts.length;
+        factEl.textContent = facts[factIndex];
+      }, 4200);
+    };
+
+    const stopProgress = () => {
+      window.cancelAnimationFrame(progressTimer);
+      window.clearInterval(factTimer);
+      progressTrack.style.setProperty("--grader-progress", "1");
+      progressTrack.setAttribute("aria-valuenow", "100");
+    };
+
+    const statusGlyph = (status: Check["status"]) =>
+      status === "pass" ? "✓" : status === "warn" ? "!" : status === "fail" ? "✕" : "·";
+
+    const renderPillars = (report: ScanReport) => {
+      const container = results.querySelector<HTMLElement>("[data-result-pillars]")!;
+      container.replaceChildren(
+        ...report.pillars.map((pillar) => {
+          const article = document.createElement("article");
+          article.className = "scanner-pillar";
+          article.dataset.pillar = pillar.id;
+
+          const head = document.createElement("header");
+          const title = document.createElement("h4");
+          title.textContent = pillar.title;
+          const score = document.createElement("strong");
+          score.textContent = pillar.score === null ? "Pending" : `${pillar.score} / ${pillar.max}`;
+          if (pillar.score === null) score.classList.add("is-pending");
+          head.append(title, score);
+
+          const question = document.createElement("p");
+          question.textContent = pillar.question;
+
+          const list = document.createElement("ul");
+          list.setAttribute("aria-label", `${pillar.title} checks`);
+          for (const item of pillar.checks) {
+            const li = document.createElement("li");
+            li.dataset.status = item.status;
+            const mark = document.createElement("span");
+            mark.setAttribute("aria-hidden", "true");
+            mark.textContent = statusGlyph(item.status);
+            const body = document.createElement("div");
+            const label = document.createElement("strong");
+            label.textContent = item.label;
+            const detail = document.createElement("small");
+            detail.textContent = item.detail;
+            const sr = document.createElement("span");
+            sr.className = "sr-only";
+            sr.textContent =
+              item.status === "pass" ? "Passed. " : item.status === "warn" ? "Needs attention. " : item.status === "fail" ? "Failed. " : "Not measured. ";
+            body.append(sr, label, detail);
+            li.append(mark, body);
+            list.append(li);
+          }
+
+          article.append(head, question, list);
+          return article;
+        }),
+      );
+    };
+
+    const renderRecommendability = (report: ScanReport, input: ScanInput) => {
+      const panel = results.querySelector<HTMLElement>("[data-rec-panel]")!;
+      const summary = panel.querySelector<HTMLElement>("[data-rec-summary]")!;
+      const verdict = panel.querySelector<HTMLElement>("[data-rec-verdict]")!;
+      const rec = report.recommendability;
+
+      panel.dataset.state = rec.available ? (rec.mentioned ? "good" : "bad") : "pending";
+
+      if (!rec.available) {
+        summary.textContent = `We will ask ChatGPT and Perplexity what they know about ${input.businessName} and who they recommend for your category in ${input.city}. The answer lands in your emailed scorecard.`;
+        verdict.textContent = "Live AI recommendation test: queued for your full scorecard.";
+        return;
+      }
+
+      summary.textContent = rec.summary
+        ? `“${rec.summary}”`
+        : `“I don't have reliable information about ${input.businessName}.”`;
+
+      if (rec.mentioned) {
+        verdict.textContent = `In a test for “${rec.query}”, AI recommended ${input.businessName}. That lead is worth protecting.`;
+      } else if (rec.competitors?.length) {
+        verdict.textContent = `In a test for “${rec.query}”, AI recommended ${rec.competitors.slice(0, 2).join(" and ")}, and skipped you.`;
+      } else {
+        verdict.textContent = `In a test for “${rec.query ?? "your category"}”, AI did not recommend ${input.businessName}.`;
+      }
+    };
+
+    const renderReport = (report: ScanReport, input: ScanInput, sample: boolean) => {
+      results.querySelector<HTMLElement>("[data-result-score]")!.textContent = String(report.score);
+      results.querySelector<HTMLElement>("[data-result-grade]")!.textContent = `/ 100 · Grade ${report.grade}`;
+      results.querySelector<HTMLElement>("[data-result-label]")!.textContent = report.label;
+      results.querySelector<HTMLElement>("[data-result-headline]")!.textContent = report.headline;
+      results.querySelector<HTMLElement>("[data-result-summary]")!.textContent = report.summary;
+      results.querySelector<HTMLElement>("[data-sample-note]")!.hidden = !sample;
+
+      const grade = results.querySelector<HTMLElement>(".scanner-grade")!;
+      grade.dataset.grade = report.grade;
+
+      renderRecommendability(report, input);
+      renderPillars(report);
+
+      const moves = results.querySelector<HTMLOListElement>("[data-result-moves]")!;
+      moves.replaceChildren(
+        ...report.nextMoves.map((text, index) => {
+          const li = document.createElement("li");
+          const number = document.createElement("span");
+          number.textContent = `0${index + 1}`;
+          const copy = document.createElement("p");
+          copy.textContent = text;
+          li.append(number, copy);
+          return li;
+        }),
+      );
+
+      const cta = results.querySelector<HTMLAnchorElement>("[data-result-cta]")!;
+      const params = new URLSearchParams({
+        source: "ai-readiness-scanner",
+        offer: "foundation-sprint",
+        score: String(report.score),
+        grade: report.grade,
+        site: input.url,
+      });
+      cta.href = `/contact?${params.toString()}`;
+
+      const note = results.querySelector<HTMLElement>("[data-method-note]")!;
+      note.textContent = `${report.measuredChecks} of ${report.totalChecks} checks measured${
+        report.sources.length ? ` using ${report.sources.join(" and ")}` : ""
+      }. Unmeasured checks are shown, not guessed, and are completed in your emailed scorecard.`;
+
+      const status = results.querySelector<HTMLElement>("[data-result-status]")!;
+      status.textContent = sample
+        ? "Sample mode: nothing was sent."
+        : `Your full scorecard is on its way to ${input.email}${input.phone ? ", with a text walkthrough to follow" : ""}.`;
+      status.hidden = false;
+    };
+
+    const showPanel = (panel: "form" | "progress" | "results") => {
+      form.hidden = panel !== "form";
+      progress.hidden = panel !== "progress";
+      results.hidden = panel !== "results";
+      const target = panel === "form" ? form : panel === "progress" ? progress : results;
+      target.focus({ preventScroll: true });
+      root.scrollIntoView({ behavior: prefersReducedMotion.matches ? "auto" : "smooth", block: "start" });
+    };
+
+    const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const input = readInput();
+      if (!input) return;
+
+      submitButton.disabled = true;
+      progressSite.textContent = new URL(input.url).hostname;
+      ["api", "psi", "signals"].forEach((stage) => setStage(stage as ScanStage | "signals", "queued"));
+      showPanel("progress");
+
+      const startedAt = performance.now();
+      startProgress(isDemo ? 6000 : 20000);
+
+      if (typeof window.fbq === "function") {
+        window.fbq("trackCustom", "AIReadinessScanStarted", { content_name: "AI Readiness Scanner" });
+        window.fbq("track", "Lead", { content_name: "AI Readiness Scan", content_category: input.city, value: 1, currency: "USD" });
+      }
+
+      void postWebhook({
+        type: "ai_readiness_scan_requested",
+        source: "ai-readiness-scanner",
+        email: input.email,
+        phone: input.phone || "",
+        businessName: input.businessName,
+        city: input.city,
+        website: input.url,
+        smsTransactionalConsent: Boolean(input.phone),
+        smsConsentLanguage: input.phone ? root.dataset.smsConsent || "" : "",
+        smsConsentMethod: input.phone ? "ai-readiness-scanner-checkbox" : "",
+      });
+
+      let report: ScanReport;
+      let sample = false;
+
+      if (isDemo) {
+        setStage("api", "running");
+        await wait(1500);
+        setStage("api", "done");
+        setStage("psi", "running");
+        await wait(1800);
+        setStage("psi", "done");
+        setStage("signals", "running");
+        await wait(1200);
+        setStage("signals", "done");
+        report = buildReport(input, DEMO_SIGNALS, demoRecommendability(input.businessName, input.city), ["sample data"]);
+        sample = true;
+      } else {
+        setStage("signals", "running");
+        const outcome = await runScan(input, config, setStage);
+        report = outcome.report;
+        setStage("signals", outcome.empty ? "failed" : "done");
+      }
+
+      const elapsed = performance.now() - startedAt;
+      const minimum = isDemo ? 5000 : MIN_SCAN_MS;
+      if (elapsed < minimum) await wait(minimum - elapsed);
+
+      stopProgress();
+      renderReport(report, input, sample);
+
+      try {
+        window.sessionStorage.setItem(
+          "maaxgen-ai-scan-result",
+          JSON.stringify({ source: "ai-readiness-scanner", score: report.score, grade: report.grade, headline: report.headline, site: input.url, businessName: input.businessName }),
+        );
+      } catch {}
+
+      if (typeof window.fbq === "function") {
+        window.fbq("trackCustom", "AIReadinessScanCompleted", {
+          content_name: "AI Readiness Scanner",
+          content_category: input.city,
+          value: report.score,
+        });
+      }
+
+      void postWebhook({
+        type: "ai_readiness_scan_completed",
+        source: "ai-readiness-scanner",
+        email: input.email,
+        phone: input.phone || "",
+        businessName: input.businessName,
+        city: input.city,
+        website: input.url,
+        aiScan: {
+          score: report.score,
+          grade: report.grade,
+          headline: report.headline,
+          provisional: report.provisional,
+          measuredChecks: report.measuredChecks,
+          totalChecks: report.totalChecks,
+          pillars: report.pillars.map((pillar) => ({
+            id: pillar.id,
+            score: pillar.score,
+            max: pillar.max,
+            checks: pillar.checks.map((item) => ({ id: item.id, status: item.status, detail: item.detail })),
+          })),
+          nextMoves: report.nextMoves,
+          recommendability: report.recommendability,
+          sources: report.sources,
+        },
+      });
+
+      showPanel("results");
+      submitButton.disabled = false;
+    });
+
+    root.querySelector<HTMLButtonElement>("[data-scanner-restart]")?.addEventListener("click", () => {
+      progressTrack.style.setProperty("--grader-progress", "0");
+      showPanel("form");
+      form.querySelector<HTMLInputElement>('[name="url"]')?.focus({ preventScroll: true });
+    });
+  }
+</script>

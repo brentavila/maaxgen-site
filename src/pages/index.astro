@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import SprintOffer from "../components/SprintOffer.astro";
 import { getCollection } from "astro:content";
 
 const proofStories = (await getCollection("caseStudies"))
@@ -76,7 +77,7 @@ const fitSignals = [
           We help small businesses set up daily AI agents (like ChatGPT Dots & Meta Muse), lock in airtight ad tracking, and make sure AI platforms actually recommend your brand.
         </p>
         <div class="cta-row">
-          <a class="btn btn--primary" href="/ad-account-grader">
+          <a class="btn btn--primary" href="/ai-readiness-scanner">
             Check my AI readiness
             <span aria-hidden="true">→</span>
           </a>
@@ -84,7 +85,7 @@ const fitSignals = [
         </div>
         <p class="hero-availability">
           <span aria-hidden="true"></span>
-          Will AI recommend your business—or your competitor? Run a free 60-second check.
+          Will AI recommend your business—or your competitor? Enter your URL for a free 60-second scan.
         </p>
       </div>
 
@@ -143,30 +144,32 @@ const fitSignals = [
   <section class="section grader-promo-section">
     <div class="container grader-promo">
       <div class="grader-promo__copy" data-reveal>
-        <p class="eyebrow">Free AI & Ad Readiness Check</p>
+        <p class="eyebrow">Free AI & Agent Readiness Scanner</p>
         <h2>Will AI recommend your business—or skip you for the competitor down the street?</h2>
         <p class="lead">
-          ChatGPT, Meta Muse, and Instinct are shopping for your customers right now. Find out if your business is visible, trusted, and ready for the new era of machine-driven commerce.
+          ChatGPT, Meta Muse, and Instinct are shopping for your customers right now. Enter your
+          website and see what AI actually thinks you sell, whether agents can book or buy from
+          you, and whether your ads are tracked.
         </p>
         <div class="cta-row">
-          <a class="btn btn--primary" href="/ad-account-grader">
-            Check my AI readiness <span aria-hidden="true">→</span>
+          <a class="btn btn--primary" href="/ai-readiness-scanner">
+            Scan my website <span aria-hidden="true">→</span>
           </a>
-          <span class="grader-promo__time">60 seconds. Results shown immediately.</span>
+          <span class="grader-promo__time">Live checks, about a minute. Results on screen.</span>
         </div>
       </div>
 
-      <div class="grader-promo__readout" data-reveal aria-label="What the AI readiness check covers">
+      <div class="grader-promo__readout" data-reveal aria-label="What the AI readiness scanner checks">
         <div class="grader-promo__readout-head">
-          <span>AI & Agent Readiness Diagnostic</span>
-          <strong>No login required</strong>
+          <span>AI & Agent Readiness Scan</span>
+          <strong>Just your URL</strong>
         </div>
         <ol>
           <li><span>01</span><div><strong>Recommendability</strong><small>Do AI platforms understand what you sell?</small></div></li>
           <li><span>02</span><div><strong>Agent Friction</strong><small>Can AI agents book, buy, or quote without getting stuck?</small></div></li>
           <li><span>03</span><div><strong>Signal & Tracking</strong><small>Are your ads feeding accurate data to the machines?</small></div></li>
         </ol>
-        <p>Get a clear grade, see what AI engines actually know about your business, and learn the three moves that will put you ahead of competitors still ignoring this shift.</p>
+        <p>Get a score out of 100, a live quote of what ChatGPT thinks you sell, the competitors it recommended instead, and the three moves that put you ahead.</p>
       </div>
     </div>
   </section>
@@ -339,6 +342,8 @@ const fitSignals = [
       </div>
     </div>
   </section>
+
+  <SprintOffer source="home" />
 
   <section class="home-final-cta">
     <div class="container home-final-cta__inner" data-reveal>

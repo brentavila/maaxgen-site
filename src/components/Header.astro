@@ -7,7 +7,7 @@ interface Props {
 
 const {
   landing = false,
-  ctaHref = "/ad-account-grader",
+  ctaHref = "/ai-readiness-scanner",
   ctaLabel = "Check my AI readiness",
 } = Astro.props;
 
@@ -15,7 +15,7 @@ const nav = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
   { href: "/case-studies", label: "Case studies" },
-  { href: "/ad-account-grader", label: "Ad grader" },
+  { href: "/ai-readiness-scanner", label: "AI readiness" },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
@@ -34,7 +34,7 @@ function isActive(href: string) {
         <strong>Will AI recommend your business—or your competitor?</strong>
         <small class="promo-bar__detail">Run a free 60-second AI &amp; Ad Readiness Check.</small>
       </p>
-      <a href="/ad-account-grader">Check my readiness →</a>
+      <a href="/ai-readiness-scanner">Check my readiness →</a>
     </div>
   </aside>
 )}

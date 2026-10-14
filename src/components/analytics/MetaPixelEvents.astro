@@ -26,6 +26,15 @@ const viewContentPagesJson = JSON.stringify(META_VIEW_CONTENT_PAGES);
       if (!link) return;
 
       var href = link.getAttribute("href") || "";
+      if (href.indexOf("/ai-readiness-scanner") === 0) {
+        if (typeof window.fbq === "function") {
+          window.fbq("trackCustom", "AIReadinessScannerCTA", {
+            content_name: (link.textContent || "AI Readiness Scanner CTA").trim().slice(0, 100),
+            content_category: window.location.pathname,
+          });
+        }
+        return;
+      }
       if (href.indexOf("/ad-account-grader") === 0) {
         if (typeof window.fbq === "function") {
           window.fbq("trackCustom", "AdAccountGraderCTA", {

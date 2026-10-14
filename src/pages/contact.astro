@@ -27,7 +27,7 @@ const SMS_TRANSACTIONAL_CONSENT =
         </ol>
         <p class="contact-stage__note">Typical response: within one business day.</p>
         <p class="contact-stage__grader-link">
-          Not sure where the friction is? <a href="/ad-account-grader">Grade your ads first</a>.
+          Not sure where the friction is? <a href="/ai-readiness-scanner">Scan your site first</a>.
         </p>
       </div>
 
@@ -48,6 +48,8 @@ const SMS_TRANSACTIONAL_CONSENT =
           <input type="hidden" name="grader-score" value="" />
           <input type="hidden" name="grader-industry" value="" />
           <input type="hidden" name="grader-frustration" value="" />
+          <input type="hidden" name="offer" value="" />
+          <input type="hidden" name="scan-site" value="" />
           <div class="field-grid">
             <div>
               <label for="name">Name</label>
@@ -146,8 +148,53 @@ const SMS_TRANSACTIONAL_CONSENT =
     if (form) {
       const params = new URLSearchParams(window.location.search);
       let graderResult = null;
+      let scanResult = null;
 
-      if (params.get("source") === "ad-account-grader") {
+      if (params.get("source") === "ai-readiness-scanner") {
+        scanResult = {
+          grade: params.get("grade") || "",
+          score: params.get("score") || "",
+          site: params.get("site") || "",
+          headline: "",
+        };
+        try {
+          const stored = window.sessionStorage.getItem("maaxgen-ai-scan-result");
+          if (stored) scanResult = { ...JSON.parse(stored), ...Object.fromEntries(Object.entries(scanResult).filter(([, v]) => v)) };
+        } catch {}
+      }
+
+      const offerParam = params.get("offer") || "";
+      const offerInput = form.querySelector('[name="offer"]');
+      if (offerInput && offerParam) offerInput.value = offerParam;
+
+      if (scanResult && scanResult.score) {
+        const contextBox = document.querySelector("[data-grader-context]");
+        const contextTitle = document.querySelector("[data-grader-context-title]");
+        const contextCopy = document.querySelector("[data-grader-context-copy]");
+        const formTitle = document.querySelector("[data-contact-form-title]");
+        const message = form.querySelector('[name="message"]');
+        const sourceInput = form.querySelector('[name="lead-source"]');
+        const gradeInput = form.querySelector('[name="grader-grade"]');
+        const scoreInput = form.querySelector('[name="grader-score"]');
+        const siteInput = form.querySelector('[name="scan-site"]');
+
+        if (sourceInput) sourceInput.value = "ai-readiness-scanner";
+        if (gradeInput) gradeInput.value = scanResult.grade || "";
+        if (scoreInput) scoreInput.value = scanResult.score || "";
+        if (siteInput) siteInput.value = scanResult.site || "";
+
+        if (formTitle) {
+          formTitle.textContent = offerParam === "foundation-sprint" ? "Let’s scope your 14-day sprint." : "Let’s review your AI readiness score.";
+        }
+        if (contextTitle) contextTitle.textContent = `AI & Agent Readiness: ${scanResult.score}/100${scanResult.grade ? `, Grade ${scanResult.grade}` : ""}`;
+        if (contextCopy) {
+          contextCopy.textContent = `${scanResult.site ? `Site scanned: ${scanResult.site}. ` : ""}${scanResult.headline || "We will start from your scan instead of asking you to explain it again."}`;
+        }
+        if (contextBox) contextBox.hidden = false;
+        if (message && !message.value) {
+          message.value = `I ran the AI & Agent Readiness Scanner${scanResult.site ? ` on ${scanResult.site}` : ""} and scored ${scanResult.score}/100${scanResult.grade ? ` (Grade ${scanResult.grade})` : ""}.${scanResult.headline ? ` The headline finding: ${scanResult.headline}` : ""} I would like to talk about the 14-Day AI & Growth Foundation Sprint.`;
+        }
+      } else if (params.get("source") === "ad-account-grader") {
         graderResult = {
           source: "ad-account-grader",
           grade: params.get("grade") || "",
@@ -214,11 +261,17 @@ const SMS_TRANSACTIONAL_CONSENT =
           businessType: data.get("business-type") || "",
           message: data.get("message"),
           leadSource: data.get("lead-source") || "contact-page",
+          offer: data.get("offer") || "",
           adGrader: {
             grade: data.get("grader-grade") || "",
             score: data.get("grader-score") || "",
             industry: data.get("grader-industry") || "",
             frustration: data.get("grader-frustration") || "",
+          },
+          aiScan: {
+            grade: data.get("lead-source") === "ai-readiness-scanner" ? data.get("grader-grade") || "" : "",
+            score: data.get("lead-source") === "ai-readiness-scanner" ? data.get("grader-score") || "" : "",
+            site: data.get("scan-site") || "",
           },
           smsMarketingConsent: marketingConsent,
           smsTransactionalConsent: transactionalConsent,
