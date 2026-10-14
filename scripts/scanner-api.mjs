@@ -252,6 +252,71 @@ function readJson(req) {
   });
 }
 
+export async function personalize({ business, playbook }) {
+  if (!OPENAI_API_KEY) return { ok: false, error: "openai disabled" };
+  if (!playbook || !Array.isArray(playbook.agents) || playbook.agents.length !== 3) {
+    return { ok: false, error: "missing playbook" };
+  }
+
+  const description = String(business || "").slice(0, 400);
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENAI_API_KEY}` },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      temperature: 0.4,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content:
+            "You rewrite a marketing agency's implementation plan so it names the visitor's specific business. Keep the same three agents, the same tools, and the same two ad workflows. Do not invent prices, guarantees, or tools that are not already in the plan. Respond with strict JSON.",
+        },
+        {
+          role: "user",
+          content: `Visitor said: "${description}"
+Playbook label: ${playbook.label}
+Current plan JSON:
+${JSON.stringify({
+  hook: playbook.hook,
+  agents: playbook.agents,
+  adWorkflows: playbook.adWorkflows,
+  visibilityFix: playbook.visibilityFix,
+})}
+
+Return JSON with keys hook (one sentence), agents (exactly 3 objects with name, tool, does, saves), adWorkflows (same length, objects with title and detail), visibilityFix (one sentence). Keep each tool string identical to the input.`,
+        },
+      ],
+    }),
+  });
+  if (!response.ok) throw new Error(`openai ${response.status}`);
+  const data = await response.json();
+  const parsed = JSON.parse(data.choices?.[0]?.message?.content || "{}");
+  if (!Array.isArray(parsed.agents) || parsed.agents.length !== 3) return { ok: false, error: "bad plan" };
+
+  const agents = parsed.agents.map((agent, index) => ({
+    name: String(agent.name || playbook.agents[index].name).slice(0, 80),
+    tool: playbook.agents[index].tool,
+    does: String(agent.does || playbook.agents[index].does).slice(0, 400),
+    saves: String(agent.saves || playbook.agents[index].saves).slice(0, 120),
+  }));
+
+  return {
+    ok: true,
+    plan: {
+      hook: String(parsed.hook || playbook.hook).slice(0, 400),
+      agents,
+      adWorkflows: Array.isArray(parsed.adWorkflows)
+        ? parsed.adWorkflows.slice(0, playbook.adWorkflows.length).map((flow, index) => ({
+            title: String(flow.title || playbook.adWorkflows[index]?.title || "").slice(0, 80),
+            detail: String(flow.detail || playbook.adWorkflows[index]?.detail || "").slice(0, 400),
+          }))
+        : playbook.adWorkflows,
+      visibilityFix: String(parsed.visibilityFix || playbook.visibilityFix).slice(0, 400),
+    },
+  };
+}
+
 export async function scan({ url, businessName, city }) {
   let target;
   try {
@@ -304,6 +369,16 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   createServer(async (req, res) => {
     if (req.method === "OPTIONS") return send(res, 204, {});
     if (req.method === "GET" && req.url === "/health") return send(res, 200, { ok: true, openai: Boolean(OPENAI_API_KEY) });
+    if (req.method === "POST" && req.url?.startsWith("/agent")) {
+      try {
+        const body = await readJson(req);
+        const result = await personalize(body);
+        return send(res, result.ok ? 200 : 400, result);
+      } catch (error) {
+        console.error("personalize failed:", error);
+        return send(res, 502, { ok: false, error: "personalize failed" });
+      }
+    }
     if (req.method !== "POST" || !req.url?.startsWith("/scan")) return send(res, 404, { ok: false, error: "not found" });
 
     try {

@@ -1,0 +1,257 @@
+---
+import { PLAYBOOKS } from "../lib/brand-agent/playbooks";
+
+interface Props {
+  source?: string;
+  eyebrow?: string;
+  heading?: string;
+}
+
+const {
+  source = "brand-agent",
+  eyebrow = "Practice what we preach",
+  heading = "Ask MaaxGen’s AI agent how we would automate your business.",
+} = Astro.props;
+
+const env = import.meta.env as Record<string, string | undefined>;
+const AGENT_API_URL = (env.PUBLIC_BRAND_AGENT_URL ?? "").trim();
+
+// Lead with the three the prompt bar is designed around; the rest follow.
+const chipOrder = ["med-spa", "shopify", "home-services", "dental-health", "restaurant", "professional-services", "fitness"];
+const chips = chipOrder.map((id) => PLAYBOOKS.find((item) => item.id === id)).filter(Boolean) as typeof PLAYBOOKS;
+---
+
+<section class="section brand-agent-section" id="brand-agent">
+  <div class="container">
+    <div class="section-heading section-heading--wide" data-reveal>
+      <p class="eyebrow">{eyebrow}</p>
+      <h2>{heading}</h2>
+      <p class="lead">
+        Describe your business or tap an example. You get the three AI agents and the ad workflow
+        we would install for you, then a one-click link to book the call.
+      </p>
+    </div>
+
+    <div
+      class="brand-agent"
+      data-brand-agent
+      data-agent-url={AGENT_API_URL}
+      data-source={source}
+      data-reveal
+    >
+      <form class="brand-agent__prompt" data-agent-form>
+        <span class="brand-agent__mark" aria-hidden="true">
+          <span class="logo__maax">M</span><span class="logo__gen">G</span>
+        </span>
+        <label class="sr-only" for={`brand-agent-input-${source}`}>Describe your business</label>
+        <input
+          id={`brand-agent-input-${source}`}
+          name="business"
+          type="text"
+          autocomplete="off"
+          maxlength="240"
+          placeholder="e.g. I run a two-truck plumbing company in Tampa"
+        />
+        <button class="btn btn--primary" type="submit">
+          Ask <span aria-hidden="true">→</span>
+        </button>
+      </form>
+
+      <div class="brand-agent__chips" role="group" aria-label="Example businesses">
+        {chips.map((playbook) => (
+          <button type="button" data-agent-chip={playbook.id}>{playbook.chip}</button>
+        ))}
+      </div>
+
+      <div class="brand-agent__reply" data-agent-reply hidden aria-live="polite">
+        <p class="brand-agent__thinking" data-agent-thinking>
+          <span aria-hidden="true"></span>
+          Mapping your business to the agents and workflows we would install…
+        </p>
+
+        <div class="brand-agent__answer" data-agent-answer hidden>
+          <p class="brand-agent__hook" data-agent-hook></p>
+
+          <h3 class="brand-agent__subhead">The three agents we would set up for you</h3>
+          <ol class="brand-agent__agents" data-agent-list></ol>
+
+          <h3 class="brand-agent__subhead">The ad workflow we would wire underneath</h3>
+          <ul class="brand-agent__workflows" data-agent-workflows></ul>
+
+          <p class="brand-agent__visibility">
+            <strong>AI visibility fix:</strong> <span data-agent-visibility></span>
+          </p>
+
+          <div class="brand-agent__cta">
+            <a class="btn btn--primary" href="/growth-system/book?source=brand-agent" data-agent-book>
+              Book a 20-minute call <span aria-hidden="true">→</span>
+            </a>
+            <a class="btn btn--secondary" href="/ai-readiness-scanner">Scan my site first</a>
+          </div>
+          <p class="brand-agent__note" data-agent-note></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { matchPlaybook, playbookById, type Playbook } from "../lib/brand-agent/playbooks";
+
+  interface AgentApiResponse {
+    ok: boolean;
+    plan?: Partial<Playbook> & { label?: string };
+    error?: string;
+  }
+
+  const MIN_THINK_MS = 900;
+
+  document.querySelectorAll<HTMLElement>("[data-brand-agent]").forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>("[data-agent-form]")!;
+    const input = form.querySelector<HTMLInputElement>('input[name="business"]')!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const reply = root.querySelector<HTMLElement>("[data-agent-reply]")!;
+    const thinking = root.querySelector<HTMLElement>("[data-agent-thinking]")!;
+    const answer = root.querySelector<HTMLElement>("[data-agent-answer]")!;
+    const hook = root.querySelector<HTMLElement>("[data-agent-hook]")!;
+    const list = root.querySelector<HTMLOListElement>("[data-agent-list]")!;
+    const workflows = root.querySelector<HTMLUListElement>("[data-agent-workflows]")!;
+    const visibility = root.querySelector<HTMLElement>("[data-agent-visibility]")!;
+    const book = root.querySelector<HTMLAnchorElement>("[data-agent-book]")!;
+    const note = root.querySelector<HTMLElement>("[data-agent-note]")!;
+    const chips = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-agent-chip]"));
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apiUrl = root.dataset.agentUrl || "";
+    const source = root.dataset.source || "brand-agent";
+
+    let requestId = 0;
+
+    const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+    const setBusy = (busy: boolean) => {
+      submit.disabled = busy;
+      chips.forEach((chip) => (chip.disabled = busy));
+      root.classList.toggle("is-busy", busy);
+    };
+
+    const render = (plan: Playbook, personalized: boolean, confident: boolean) => {
+      hook.textContent = plan.hook;
+
+      list.replaceChildren(
+        ...plan.agents.map((agent, index) => {
+          const li = document.createElement("li");
+          li.style.setProperty("--reveal-delay", `${index * 0.16}s`);
+          const head = document.createElement("div");
+          head.className = "brand-agent__agent-head";
+          const number = document.createElement("span");
+          number.textContent = `0${index + 1}`;
+          const name = document.createElement("strong");
+          name.textContent = agent.name;
+          const tool = document.createElement("em");
+          tool.textContent = agent.tool;
+          head.append(number, name, tool);
+          const does = document.createElement("p");
+          does.textContent = agent.does;
+          const saves = document.createElement("small");
+          saves.textContent = `Saves ${agent.saves}.`;
+          li.append(head, does, saves);
+          return li;
+        }),
+      );
+
+      workflows.replaceChildren(
+        ...plan.adWorkflows.map((flow, index) => {
+          const li = document.createElement("li");
+          li.style.setProperty("--reveal-delay", `${0.5 + index * 0.14}s`);
+          const title = document.createElement("strong");
+          title.textContent = flow.title;
+          const detail = document.createElement("p");
+          detail.textContent = flow.detail;
+          li.append(title, detail);
+          return li;
+        }),
+      );
+
+      visibility.textContent = plan.visibilityFix;
+
+      const params = new URLSearchParams({ source, playbook: plan.id, business: input.value.trim().slice(0, 120) });
+      book.href = `/growth-system/book?${params.toString()}`;
+
+      note.textContent = personalized
+        ? `Drafted live for your description from our ${plan.label} playbook. We confirm the details on the call.`
+        : confident
+          ? `Drafted from our ${plan.label} playbook. We tailor it to your tools and team on the call.`
+          : `Your description did not match one of our playbooks, so this is our closest fit (${plan.label}). Tell us more on the call and we will adjust it.`;
+    };
+
+    const run = async (text: string, chipId?: string) => {
+      const id = ++requestId;
+      setBusy(true);
+      reply.hidden = false;
+      answer.hidden = true;
+      thinking.hidden = false;
+      reply.scrollIntoView({ behavior: prefersReducedMotion.matches ? "auto" : "smooth", block: "nearest" });
+
+      const startedAt = performance.now();
+      const local = chipId ? { playbook: playbookById(chipId)!, confident: true } : matchPlaybook(text);
+      let plan: Playbook = local.playbook;
+      let personalized = false;
+
+      if (apiUrl && !chipId && text.length >= 12) {
+        try {
+          const controller = new AbortController();
+          const timer = window.setTimeout(() => controller.abort(), 12000);
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ business: text, playbook: local.playbook }),
+            signal: controller.signal,
+          });
+          window.clearTimeout(timer);
+          const data = (await response.json()) as AgentApiResponse;
+          if (data.ok && data.plan && Array.isArray(data.plan.agents) && data.plan.agents.length === 3) {
+            plan = { ...local.playbook, ...data.plan, agents: data.plan.agents as Playbook["agents"] };
+            personalized = true;
+          }
+        } catch {
+          // Fall back to the local playbook silently.
+        }
+      }
+
+      const elapsed = performance.now() - startedAt;
+      if (elapsed < MIN_THINK_MS) await wait(MIN_THINK_MS - elapsed);
+      if (id !== requestId) return;
+
+      render(plan, personalized, local.confident);
+      thinking.hidden = true;
+      answer.hidden = false;
+      setBusy(false);
+
+      if (typeof window.fbq === "function") {
+        window.fbq("trackCustom", "BrandAgentPlan", {
+          content_name: plan.id,
+          content_category: chipId ? "chip" : personalized ? "live" : "matched",
+        });
+      }
+    };
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        input.value = chip.textContent?.trim() || "";
+        chips.forEach((item) => item.setAttribute("aria-pressed", String(item === chip)));
+        void run(input.value, chip.dataset.agentChip);
+      });
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text) {
+        input.focus();
+        return;
+      }
+      chips.forEach((item) => item.removeAttribute("aria-pressed"));
+      void run(text);
+    });
+  });
+</script>
