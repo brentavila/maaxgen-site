@@ -4,84 +4,84 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 const pillars = [
   {
     index: "01",
-    title: "Strategy",
-    outcome: "Know what to do next and why it matters.",
+    title: "Put AI agents to work",
+    outcome: "Automate your busywork without breaking anything.",
     detail:
-      "We turn goals, margins, customer behavior, and market context into a focused 90-day plan.",
-    items: ["Positioning and offers", "Campaign priorities", "Revenue-focused measurement"],
+      "We set up ChatGPT Dots, Meta Muse, or custom workflows inside your business, write the permission rules and guardrails so an agent never emails the wrong client, and train you to run daily marketing in 15 minutes a day.",
+    items: ["AI agent setup and permissions", "Safety guardrails and data governance", "Owner and team training"],
   },
   {
     index: "02",
-    title: "Creative and web",
-    outcome: "Give the right customer a reason to act.",
+    title: "Make your brand visible to AI",
+    outcome: "Get recommended when customers ask ChatGPT, Google, or Meta.",
     detail:
-      "Campaign messages, ads, and landing pages stay aligned from first impression through conversion.",
-    items: ["Ad creative and copy", "Landing pages", "Conversion-focused website improvements"],
+      "AI agents do not care about your colors. They read schema markup, structured pricing, review sentiment, and response times. We build the machine-readable proof that makes them trust and recommend you.",
+    items: ["Schema and structured pricing", "Review velocity and citations", "Agent-friendly booking and checkout"],
   },
   {
     index: "03",
-    title: "Paid media",
-    outcome: "Put the message in front of buyers with intent.",
+    title: "Fix your ad tracking",
+    outcome: "Stop wasting ad spend on an algorithm that is guessing.",
     detail:
-      "Search, social, and retargeting are managed against qualified leads, sales, and return.",
-    items: ["Campaign management", "Creative testing", "Budget and channel decisions"],
+      "Meta Advantage+ and Google PMax learn from the data you feed back. We build the pipes: server-side CAPI, CRM pipeline integration, and offline conversion imports that train the platforms to find your highest-paying customers.",
+    items: ["Server-side conversion tracking", "CRM and offline conversion imports", "Paid media managed against revenue"],
   },
   {
     index: "04",
-    title: "Follow-up and AI",
-    outcome: "Turn more interest into revenue without adding busywork.",
+    title: "Instant lead follow-up",
+    outcome: "Never miss a buyer, whether a human or an AI agent is calling.",
     detail:
-      "Practical automation responds faster, keeps opportunities moving, and organizes what the campaigns learn.",
-    items: ["Speed-to-lead replies", "CRM workflows", "Human-reviewed AI operations"],
+      "Agents like Instinct now phone local businesses to book appointments and request quotes. We install instant SMS and AI-voice answering so every inquiry gets a response in under a minute.",
+    items: ["AI voice and SMS answering", "Missed-call text back", "Pipeline reminders and booking"],
   },
 ];
 
 const leadJourney = [
-  { when: "Minute 1", title: "Inquiry answered", detail: "An on-brand response arrives while interest is high." },
+  { when: "Minute 1", title: "Inquiry answered", detail: "A human or an AI agent reaches out. An on-brand response arrives while interest is high." },
   { when: "Day 1", title: "Next step booked", detail: "Reminders keep the opportunity moving without chasing spreadsheets." },
-  { when: "Week 1", title: "Revenue connected", detail: "The pipeline shows what closed and which channel created it." },
-  { when: "Next campaign", title: "Learning compounds", detail: "The result improves the next message, audience, and budget decision." },
+  { when: "Week 1", title: "Revenue connected", detail: "The pipeline shows what closed and sends that signal back to Meta and Google." },
+  { when: "Next campaign", title: "Learning compounds", detail: "The platforms' AI targets better because the data it learns from is true." },
 ];
 
 const expectations = [
   {
     window: "Days 1–30",
     title: "Build the foundation",
-    items: ["Goals and account access", "90-day roadmap", "Tracking and baseline", "Priority conversion fixes"],
+    items: ["AI readiness baseline", "Tracking and CAPI installed", "Schema and pricing made machine-readable", "First AI agent set up"],
   },
   {
     window: "Days 31–60",
     title: "Launch and learn",
-    items: ["Campaigns go live", "Follow-up starts working", "Creative tests begin", "Clear weekly updates"],
+    items: ["Campaigns go live", "Instant follow-up starts working", "Agent workflows tuned", "Clear weekly updates"],
   },
   {
     window: "Days 61–90",
     title: "Optimize and compound",
-    items: ["Budget follows revenue", "Winning ideas expand", "Weak links get fixed", "Month four starts ahead"],
+    items: ["Budget follows revenue", "AI recommendations tracked", "Weak links get fixed", "Month four starts ahead"],
   },
 ];
 ---
 
 <BaseLayout
   title="Services"
-  description="One connected growth system spanning strategy, creative, paid media, websites, follow-up, and practical AI."
+  description="AI agent setup, AI brand visibility, airtight ad tracking, and instant lead follow-up for local and e-commerce businesses."
 >
   <section class="phase-hero phase-hero--services">
     <div class="container phase-hero__grid">
       <div>
-        <p class="hero-kicker">One team across the customer journey</p>
-        <h1>Four capabilities. <span>One growth system.</span></h1>
+        <p class="hero-kicker">AI-era growth and implementation</p>
+        <h1>You run the AI. <span>We build the foundations.</span></h1>
         <p class="lead">
-          Strategy, creative, media, and follow-up work better when the same accountable partner
-          connects them.
+          Use modern agents like ChatGPT Dots, Meta Muse, and Instinct for daily execution while we
+          handle tracking, paid media signals, and AI brand visibility.
         </p>
         <div class="cta-row">
-          <a class="btn btn--primary" href="/ad-account-grader">Grade my ads <span aria-hidden="true">→</span></a>
+          <a class="btn btn--primary" href="/ad-account-grader">Check my AI readiness <span aria-hidden="true">→</span></a>
           <a class="btn btn--secondary" href="/pricing">Compare engagement levels</a>
         </div>
       </div>
       <div class="service-orbit" role="img" aria-label="Four MaaxGen services connected in one continuous system">
-        <div class="service-orbit__core"><strong>Growth</strong><span>one plan</span></div>
+        <div class="service-orbit__core"><strong>AI-ready</strong><span>your business</span></div>
         {pillars.map((pillar) => (
           <div class={`service-orbit__node service-orbit__node--${pillar.index}`}>
             <span>{pillar.index}</span>
@@ -94,21 +94,21 @@ const expectations = [
 
   <div class="growth-chain" aria-label="Connected service outcomes">
     <div class="container growth-chain__inner">
-      <span>Find the priority</span><i aria-hidden="true">→</i>
-      <span>Build the message</span><i aria-hidden="true">→</i>
-      <span>Create demand</span><i aria-hidden="true">→</i>
-      <span>Convert the interest</span>
+      <span>AI agents working</span><i aria-hidden="true">→</i>
+      <span>Brand visible to AI</span><i aria-hidden="true">→</i>
+      <span>Tracking locked in</span><i aria-hidden="true">→</i>
+      <span>Instant follow-up</span>
     </div>
   </div>
 
   <section class="section service-system-section">
     <div class="container service-system-layout">
       <div class="service-system-intro" data-reveal>
-        <p class="eyebrow">What we connect</p>
-        <h2>Open any capability. See how it supports the whole.</h2>
+        <p class="eyebrow">What we do</p>
+        <h2>Four problems. Plain-English fixes.</h2>
         <p>
-          You do not need four disconnected vendors. You need the right work happening in the
-          right order.
+          Do AI platforms understand what I sell? Are my ads tracked properly? How do I use AI
+          agents to save ten hours a week? Open any one to see the answer.
         </p>
       </div>
       <div class="service-accordions">
@@ -213,8 +213,8 @@ const expectations = [
 
   <section class="home-final-cta">
     <div class="container home-final-cta__inner" data-reveal>
-      <p>Not sure which capability comes first?</p>
-      <h2>Bring us the messy stack. We’ll map the next right move.</h2>
+      <p>Not sure where to start?</p>
+      <h2>Bring us the messy stack. We’ll show you what AI sees first.</h2>
       <a class="btn btn--primary" href="/contact">Start the conversation <span aria-hidden="true">→</span></a>
     </div>
   </section>

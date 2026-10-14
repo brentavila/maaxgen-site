@@ -2,7 +2,7 @@
 
 ## Product Purpose
 
-Marketing site for MaaxGen, a marketing, advertising, and AI agency. Services are sold as a bundled, all-in-one solution for local businesses and e-commerce businesses. The site promotes services and drives inquiries.
+Marketing site for MaaxGen, an AI-era growth and implementation partner for local and e-commerce businesses. Positioning: the owner uses modern AI agents (ChatGPT Dots, Meta Muse, Instinct) for daily execution; MaaxGen builds the technical foundations they cannot do themselves. Four pillars: put AI agents to work, make the brand visible to AI, fix ad tracking (server-side signals), instant lead follow-up. The site promotes services and drives inquiries.
 
 ## Users
 
@@ -17,7 +17,7 @@ brand
 
 ## Tone
 
-Professional, modern, and growth-oriented. Confident without hype. Plain language for SMB owners. Avoid jargon unless it helps clarify the bundle value.
+Professional, modern, and growth-oriented. Confident without hype. Plain language for SMB owners. Optimize for cognitive ease: concrete outcomes and the owner's own questions ("Do AI platforms understand what I sell?") over abstract system language ("connected engine", "optimization readiness"). Name the tools owners have heard of. Avoid jargon unless it helps clarify the value.
 
 ## Strategic Principles
 
