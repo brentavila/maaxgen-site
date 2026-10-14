@@ -31,7 +31,24 @@ import { FUNNEL_ROUTES } from "../../funnel/config";
   </section>
 
   <script>
+    import { playbookById } from "../../lib/brand-agent/playbooks";
     import { readFunnelState } from "../../funnel/state";
+
+    const params = new URLSearchParams(window.location.search);
+    const playbookFromAgent = playbookById(params.get("playbook") || "");
+    if (playbookFromAgent) {
+      const playbook = playbookFromAgent;
+      const business = (params.get("business") || "").trim().replace(/[.,;:!?\s]+$/g, "");
+      const title = document.querySelector<HTMLElement>("[data-book-title]");
+      const body = document.querySelector<HTMLElement>("[data-book-body]");
+      if (title) {
+        title.textContent = `Let’s install the agents for your ${playbook.label}.`;
+      }
+      if (body) {
+        const who = business || `your ${playbook.label}`;
+        body.textContent = `We’ll walk through the three agents and the tracking workflow for ${who}, then confirm the 14-day sprint scope.`;
+      }
+    }
 
     const state = readFunnelState();
     const calendar = document.querySelector<HTMLElement>("[data-funnel-calendar]");

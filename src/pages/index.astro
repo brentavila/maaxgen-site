@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SprintOffer from "../components/SprintOffer.astro";
+import BrandAgent from "../components/BrandAgent.astro";
 import { getCollection } from "astro:content";
 
 const proofStories = (await getCollection("caseStudies"))
@@ -235,6 +236,8 @@ const fitSignals = [
       </div>
     </div>
   </section>
+
+  <BrandAgent source="home" />
 
   <section class="section system-comparison-section">
     <div class="container comparison-heading" data-reveal>
