@@ -8,7 +8,7 @@ interface Props {
 const {
   landing = false,
   ctaHref = "/ad-account-grader",
-  ctaLabel = "Grade my ads",
+  ctaLabel = "Check my AI readiness",
 } = Astro.props;
 
 const nav = [
@@ -28,13 +28,13 @@ function isActive(href: string) {
 }
 ---
 {!landing && (
-  <aside class="promo-bar" aria-label="Free ad account grader">
+  <aside class="promo-bar" aria-label="Free AI and ad readiness check">
     <div class="container promo-bar__inner">
       <p>
-        <strong>Free two-minute diagnostic:</strong>
-        Find the weak point in the system around your ads.
+        <strong>Will AI recommend your business—or your competitor?</strong>
+        <small class="promo-bar__detail">Run a free 60-second AI &amp; Ad Readiness Check.</small>
       </p>
-      <a href="/ad-account-grader">Get my grade</a>
+      <a href="/ad-account-grader">Check my readiness →</a>
     </div>
   </aside>
 )}

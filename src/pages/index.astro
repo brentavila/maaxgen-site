@@ -8,34 +8,34 @@ const proofStories = (await getCollection("caseStudies"))
 
 const growthLeaks = [
   {
-    id: "follow-up",
-    shortLabel: "Slow follow-up",
-    title: "Good leads go cold while your team is busy.",
+    id: "ai-setup",
+    shortLabel: "AI Setup Confusion",
+    title: "I know I should use AI, but don't know how to set it up.",
     problem:
-      "A customer calls, fills out a form, or starts a checkout. Then they wait. The next business to respond gets the opportunity.",
+      "You've heard about ChatGPT Dots, Meta Muse, and AI automation, but you're afraid of breaking something, leaking data, or wasting time on tools that don't fit your business.",
     fix:
-      "Instant replies, missed-call text back, and clear pipeline reminders keep every inquiry moving.",
-    steps: ["New inquiry", "Instant response", "Booked next step"],
+      "We architect, wire, and govern your internal AI agents so you can generate content, answer emails, and plan campaigns in 15 minutes a day instead of hours.",
+    steps: ["Safe AI setup", "Your team trained", "Daily automation"],
   },
   {
-    id: "website",
-    shortLabel: "Weak conversion",
-    title: "Your website gets attention, but not enough action.",
+    id: "ai-invisibility",
+    shortLabel: "AI Invisibility",
+    title: "ChatGPT and Google aren't recommending my business.",
     problem:
-      "The ad earns the click, then vague copy and a buried next step make the visitor work too hard.",
+      "AI platforms like ChatGPT, Perplexity, and Meta Muse are becoming the new search engines. If they don't understand what you sell or trust your reputation, they'll send customers to your competitor.",
     fix:
-      "We align the message, offer, and landing page so the path from interest to action feels obvious.",
-    steps: ["Relevant ad", "Matched landing page", "Clear action"],
+      "We make your business machine-legible by updating schema markup, entity data, review architecture, and pricing structure so AI agents trust and recommend you.",
+    steps: ["AI can read you", "Trust signals verified", "You get recommended"],
   },
   {
-    id: "systems",
-    shortLabel: "Disconnected tools",
-    title: "Your tools create more work than they remove.",
+    id: "ad-tracking",
+    shortLabel: "Broken Ad Tracking",
+    title: "I'm spending money on ads, but can't tell what's working.",
     problem:
-      "Campaigns, customer data, and AI tools live in separate places. Your team spends time moving information instead of using it.",
+      "Meta and Google's AI needs accurate conversion data to optimize. When your tracking is broken, the algorithm guesses wrong and wastes your budget on low-quality clicks.",
     fix:
-      "We connect the useful pieces, remove the noise, and document workflows your team can trust.",
-    steps: ["Clean inputs", "Connected workflow", "Useful output"],
+      "We install airtight conversion tracking, server-side CAPI, CRM pipeline integration, and offline conversion imports so every ad dollar is tracked to real revenue.",
+    steps: ["Tracking installed", "Data feeds AI", "Budget optimizes itself"],
   },
 ];
 
@@ -49,8 +49,8 @@ const fitSignals = [
     body: "Qualified leads, acquisition cost, conversion rate, and return matter more than vanity metrics.",
   },
   {
-    title: "You are building for the long term.",
-    body: "You want a partner who learns the business and makes every campaign smarter than the last.",
+    title: "You would rather learn the tools than outsource everything.",
+    body: "You want AI agents set up safely in your own business, with the guardrails and training to run them in 15 minutes a day.",
   },
   {
     title: "You choose fit and accountability over the lowest bid.",
@@ -61,35 +61,37 @@ const fitSignals = [
 
 <BaseLayout
   title="MaaxGen"
-  description="One agency partner connecting strategy, creative, advertising, and follow-up into a growth system for local and e-commerce businesses."
+  description="MaaxGen helps small businesses put AI agents to work, get recommended by ChatGPT and Google, fix ad tracking, and follow up with every lead instantly."
 >
   <section class="engagement-hero">
     <div class="engagement-hero__glow" aria-hidden="true"></div>
     <div class="container engagement-hero__grid">
       <div class="engagement-hero__copy">
-        <p class="hero-kicker">One accountable growth partner</p>
-        <h1>Your marketing should work like a system. <span>Not a pile of projects.</span></h1>
+        <p class="hero-kicker">AI-Era Growth & Implementation Partner</p>
+        <h1 class="engagement-hero__title--long">
+          Customers are using AI to shop. Competitors are using AI to market.
+          <span>Don't get left behind.</span>
+        </h1>
         <p class="lead">
-          MaaxGen connects strategy, creative, advertising, and follow-up so every part helps the
-          next part perform better.
+          We help small businesses set up daily AI agents (like ChatGPT Dots & Meta Muse), lock in airtight ad tracking, and make sure AI platforms actually recommend your brand.
         </p>
         <div class="cta-row">
           <a class="btn btn--primary" href="/ad-account-grader">
-            Grade my ads
+            Check my AI readiness
             <span aria-hidden="true">→</span>
           </a>
           <a class="btn btn--secondary" href="/case-studies">See the work</a>
         </div>
         <p class="hero-availability">
           <span aria-hidden="true"></span>
-          Free two-minute diagnostic. No ad account login required.
+          Will AI recommend your business—or your competitor? Run a free 60-second check.
         </p>
       </div>
 
       <div
         class="engine-map"
         role="img"
-        aria-label="Strategy, creative, advertising, and follow-up connected around one growth plan"
+        aria-label="AI agents, AI visibility, ad tracking, and instant follow-up connected around one growth plan"
       >
         <svg class="engine-map__lines" viewBox="0 0 600 520" aria-hidden="true">
           <path d="M300 260 L136 116" />
@@ -98,29 +100,29 @@ const fitSignals = [
           <path d="M300 260 L464 404" />
         </svg>
         <div class="engine-map__core">
-          <span>One plan</span>
-          <strong>Growth</strong>
-          <small>measured and improved</small>
+          <span>Your business</span>
+          <strong>AI-ready</strong>
+          <small>in weeks, not quarters</small>
         </div>
         <div class="engine-node engine-node--strategy">
           <span>01</span>
-          <strong>Strategy</strong>
-          <small>the right priority</small>
+          <strong>Put AI Agents to Work</strong>
+          <small>automate your busywork</small>
         </div>
         <div class="engine-node engine-node--creative">
           <span>02</span>
-          <strong>Creative</strong>
-          <small>a message that lands</small>
+          <strong>Make Your Brand Visible to AI</strong>
+          <small>get recommended</small>
         </div>
         <div class="engine-node engine-node--media">
           <span>03</span>
-          <strong>Advertising</strong>
-          <small>attention with intent</small>
+          <strong>Fix Your Ad Tracking</strong>
+          <small>stop wasting ad spend</small>
         </div>
         <div class="engine-node engine-node--followup">
           <span>04</span>
-          <strong>Follow-up</strong>
-          <small>interest into action</small>
+          <strong>Instant Lead Follow-Up</strong>
+          <small>never miss a buyer</small>
         </div>
       </div>
     </div>
@@ -128,44 +130,43 @@ const fitSignals = [
 
   <div class="growth-chain" aria-label="The MaaxGen growth process">
     <div class="container growth-chain__inner">
-      <span>Clear strategy</span>
+      <span>AI agents working</span>
       <i aria-hidden="true">→</i>
-      <span>Stronger creative</span>
+      <span>Brand visible to AI</span>
       <i aria-hidden="true">→</i>
-      <span>Smarter media</span>
+      <span>Tracking locked in</span>
       <i aria-hidden="true">→</i>
-      <span>Faster follow-up</span>
+      <span>Instant follow-up</span>
     </div>
   </div>
 
   <section class="section grader-promo-section">
     <div class="container grader-promo">
       <div class="grader-promo__copy" data-reveal>
-        <p class="eyebrow">Free ad account grader</p>
-        <h2>Find the weak point before you spend another dollar.</h2>
+        <p class="eyebrow">Free AI & Ad Readiness Check</p>
+        <h2>Will AI recommend your business—or skip you for the competitor down the street?</h2>
         <p class="lead">
-          No dashboards, spreadsheets, or ROAS math. Answer five questions you already know and
-          get a practical grade for the system around your ads.
+          ChatGPT, Meta Muse, and Instinct are shopping for your customers right now. Find out if your business is visible, trusted, and ready for the new era of machine-driven commerce.
         </p>
         <div class="cta-row">
           <a class="btn btn--primary" href="/ad-account-grader">
-            Grade my ads <span aria-hidden="true">→</span>
+            Check my AI readiness <span aria-hidden="true">→</span>
           </a>
-          <span class="grader-promo__time">Two minutes. Results shown immediately.</span>
+          <span class="grader-promo__time">60 seconds. Results shown immediately.</span>
         </div>
       </div>
 
-      <div class="grader-promo__readout" data-reveal aria-label="What the ad account grader checks">
+      <div class="grader-promo__readout" data-reveal aria-label="What the AI readiness check covers">
         <div class="grader-promo__readout-head">
-          <span>Account diagnostic</span>
+          <span>AI & Agent Readiness Diagnostic</span>
           <strong>No login required</strong>
         </div>
         <ol>
-          <li><span>01</span><div><strong>Measurement</strong><small>Can spend be connected to a real outcome?</small></div></li>
-          <li><span>02</span><div><strong>Ownership</strong><small>Does someone make informed changes each week?</small></div></li>
-          <li><span>03</span><div><strong>Optimization readiness</strong><small>Is there enough signal to know what to fix next?</small></div></li>
+          <li><span>01</span><div><strong>Recommendability</strong><small>Do AI platforms understand what you sell?</small></div></li>
+          <li><span>02</span><div><strong>Agent Friction</strong><small>Can AI agents book, buy, or quote without getting stuck?</small></div></li>
+          <li><span>03</span><div><strong>Signal & Tracking</strong><small>Are your ads feeding accurate data to the machines?</small></div></li>
         </ol>
-        <p>Get a letter grade, an industry-specific benchmark, and three next moves.</p>
+        <p>Get a clear grade, see what AI engines actually know about your business, and learn the three moves that will put you ahead of competitors still ignoring this shift.</p>
       </div>
     </div>
   </section>
@@ -173,11 +174,10 @@ const fitSignals = [
   <section class="section leak-explorer-section">
     <div class="container">
       <div class="section-heading section-heading--wide" data-reveal>
-        <p class="eyebrow">Find the leak</p>
-        <h2>Where is growth slipping through?</h2>
+        <p class="eyebrow">Which problem feels most familiar?</p>
+        <h2>Pick the one keeping you up at night.</h2>
         <p class="lead">
-          Choose the problem that feels most familiar. We will show you what a connected fix looks
-          like.
+          Choose the challenge that matches your situation. We'll show you what the AI-era solution looks like.
         </p>
       </div>
 
@@ -237,42 +237,42 @@ const fitSignals = [
     <div class="container comparison-heading" data-reveal>
       <div>
         <p class="eyebrow">Drag to compare</p>
-        <h2>From scattered effort to one connected engine.</h2>
+        <h2>What changes when your business is ready for AI.</h2>
       </div>
       <p>
-        The work does not disappear. The friction does. Move the slider to see what changes when
-        one partner owns the whole path.
+        Same business, same budget. Move the slider to see the difference between a business AI
+        skips and a business AI recommends.
       </p>
     </div>
 
     <div class="system-comparison" data-system-comparison data-reveal style="--split: 50%">
       <div class="system-comparison__scene system-comparison__scene--connected">
-        <p class="comparison-label">Connected</p>
+        <p class="comparison-label">AI-ready</p>
         <div class="comparison-system comparison-system--connected">
-          <div><span>Strategy</span><small>one priority</small></div>
-          <div><span>Creative</span><small>one message</small></div>
-          <div><span>Media</span><small>one campaign plan</small></div>
-          <div><span>Follow-up</span><small>one customer path</small></div>
+          <div><span>ChatGPT</span><small>recommends you by name</small></div>
+          <div><span>AI agents</span><small>book and buy without friction</small></div>
+          <div><span>Ad tracking</span><small>every dollar tied to revenue</small></div>
+          <div><span>Follow-up</span><small>answered in under a minute</small></div>
         </div>
-        <p class="comparison-result">Clear ownership. Faster learning. Better decisions.</p>
+        <p class="comparison-result">More customers. Less wasted spend. Ten hours a week back.</p>
       </div>
 
       <div class="system-comparison__scene system-comparison__scene--scattered">
-        <p class="comparison-label">Scattered</p>
+        <p class="comparison-label">Invisible to AI</p>
         <div class="comparison-system comparison-system--scattered">
-          <div><span>Freelancer</span><small>waiting on copy</small></div>
-          <div><span>Ad vendor</span><small>optimizing clicks</small></div>
-          <div><span>Website</span><small>different message</small></div>
-          <div><span>CRM</span><small>leads sitting cold</small></div>
+          <div><span>ChatGPT</span><small>suggests your competitor</small></div>
+          <div><span>AI agents</span><small>hit "call for quote" and leave</small></div>
+          <div><span>Ad tracking</span><small>broken pixel, guessing algorithm</small></div>
+          <div><span>Follow-up</span><small>leads wait, then go cold</small></div>
         </div>
-        <p class="comparison-result">More handoffs. Slower answers. Nobody owns the outcome.</p>
+        <p class="comparison-result">Customers you never knew you lost.</p>
       </div>
 
       <div class="system-comparison__divider" aria-hidden="true">
         <span>↔</span>
       </div>
       <label class="sr-only" for="system-comparison-range">
-        Compare scattered and connected marketing systems
+        Compare a business invisible to AI with an AI-ready business
       </label>
       <input
         id="system-comparison-range"
@@ -292,7 +292,8 @@ const fitSignals = [
         <p class="eyebrow">A better working relationship</p>
         <h2>You will probably enjoy working with us if...</h2>
         <p>
-          You want a marketing partner who can think, execute, explain, and own the result.
+          You want to run your own daily marketing with AI, and a partner who handles the
+          technical foundations you should not have to learn.
         </p>
         <a href="/about">Meet MaaxGen <span aria-hidden="true">→</span></a>
       </div>
@@ -315,7 +316,7 @@ const fitSignals = [
       <div class="proof-section__heading" data-reveal>
         <div>
           <p class="eyebrow">Example engagements</p>
-          <h2>See how the system comes together.</h2>
+          <h2>See what this looks like for a real business.</h2>
         </div>
         <a class="btn btn--secondary" href="/case-studies">Explore the examples</a>
       </div>
@@ -341,8 +342,8 @@ const fitSignals = [
 
   <section class="home-final-cta">
     <div class="container home-final-cta__inner" data-reveal>
-      <p>Ready for fewer moving parts?</p>
-      <h2>Let’s turn your marketing into one accountable growth engine.</h2>
+      <p>Your competitors are not waiting.</p>
+      <h2>Let’s get your business ready for the AI era before they do.</h2>
       <a class="btn btn--primary" href="/contact">Book a strategy call <span aria-hidden="true">→</span></a>
     </div>
   </section>
