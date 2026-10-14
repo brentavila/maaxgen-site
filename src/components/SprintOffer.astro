@@ -1,0 +1,56 @@
+---
+interface Props {
+  source?: string;
+  eyebrow?: string;
+}
+
+const { source = "sprint-offer", eyebrow = "The foot-in-the-door offer" } = Astro.props;
+
+const deliverables = [
+  {
+    title: "Your custom AI agent setup",
+    body: "We configure ChatGPT Dots, Meta Muse, or automated workflows for your team so you can generate content, answer emails, and plan campaigns in minutes.",
+  },
+  {
+    title: "Machine-legible brand overhaul",
+    body: "We update your site schema, entity data, and review architecture so AI engines trust and recommend you.",
+  },
+  {
+    title: "Airtight conversion tracking",
+    body: "We fix your Meta and Google tracking and install instant SMS and AI lead follow-up so every ad dollar is tracked to real revenue.",
+  },
+];
+
+const contactHref = `/contact?source=${encodeURIComponent(source)}&offer=foundation-sprint`;
+---
+
+<section class="section sprint-offer-section" id="foundation-sprint">
+  <div class="container sprint-offer" data-reveal>
+    <div class="sprint-offer__intro">
+      <p class="eyebrow">{eyebrow}</p>
+      <p class="sprint-offer__badge">14 days · fixed scope</p>
+      <h2>The AI &amp; Growth Foundation Sprint</h2>
+      <p class="lead">
+        Stop guessing how to use AI. In two weeks, we wire your business for the new era of
+        marketing, then you decide whether you want us to keep running it.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn--primary" href={contactHref}>
+          Book my sprint call <span aria-hidden="true">→</span>
+        </a>
+        <span class="sprint-offer__note">Scope confirmed on the call. No long-term contract to start.</span>
+      </div>
+    </div>
+    <ol class="sprint-offer__list">
+      {deliverables.map((item, index) => (
+        <li>
+          <span>0{index + 1}</span>
+          <div>
+            <h3>{item.title}</h3>
+            <p>{item.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

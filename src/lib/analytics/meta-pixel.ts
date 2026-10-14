@@ -8,6 +8,7 @@ export const META_VIEW_CONTENT_PAGES: Record<string, string> = {
   "/counseling": "Counseling",
   "/growth-system": "Growth System VSL",
   "/ad-account-grader": "Ad Account Grader",
+  "/ai-readiness-scanner": "AI Readiness Scanner",
 };
 
 declare global {
