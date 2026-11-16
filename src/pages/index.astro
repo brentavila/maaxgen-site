@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ServiceStudio from "../components/studio/ServiceStudio.astro";
 import { getCollection } from "astro:content";
 
 const proofStories = (await getCollection("caseStudies"))
@@ -63,68 +64,7 @@ const fitSignals = [
   title="MaaxGen"
   description="One agency partner connecting strategy, creative, advertising, and follow-up into a growth system for local and e-commerce businesses."
 >
-  <section class="engagement-hero">
-    <div class="engagement-hero__glow" aria-hidden="true"></div>
-    <div class="container engagement-hero__grid">
-      <div class="engagement-hero__copy">
-        <p class="hero-kicker">One accountable growth partner</p>
-        <h1>Your marketing should work like a system. <span>Not a pile of projects.</span></h1>
-        <p class="lead">
-          MaaxGen connects strategy, creative, advertising, and follow-up so every part helps the
-          next part perform better.
-        </p>
-        <div class="cta-row">
-          <a class="btn btn--primary" href="/ad-account-grader">
-            Grade my ads
-            <span aria-hidden="true">→</span>
-          </a>
-          <a class="btn btn--secondary" href="/case-studies">See the work</a>
-        </div>
-        <p class="hero-availability">
-          <span aria-hidden="true"></span>
-          Free two-minute diagnostic. No ad account login required.
-        </p>
-      </div>
-
-      <div
-        class="engine-map"
-        role="img"
-        aria-label="Strategy, creative, advertising, and follow-up connected around one growth plan"
-      >
-        <svg class="engine-map__lines" viewBox="0 0 600 520" aria-hidden="true">
-          <path d="M300 260 L136 116" />
-          <path d="M300 260 L464 116" />
-          <path d="M300 260 L136 404" />
-          <path d="M300 260 L464 404" />
-        </svg>
-        <div class="engine-map__core">
-          <span>One plan</span>
-          <strong>Growth</strong>
-          <small>measured and improved</small>
-        </div>
-        <div class="engine-node engine-node--strategy">
-          <span>01</span>
-          <strong>Strategy</strong>
-          <small>the right priority</small>
-        </div>
-        <div class="engine-node engine-node--creative">
-          <span>02</span>
-          <strong>Creative</strong>
-          <small>a message that lands</small>
-        </div>
-        <div class="engine-node engine-node--media">
-          <span>03</span>
-          <strong>Advertising</strong>
-          <small>attention with intent</small>
-        </div>
-        <div class="engine-node engine-node--followup">
-          <span>04</span>
-          <strong>Follow-up</strong>
-          <small>interest into action</small>
-        </div>
-      </div>
-    </div>
-  </section>
+  <ServiceStudio />
 
   <div class="growth-chain" aria-label="The MaaxGen growth process">
     <div class="container growth-chain__inner">

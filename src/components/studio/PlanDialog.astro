@@ -1,0 +1,520 @@
+---
+/**
+ * Plan dialog: the conversion moment for the service shortlist.
+ * Mounted once site-wide (BaseLayout, non-landing chrome). Opened by any
+ * [data-plan-open] click or by document.dispatchEvent(new CustomEvent("maaxgen:plan-open")).
+ */
+import { LEAD_WEBHOOK_URL } from "../../lib/leads";
+---
+
+<dialog
+  id="plan-dialog"
+  class="plan-dialog"
+  aria-labelledby="plan-dialog-title"
+  aria-describedby="plan-dialog-desc"
+>
+  <div class="plan-dialog__panel">
+    <button type="button" class="plan-dialog__close" data-plan-close aria-label="Close">
+      <span aria-hidden="true">×</span>
+    </button>
+
+    <div class="plan-dialog__view" data-plan-form-view>
+      <header class="plan-dialog__head">
+        <h2 id="plan-dialog-title" class="plan-dialog__title" tabindex="-1">Get a plan for your shortlist</h2>
+        <p id="plan-dialog-desc" class="plan-dialog__promise">
+          Tell us where to send it. Typical response: within one business day.
+        </p>
+      </header>
+
+      <div class="plan-dialog__body">
+      <div class="plan-dialog__services">
+        <div data-shortlist-filled hidden>
+          <div class="shortlist-chips" data-shortlist-chips></div>
+        </div>
+        <p class="plan-dialog__empty" data-shortlist-empty tabindex="-1">
+          Nothing shortlisted yet. You can still send the form and we will recommend where to
+          start, or <a href="/#studio" data-plan-close>browse the services</a>.
+        </p>
+      </div>
+
+      <form id="plan-form" class="form plan-dialog__form" action={LEAD_WEBHOOK_URL} method="post">
+        <div class="field-grid">
+          <div>
+            <label for="plan-name">Name</label>
+            <input id="plan-name" name="name" type="text" required autocomplete="name" />
+          </div>
+          <div>
+            <label for="plan-email">Email</label>
+            <input id="plan-email" name="email" type="email" required autocomplete="email" />
+          </div>
+        </div>
+        <label for="plan-business-type">Business type</label>
+        <select id="plan-business-type" name="business-type">
+          <option value="">Select one</option>
+          <option value="local">Local business</option>
+          <option value="ecommerce">E-commerce</option>
+          <option value="both">Local and e-commerce</option>
+        </select>
+        <label for="plan-note">Anything we should know? <span class="field-optional">(optional)</span></label>
+        <textarea
+          id="plan-note"
+          name="message"
+          rows="2"
+          maxlength="1000"
+          placeholder="Goals, timeline, or what you want off your plate"></textarea>
+
+        <button type="submit" class="btn btn--primary plan-dialog__submit">
+          Send my shortlist <span aria-hidden="true">→</span>
+        </button>
+        <p class="form-status" id="plan-form-status" role="alert" hidden></p>
+        <p class="form-legal plan-dialog__legal">
+          By submitting this form you agree to our <a href="/privacy">Privacy Policy</a> and
+          <a href="/terms">Terms &amp; Conditions</a>.
+        </p>
+      </form>
+
+      <p class="plan-dialog__alt">
+        Prefer to talk it through? <a href="/contact?source=service-studio">Book a call</a>
+      </p>
+      </div>
+    </div>
+
+    <div class="plan-dialog__success" data-plan-success tabindex="-1" role="status" hidden>
+      <span class="plan-dialog__tick" aria-hidden="true">✓</span>
+      <h2 class="plan-dialog__title">We have your shortlist.</h2>
+      <p>
+        We will review it alongside your business and reply with a recommended place to start.
+        Typical response: within one business day.
+      </p>
+      <div class="plan-dialog__success-actions">
+        <a class="btn btn--primary" href="/ad-account-grader">Grade my ads while you wait</a>
+        <button type="button" class="btn btn--secondary" data-plan-close>Close</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { getShortlist } from "../../lib/shortlist";
+  import { serviceById } from "../../data/services";
+
+  const dialog = document.getElementById("plan-dialog") as HTMLDialogElement | null;
+  const form = document.getElementById("plan-form") as HTMLFormElement | null;
+
+  if (dialog && form) {
+    const formView = dialog.querySelector<HTMLElement>("[data-plan-form-view]")!;
+    const success = dialog.querySelector<HTMLElement>("[data-plan-success]")!;
+    const statusEl = document.getElementById("plan-form-status")!;
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const title = document.getElementById("plan-dialog-title") as HTMLElement;
+    const SUBMIT_LABEL = submitBtn.innerHTML;
+    const WEBHOOK_URL = form.getAttribute("action") || "";
+    let opener: HTMLElement | null = null;
+
+    function openDialog(from?: HTMLElement | null) {
+      if (!dialog || dialog.open) return;
+      opener = from || (document.activeElement as HTMLElement | null);
+      formView.hidden = false;
+      success.hidden = true;
+      statusEl.hidden = true;
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = SUBMIT_LABEL;
+      document.documentElement.classList.add("plan-dialog-open");
+      dialog.showModal();
+      title.focus();
+    }
+
+    function closeDialog() {
+      if (dialog && dialog.open) dialog.close();
+    }
+
+    dialog.addEventListener("close", () => {
+      document.documentElement.classList.remove("plan-dialog-open");
+      if (opener && opener.isConnected) opener.focus();
+      opener = null;
+    });
+
+    document.addEventListener("click", (event) => {
+      const target = event.target as Element | null;
+      const el = target && target.closest ? target.closest<HTMLElement>("[data-plan-open]") : null;
+      if (!el) return;
+      event.preventDefault();
+      openDialog(el);
+    });
+    document.addEventListener("maaxgen:plan-open", () => openDialog());
+
+    // Backdrop click: only when both press and release land on the dialog itself.
+    let pressedOnBackdrop = false;
+    dialog.addEventListener("pointerdown", (event) => {
+      pressedOnBackdrop = event.target === dialog;
+    });
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog && pressedOnBackdrop) closeDialog();
+      pressedOnBackdrop = false;
+    });
+    dialog.addEventListener("click", (event) => {
+      const el = (event.target as Element).closest("[data-plan-close]");
+      if (el) closeDialog();
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const data = new FormData(form);
+      const ids = getShortlist();
+      const interestedServices = ids.map((id) => ({ id, name: serviceById(id)?.name ?? id }));
+      const interestedServicesText = interestedServices.map((s) => s.name).join(", ");
+      const note = String(data.get("message") || "").trim();
+      const message =
+        note || (interestedServicesText ? `Interested in: ${interestedServicesText}.` : "Requested a plan from the service shortlist.");
+
+      const payload = {
+        name: data.get("name"),
+        email: data.get("email"),
+        phone: "",
+        businessType: data.get("business-type") || "",
+        message,
+        leadSource: "service-studio",
+        adGrader: { grade: "", score: "", industry: "", frustration: "" },
+        smsMarketingConsent: false,
+        smsTransactionalConsent: false,
+        consentLanguage: { marketing: "", transactional: "" },
+        submittedAt: new Date().toISOString(),
+        pageUrl: window.location.href,
+        interestedServices,
+        interestedServicesText,
+      };
+
+      statusEl.hidden = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending...";
+
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const w = window as unknown as { fbq?: (...args: unknown[]) => void };
+        if (typeof w.fbq === "function") {
+          w.fbq("track", "Lead", {
+            content_name: "Service Shortlist",
+            content_category: payload.businessType || "unspecified",
+            value: 1,
+            currency: "USD",
+          });
+        }
+        try {
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({
+            event: "plan_request_submit",
+            service_ids: ids,
+            service_count: ids.length,
+            business_type: payload.businessType || "unspecified",
+          });
+        } catch {
+          /* analytics must never break the form */
+        }
+
+        formView.hidden = true;
+        success.hidden = false;
+        success.focus();
+      } catch (error) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = SUBMIT_LABEL;
+        statusEl.hidden = false;
+        statusEl.textContent = "Sorry, something went wrong sending your request. Please try again.";
+      }
+    });
+  }
+</script>
+
+<style is:global>
+  /* Shared shortlist chips (dialog + contact page) */
+  .shortlist-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .shortlist-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.7rem 0.4rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-bg);
+    color: var(--color-slate);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .shortlist-chip:hover {
+    border-color: var(--color-slate);
+    background: var(--color-surface);
+  }
+  .shortlist-chip:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+  .shortlist-chip__num {
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .shortlist-chip__x {
+    color: var(--color-muted);
+    font-size: 1.05rem;
+    line-height: 1;
+  }
+  .shortlist-chip:hover .shortlist-chip__x {
+    color: var(--color-slate);
+  }
+  .shortlist-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Dialog */
+  html.plan-dialog-open {
+    overflow: hidden;
+  }
+  .plan-dialog {
+    width: min(34rem, calc(100vw - 1.5rem));
+    max-width: none;
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 1.25rem;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    box-shadow:
+      0 1px 2px oklch(0.3 0.03 250 / 0.08),
+      0 8px 24px oklch(0.3 0.03 250 / 0.12),
+      0 32px 80px oklch(0.3 0.03 250 / 0.2);
+    overflow: visible;
+  }
+  .plan-dialog::backdrop {
+    background: oklch(0.2 0.03 250 / 0.5);
+  }
+  .plan-dialog[open] {
+    animation: plan-dialog-in 0.22s ease-out;
+  }
+  .plan-dialog[open]::backdrop {
+    animation: plan-dialog-fade 0.22s ease-out;
+  }
+  @keyframes plan-dialog-in {
+    from { opacity: 0; transform: translateY(0.75rem); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes plan-dialog-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .plan-dialog[open],
+    .plan-dialog[open]::backdrop {
+      animation: none;
+    }
+  }
+  .plan-dialog [hidden] {
+    display: none !important;
+  }
+  .plan-dialog__panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    max-height: min(calc(100dvh - 3rem), 46rem);
+    border-radius: 1.25rem;
+    overflow: hidden;
+  }
+  .plan-dialog__view {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .plan-dialog__head {
+    flex: none;
+    padding: 1.5rem 4rem 0.75rem 1.5rem;
+  }
+  .plan-dialog__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.25rem 1.5rem 1.5rem;
+  }
+  .plan-dialog__close {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-bg);
+    color: var(--color-slate);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .plan-dialog__close:hover {
+    background: var(--color-surface);
+  }
+  .plan-dialog__close:focus-visible,
+  .plan-dialog__title:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+  .plan-dialog__title {
+    margin: 0 0 0.3rem;
+    color: var(--color-slate);
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 4vw, 1.55rem);
+    line-height: 1.2;
+  }
+  .plan-dialog__title:focus {
+    outline: none;
+  }
+  .plan-dialog__promise {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
+  .plan-dialog__services {
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .plan-dialog__services .shortlist-chips {
+    max-height: 5.4rem;
+    overflow-y: auto;
+    padding: 2px;
+  }
+  .plan-dialog__empty {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
+  .plan-dialog__empty:focus {
+    outline: none;
+  }
+  .plan-dialog .plan-dialog__form label {
+    margin-bottom: 0.2rem;
+    font-size: 0.9rem;
+  }
+  .plan-dialog .plan-dialog__form input,
+  .plan-dialog .plan-dialog__form select,
+  .plan-dialog .plan-dialog__form textarea {
+    margin-bottom: 0.7rem;
+    padding: 0.5rem 0.7rem;
+    background: var(--color-bg);
+  }
+  .plan-dialog .plan-dialog__form textarea {
+    min-height: 3.6rem;
+  }
+  .plan-dialog .plan-dialog__form .field-grid {
+    gap: 0 0.75rem;
+  }
+  .plan-dialog__submit {
+    width: 100%;
+    margin-top: 0.15rem;
+  }
+  .plan-dialog__submit:disabled {
+    cursor: wait;
+    opacity: 0.7;
+  }
+  .plan-dialog__legal {
+    margin: 0.6rem 0 0;
+    font-size: 0.78rem;
+  }
+  .plan-dialog__alt {
+    margin: 0.8rem 0 0;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
+  .plan-dialog__alt a {
+    font-weight: 600;
+  }
+  @media (max-width: 40rem) {
+    .plan-dialog {
+      width: 100vw;
+      max-width: 100vw;
+      height: 100dvh;
+      margin: 0;
+      border-radius: 0;
+    }
+    .plan-dialog__panel {
+      height: 100dvh;
+      max-height: none;
+      border-radius: 0;
+    }
+    .plan-dialog__head {
+      padding-top: max(1.25rem, env(safe-area-inset-top));
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .plan-dialog__close {
+      top: max(0.85rem, env(safe-area-inset-top));
+    }
+    .plan-dialog__body {
+      padding: 1rem 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+    }
+    .plan-dialog__head {
+      padding-left: 1.25rem;
+    }
+  }
+  .plan-dialog__success {
+    overflow-y: auto;
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+  .plan-dialog__success:focus {
+    outline: none;
+  }
+  .plan-dialog__success .plan-dialog__title {
+    margin-right: 0;
+  }
+  .plan-dialog__success p {
+    color: var(--color-muted);
+  }
+  .plan-dialog__tick {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    background: oklch(0.91 0.08 150);
+    color: oklch(0.4 0.12 150);
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+  .plan-dialog__success-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+</style>

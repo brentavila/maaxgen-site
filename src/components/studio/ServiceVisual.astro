@@ -1,0 +1,1104 @@
+---
+/**
+ * ServiceVisual — one small, living diagram per MaaxGen service.
+ *
+ *   <ServiceVisual id="google-ads" uid="card" />
+ *
+ * - Root: <div class="sv sv--{id}" aria-hidden="true"> with one inline SVG (viewBox 320x280, 8:7).
+ * - Every SVG id is suffixed with `uid` so the same visual can render more than once per page.
+ * - Motion is CSS only and paused by default. It runs when an ancestor has [data-sv-play]
+ *   or while the visual is hovered. Never animates under prefers-reduced-motion.
+ * - The un-animated (paused, first-frame) state of every visual is its finished still.
+ */
+interface Props {
+  id: string;
+  uid?: string;
+}
+
+const { id, uid } = Astro.props;
+
+const TINTS: Record<string, "blue" | "sand" | "sage" | "paper" | "dark"> = {
+  "google-ads": "blue",
+  "meta-ads": "sand",
+  seo: "dark",
+  "local-seo": "sage",
+  websites: "paper",
+  apps: "dark",
+  "landing-pages": "sand",
+  video: "dark",
+  images: "sage",
+  "music-audio": "blue",
+  "ai-follow-up": "dark",
+  "crm-automation": "paper",
+};
+
+const known = Object.prototype.hasOwnProperty.call(TINTS, id);
+const tint = known ? TINTS[id] : "paper";
+const u = String(uid ?? Math.random().toString(36).slice(2, 8)).replace(/[^a-zA-Z0-9_-]/g, "") || "x";
+const idKey = String(id).replace(/[^a-zA-Z0-9_-]/g, "") || "x";
+const ref = (n: string) => `sv-${n}-${idKey}-${u}`;
+const url = (n: string) => `url(#${ref(n)})`;
+const sh = url("sh");
+const rootClass = `sv sv--${known ? id : "unknown"} sv--t-${tint}${tint === "dark" ? " sv--dark" : ""}`;
+
+/* Deterministic data for waveforms and rulers */
+const musicBars = Array.from({ length: 60 }, (_, i) => {
+  const env = 0.3 + 0.7 * Math.abs(Math.sin(i * 0.55) * Math.sin(i * 0.11 + 0.5));
+  const h = Math.round((6 + 50 * env) * 10) / 10;
+  return { x: 40 + i * 4, h };
+});
+const audioBars = Array.from({ length: 87 }, (_, i) => {
+  const h = Math.round((2 + 7 * Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.23 + 0.4))) * 10) / 10;
+  return { x: 30 + i * 3, h };
+});
+const rulerTicks = Array.from({ length: 27 }, (_, i) => ({ x: 30 + i * 10, tall: i % 5 === 0 }));
+
+const heart =
+  "M0 4.2 C-4.8 0.8 -6 -1.2 -6 -2.8 C-6 -4.6 -4.6 -6 -3 -6 C-1.6 -6 -0.6 -5.2 0 -4.2 C0.6 -5.2 1.6 -6 3 -6 C4.6 -6 6 -4.6 6 -2.8 C6 -1.2 4.8 0.8 0 4.2 Z";
+const star =
+  "M0 -6 L1.53 -2.1 L5.71 -1.85 L2.47 0.8 L3.53 4.85 L0 2.6 L-3.53 4.85 L-2.47 0.8 L-5.71 -1.85 L-1.53 -2.1 Z";
+---
+<div class={rootClass} aria-hidden="true">
+  <svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg" focusable="false" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <filter id={ref("sh")} x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
+        <feDropShadow class="sv-sh1" dx="0" dy="1" stdDeviation="0.8" flood-color="#0b1b2e" />
+        <feDropShadow class="sv-sh2" dx="0" dy="6" stdDeviation="8" flood-color="#0b1b2e" />
+      </filter>
+      <filter id={ref("bl")} x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur stdDeviation="2.6" />
+      </filter>
+      <clipPath id={ref("c1")}>
+        {id === "meta-ads" && <rect x="96" y="44" width="128" height="240" />}
+        {id === "local-seo" && <rect x="20" y="40" width="186" height="206" rx="14" />}
+        {id === "apps" && <rect x="104" y="26" width="112" height="236" rx="17" />}
+        {id === "video" && <rect x="70" y="30" width="180" height="104" rx="8" />}
+        {id === "images" && <rect x="68" y="46" width="184" height="158" rx="8" />}
+        {id === "music-audio" && <rect class="a mu-prog" x="36" y="108" width="248" height="104" />}
+      </clipPath>
+    </defs>
+
+    {/* ───────────────────────── 01 Google Ads ───────────────────────── */}
+    {id === "google-ads" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">SEARCH / SPONSORED</text>
+        <rect x="28" y="40" width="264" height="36" rx="18" class="fc" filter={sh} />
+        <circle cx="48" cy="58" r="5.5" class="sm" stroke-width="1.6" />
+        <path d="M52.2 62.2 L56.4 66.4" class="sm" stroke-width="1.6" stroke-linecap="round" />
+        <text x="64" y="62" class="tx fi" font-size="11.5" font-weight="600" textLength="92" lengthAdjust="spacingAndGlyphs">plumber near me</text>
+        <g class="a ga-cover">
+          <rect x="63" y="46" width="122" height="24" class="fc" />
+          <rect x="64" y="51.5" width="1.5" height="13" rx="0.75" class="fi a ga-caret" />
+        </g>
+
+        <rect x="28" y="88" width="264" height="176" rx="14" class="fc" filter={sh} />
+        <g class="a ga-row">
+          <rect x="36" y="96" width="248" height="58" rx="10" class="fa a ga-hl" style="fill-opacity:.09" />
+          <text x="48" y="113" class="tx fi" font-size="8.5" font-weight="700">Sponsored</text>
+          <circle cx="100" cy="110" r="1.4" class="fm" />
+          <rect x="106" y="107.5" width="54" height="5" rx="2.5" class="fs" />
+          <rect x="48" y="120" width="152" height="8" rx="4" class="fs" />
+          <rect x="48" y="120" width="152" height="8" rx="4" class="fa a ga-hl" />
+          <rect x="48" y="134" width="204" height="5" rx="2.5" class="fs" />
+          <rect x="48" y="143" width="132" height="5" rx="2.5" class="fs" />
+        </g>
+        <path d="M44 162 H276" class="sl" />
+        <g class="a ga-row ga-d1">
+          <circle cx="54" cy="177" r="6" class="fs" />
+          <rect x="66" y="174" width="118" height="7" rx="3.5" class="fm" opacity=".45" />
+          <rect x="48" y="190" width="210" height="5" rx="2.5" class="fs" />
+          <rect x="48" y="199" width="160" height="5" rx="2.5" class="fs" />
+        </g>
+        <path d="M44 214 H276" class="sl" />
+        <g class="a ga-row ga-d2">
+          <circle cx="54" cy="229" r="6" class="fs" />
+          <rect x="66" y="226" width="96" height="7" rx="3.5" class="fm" opacity=".45" />
+          <rect x="48" y="242" width="190" height="5" rx="2.5" class="fs" />
+          <rect x="48" y="251" width="118" height="5" rx="2.5" class="fs" />
+        </g>
+        <circle cx="186" cy="125" r="10" class="sa a ga-ring" stroke-width="1.5" />
+        <g transform="translate(186 125)">
+          <g class="a ga-cur">
+            <path d="M0 0 L0 15 L4 11.5 L7 18 L9.6 16.9 L6.6 10.5 L11.6 10.5 Z" class="fi" stroke="#fff" stroke-width="1.2" stroke-linejoin="round" />
+          </g>
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────────── 02 Meta Ads ───────────────────────── */}
+    {id === "meta-ads" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">FEED / PROMOTED</text>
+        <rect x="96" y="26" width="128" height="280" rx="22" class="fc" filter={sh} />
+        <g clip-path={url("c1")}>
+          <g class="a mt-feed">
+            <rect x="104" y="-40" width="112" height="58" rx="8" class="fs" />
+            <rect x="106" y="27" width="40" height="5" rx="2.5" class="fs" />
+            <circle cx="113" cy="62" r="7" style="fill:oklch(0.86 0.05 75)" />
+            <rect x="125" y="56" width="46" height="5" rx="2.5" class="fi" opacity=".8" />
+            <text x="125" y="72" class="tx fm" font-size="7.5" font-weight="600">Sponsored</text>
+            <circle cx="203" cy="61" r="1.3" class="fm" /><circle cx="207.5" cy="61" r="1.3" class="fm" /><circle cx="212" cy="61" r="1.3" class="fm" />
+
+            <rect x="104" y="80" width="112" height="102" rx="8" style="fill:oklch(0.88 0.045 75)" />
+            <circle cx="191" cy="102" r="11" style="fill:oklch(0.97 0.02 80)" />
+            <ellipse cx="158" cy="166" rx="31" ry="6" style="fill:oklch(0.8 0.055 70)" />
+            <rect x="150" y="101" width="16" height="13" rx="3" style="fill:oklch(0.3 0.02 250)" />
+            <rect x="142" y="111" width="32" height="55" rx="8" style="fill:oklch(0.3 0.02 250)" />
+            <rect x="142" y="130" width="32" height="12" style="fill:oklch(0.93 0.02 80)" />
+
+            <g class="a mt-cta">
+              <rect x="104" y="188" width="112" height="22" rx="7" class="fa" />
+              <text x="160" y="202" text-anchor="middle" class="tx" font-size="8.5" font-weight="700" fill="#fff">Learn more</text>
+            </g>
+            <rect x="104" y="188" width="112" height="22" rx="7" class="sa a mt-ring" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+
+            <g transform="translate(112 226)"><path d={heart} class="fa a mt-like" /></g>
+            <path d="M124 221.5 h10 a2 2 0 0 1 2 2 v5 a2 2 0 0 1 -2 2 h-6 l-3 2.6 v-2.6 h-1 a2 2 0 0 1 -2 -2 v-5 a2 2 0 0 1 2 -2 Z" class="sm" stroke-width="1.2" />
+            <circle cx="186" cy="226" r="5.5" class="fs" stroke="#fff" stroke-width="1.5" />
+            <circle cx="195" cy="226" r="5.5" style="fill:oklch(0.86 0.05 75)" stroke="#fff" stroke-width="1.5" />
+            <circle cx="204" cy="226" r="5.5" class="fl" stroke="#fff" stroke-width="1.5" />
+            <circle cx="213" cy="226" r="5.5" class="fa a mt-av" stroke="#fff" stroke-width="1.5" />
+
+            <path d="M100 242 H220" class="sl" />
+            <circle cx="113" cy="256" r="7" class="fs" />
+            <rect x="125" y="253" width="50" height="5" rx="2.5" class="fs" />
+            <rect x="104" y="270" width="112" height="60" rx="8" class="fs" />
+          </g>
+          <g transform="translate(112 222)">
+            <path d={heart} class="fa a mt-fl" />
+            <path d={heart} class="fa a mt-fl mt-d1" transform="translate(10 0) scale(.8)" />
+            <path d={heart} class="fa a mt-fl mt-d2" transform="translate(-4 0) scale(.7)" />
+          </g>
+        </g>
+        <rect x="144" y="32" width="32" height="7" rx="3.5" class="fi" opacity=".85" />
+      </g>
+    )}
+
+    {/* ───────────────────────── 03 SEO ───────────────────────── */}
+    {id === "seo" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">RANK / ORGANIC</text>
+        <g class="a seo-list">
+          {[1, 2, 3, 4, 5].map((n, i) => (
+            <text x="36" y={62 + i * 38 + 19} text-anchor="middle" class="sv-num" opacity={n === 1 ? 1 : 0.6}>{String(n).padStart(2, "0")}</text>
+          ))}
+          <path d="M282 77 V229" class="sl" stroke-width="1.5" />
+          {[0, 1, 2, 3, 4].map((i) => <circle cx="282" cy={77 + i * 38} r="2.2" class="fl" />)}
+          <path d="M282 229 V77" class="sa a seo-rail" stroke-width="2" stroke-linecap="round" pathLength="1" style="stroke-dasharray:1 1" />
+
+          {[
+            { slot: 4, k: "f5", w: 120, w2: 84 },
+            { slot: 3, k: "f4", w: 92, w2: 120 },
+            { slot: 2, k: "f3", w: 138, w2: 96 },
+            { slot: 1, k: "f2", w: 108, w2: 130 },
+          ].map((r) => (
+            <g transform={`translate(0 ${62 + r.slot * 38})`}>
+              <g class={`a seo-${r.k}`}>
+                <rect x="52" y="0" width="210" height="30" rx="8" class="fc" />
+                <rect x="62" y="9" width="12" height="12" rx="3" class="fs" />
+                <rect x="82" y="9" width={r.w} height="5" rx="2.5" class="fs" />
+                <rect x="82" y="18" width={r.w2} height="4" rx="2" class="fl" />
+              </g>
+            </g>
+          ))}
+          <g transform="translate(0 62)">
+            <g class="a seo-c">
+              <rect x="52" y="0" width="210" height="30" rx="8" class="fa" style="fill-opacity:.16" />
+              <rect x="52.5" y="0.5" width="209" height="29" rx="7.5" class="sa" stroke-opacity=".7" />
+              <rect x="62" y="9" width="12" height="12" rx="3" class="fa" />
+              <rect x="82" y="9" width="118" height="5" rx="2.5" class="fi" />
+              <rect x="82" y="18" width="80" height="4" rx="2" class="fm" opacity=".6" />
+              <path d="M238 18 L244 12 L250 18" class="sa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="282" cy="15" r="4.5" class="fa" />
+              <circle cx="282" cy="15" r="8" class="fa" style="fill-opacity:.2" />
+            </g>
+          </g>
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────────── 04 Local SEO ───────────────────────── */}
+    {id === "local-seo" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">MAP / NEARBY</text>
+        <rect x="20" y="40" width="186" height="206" rx="14" class="fc" filter={sh} />
+        <g clip-path={url("c1")}>
+          <rect x="20" y="40" width="186" height="206" style="fill:oklch(0.975 0.006 150)" />
+          <rect x="74" y="140" width="66" height="56" rx="10" style="fill:oklch(0.9 0.05 150)" />
+          <circle cx="92" cy="160" r="5" style="fill:oklch(0.84 0.06 150)" />
+          <circle cx="118" cy="176" r="7" style="fill:oklch(0.84 0.06 150)" />
+          <rect x="160" y="52" width="38" height="44" rx="6" style="fill:oklch(0.94 0.008 250)" />
+          <rect x="26" y="122" width="28" height="44" rx="6" style="fill:oklch(0.94 0.008 250)" />
+          <path d="M20 78 H206 M105 40 V246 M20 182 H206" fill="none" stroke-width="2.5" style="stroke:oklch(0.91 0.01 250)" />
+          <path d="M20 112 H206 M60 40 V246 M150 40 V246 M20 236 L206 132" fill="none" stroke-width="9" stroke-linecap="round" style="stroke:oklch(0.93 0.008 250)" />
+          <path d="M20 112 H206 M60 40 V246 M150 40 V246 M20 236 L206 132" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="4 5" />
+        </g>
+        <g transform="translate(105 112)">
+          <ellipse cx="0" cy="0" rx="16" ry="6" class="sa a ls-pulse" stroke-width="1.4" vector-effect="non-scaling-stroke" />
+          <ellipse cx="0" cy="0.5" rx="6.5" ry="2.3" class="fi a ls-shadow" style="fill-opacity:.2" />
+          <g class="a ls-pin">
+            <path d="M0 0 C-3 -7 -11 -12 -11 -21 A11 11 0 1 1 11 -21 C11 -12 3 -7 0 0 Z" class="fa" />
+            <circle cx="0" cy="-21" r="4.2" fill="#fff" />
+          </g>
+        </g>
+
+        <rect x="142" y="146" width="158" height="98" rx="12" class="fc" filter={sh} />
+        <rect x="154" y="158" width="34" height="34" rx="8" style="fill:oklch(0.88 0.05 150)" />
+        <path d="M162 185 V175 L171 168 L180 175 V185 Z" fill="#fff" />
+        <rect x="168.5" y="178" width="5" height="7" style="fill:oklch(0.88 0.05 150)" />
+        <rect x="198" y="162" width="74" height="7" rx="3.5" class="fi" opacity=".85" />
+        <rect x="198" y="175" width="52" height="5" rx="2.5" class="fs" />
+        <circle cx="201" cy="188" r="2.5" style="fill:oklch(0.62 0.09 150)" />
+        <rect x="207" y="185.5" width="30" height="5" rx="2.5" class="fs" />
+        {[0, 1, 2, 3, 4].map((i) => (
+          <g transform={`translate(${160 + i * 16} 216)`}>
+            <path d={star} class="sl" stroke-width="1" stroke-linejoin="round" />
+            <path d={star} class={`fa a ls-star ls-d${i}`} />
+          </g>
+        ))}
+        <rect x="244" y="213" width="44" height="6" rx="3" class="fs" />
+        <rect x="154" y="230" width="134" height="1" class="fl" />
+      </g>
+    )}
+
+    {/* ───────────────────────── 05 Websites ───────────────────────── */}
+    {id === "websites" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">BUILD / LAYOUT</text>
+        <rect x="24" y="38" width="272" height="226" rx="12" class="fc" filter={sh} />
+        <circle cx="40" cy="52" r="3" class="fl" /><circle cx="50" cy="52" r="3" class="fl" /><circle cx="60" cy="52" r="3" class="fl" />
+        <rect x="88" y="46" width="144" height="12" rx="6" class="fs" />
+        <path d="M24 64.5 H296" class="sl" />
+        <g class="sl" stroke-dasharray="3 3" style="stroke:oklch(0.84 0.015 250)">
+          <rect x="36.5" y="74.5" width="247" height="15" rx="4" />
+          <rect x="36.5" y="98.5" width="247" height="83" rx="6" />
+          <rect x="36.5" y="192.5" width="77" height="61" rx="6" />
+          <rect x="121.5" y="192.5" width="77" height="61" rx="6" />
+          <rect x="206.5" y="192.5" width="77" height="61" rx="6" />
+        </g>
+        <g class="a sv-rise">
+          <rect x="38" y="76" width="12" height="12" rx="3.5" class="fi" />
+          <rect x="56" y="80" width="30" height="4" rx="2" class="fi" opacity=".75" />
+          <rect x="176" y="80" width="18" height="4" rx="2" class="fs" />
+          <rect x="200" y="80" width="18" height="4" rx="2" class="fs" />
+          <rect x="224" y="80" width="18" height="4" rx="2" class="fs" />
+          <rect x="250" y="76" width="32" height="12" rx="6" class="fi" />
+        </g>
+        <g class="a sv-rise wb-d1">
+          <rect x="40" y="106" width="116" height="10" rx="5" class="fi" />
+          <rect x="40" y="121" width="88" height="10" rx="5" class="fi" />
+          <rect x="40" y="139" width="118" height="5" rx="2.5" class="fs" />
+          <rect x="40" y="148" width="92" height="5" rx="2.5" class="fs" />
+        </g>
+        <rect x="40" y="161" width="52" height="15" rx="7.5" class="fa a sv-pop wb-d6" />
+        <g class="a sv-rise wb-d2">
+          <rect x="170" y="100" width="112" height="80" rx="7" style="fill:oklch(0.93 0.03 245)" />
+          <circle cx="252" cy="122" r="9" fill="#fff" />
+          <path d="M170 168 L198 142 L218 158 L236 146 L282 176 V173 A7 7 0 0 1 275 180 H177 A7 7 0 0 1 170 173 Z" style="fill:oklch(0.84 0.05 245)" />
+        </g>
+        {[0, 1, 2].map((i) => (
+          <g class={`a sv-rise wb-d${3 + i}`}>
+            <rect x={38 + i * 85} y="194" width="74" height="58" rx="6" style="fill:oklch(0.97 0.005 250)" />
+            <rect x={46 + i * 85} y="202" width="12" height="12" rx="3.5" class="fs" />
+            <rect x={46 + i * 85} y="222" width="42" height="5" rx="2.5" class="fi" opacity=".7" />
+            <rect x={46 + i * 85} y="232" width="54" height="4" rx="2" class="fs" />
+            <rect x={46 + i * 85} y="240" width="36" height="4" rx="2" class="fs" />
+          </g>
+        ))}
+      </g>
+    )}
+
+    {/* ───────────────────────── 06 Apps ───────────────────────── */}
+    {id === "apps" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">APP / FLOW</text>
+        <rect x="98" y="20" width="124" height="248" rx="22" style="fill:oklch(0.15 0.015 250)" filter={sh} />
+        <rect x="98.5" y="20.5" width="123" height="247" rx="21.5" fill="none" style="stroke:oklch(0.42 0.02 250)" />
+        <g clip-path={url("c1")}>
+          <rect x="104" y="26" width="112" height="236" fill="#f7f9fb" />
+          <g class="a ap-list">
+            <rect x="114" y="48" width="54" height="8" rx="4" fill="#1d2733" />
+            <rect x="114" y="64" width="92" height="13" rx="6.5" fill="#e9edf2" />
+            <rect x="106" y="118" width="108" height="32" rx="8" fill="#0072BC" class="a ap-hl" fill-opacity=".1" />
+            {[0, 1, 2, 3].map((i) => (
+              <g>
+                <rect x="114" y={88 + i * 34} width="24" height="24" rx="7" fill={i === 1 ? "#cfe2f2" : ["#e4e9ee", "", "#ece6da", "#dfe9e1"][i]} />
+                <rect x="144" y={93 + i * 34} width={[52, 46, 56, 40][i]} height="5" rx="2.5" fill="#1d2733" opacity=".8" />
+                <rect x="144" y={103 + i * 34} width={[34, 40, 30, 38][i]} height="4" rx="2" fill="#d5dbe2" />
+                <path d={`M114 ${117 + i * 34} H206`} stroke="#e7ebf0" />
+              </g>
+            ))}
+            <circle cx="160" cy="134" r="12" fill="#0072BC" class="a ap-tap" />
+          </g>
+          <g class="a ap-detail">
+            <rect x="104" y="26" width="112" height="236" fill="#fff" />
+            <path d="M119 46 L114 51 L119 56" fill="none" stroke="#1d2733" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            <rect x="112" y="62" width="96" height="72" rx="10" fill="#cfe2f2" />
+            <circle cx="186" cy="82" r="8" fill="#fff" />
+            <path d="M112 122 L136 100 L152 114 L166 104 L208 128 V124 A10 10 0 0 1 198 134 H122 A10 10 0 0 1 112 124 Z" fill="#9cc3e2" />
+            <rect x="114" y="144" width="70" height="8" rx="4" fill="#1d2733" />
+            <rect x="114" y="160" width="88" height="4" rx="2" fill="#d5dbe2" />
+            <rect x="114" y="169" width="80" height="4" rx="2" fill="#d5dbe2" />
+            <rect x="114" y="178" width="58" height="4" rx="2" fill="#d5dbe2" />
+            <rect x="114" y="192" width="92" height="20" rx="10" fill="#0072BC" />
+            <rect x="146" y="200" width="28" height="4" rx="2" fill="#fff" />
+          </g>
+          <rect x="104" y="226" width="112" height="36" fill="#fff" />
+          <path d="M104 226.5 H216" stroke="#e3e8ee" />
+          <circle cx="126" cy="241" r="4" fill="#0072BC" />
+          <rect x="144" y="237" width="8" height="8" rx="2" fill="#c4ccd5" />
+          <path d="M168 245 L172 237 L176 245 Z" fill="#c4ccd5" />
+          <circle cx="194" cy="241" r="4" fill="none" stroke="#c4ccd5" stroke-width="1.6" />
+          <rect x="146" y="254" width="28" height="3" rx="1.5" fill="#1d2733" opacity=".8" />
+        </g>
+        <rect x="144" y="31" width="32" height="8" rx="4" style="fill:oklch(0.15 0.015 250)" />
+      </g>
+    )}
+
+    {/* ───────────────────────── 07 Landing pages ───────────────────────── */}
+    {id === "landing-pages" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">SPLIT TEST / A · B</text>
+        <rect x="28" y="44" width="120" height="160" rx="10" class="fc" filter={sh} />
+        <circle cx="44" cy="60" r="8" class="fs" />
+        <text x="44" y="63.3" text-anchor="middle" class="tx fi" font-size="9" font-weight="700">A</text>
+        <rect x="46" y="80" width="84" height="8" rx="4" class="fi" />
+        <rect x="58" y="93" width="60" height="8" rx="4" class="fi" />
+        <rect x="52" y="108" width="72" height="4" rx="2" class="fs" />
+        <rect x="40" y="120" width="96" height="44" rx="6" class="fs" />
+        <rect x="62" y="174" width="52" height="14" rx="7" class="fl" />
+
+        <rect x="172" y="44" width="120" height="160" rx="10" class="fc" filter={sh} />
+        <rect x="171" y="43" width="122" height="162" rx="11" class="sa a sv-flag" stroke-width="1.5" />
+        <circle cx="188" cy="60" r="8" class="fi" />
+        <text x="188" y="63.3" text-anchor="middle" class="tx" font-size="9" font-weight="700" fill="#fff">B</text>
+        <rect x="184" y="76" width="96" height="54" rx="6" style="fill:oklch(0.9 0.04 75)" />
+        <circle cx="262" cy="92" r="7" fill="#fff" />
+        <rect x="216" y="98" width="20" height="32" rx="5" style="fill:oklch(0.3 0.02 250)" />
+        <rect x="184" y="140" width="84" height="8" rx="4" class="fi" />
+        <rect x="184" y="153" width="60" height="4" rx="2" class="fs" />
+        <rect x="184" y="170" width="70" height="18" rx="9" class="fi" />
+
+        <rect x="28" y="222" width="120" height="6" rx="3" class="fl" />
+        <rect x="28" y="222" width="52" height="6" rx="3" class="fm a ld-bar" opacity=".55" />
+        <rect x="172" y="222" width="120" height="6" rx="3" class="fl" />
+        <rect x="172" y="222" width="96" height="6" rx="3" class="fa a ld-bar" />
+        <text x="28" y="246" class="sv-lbl">VARIANT A</text>
+        <text x="172" y="246" class="sv-lbl">VARIANT B</text>
+
+        <g transform="translate(290 46)">
+          <g class="a sv-flagpop">
+            <circle r="11" class="fa" stroke="#fff" stroke-width="2" />
+            <path d="M-4.5 0.2 L-1.4 3.3 L4.6 -2.9" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────────── 08 Video ───────────────────────── */}
+    {id === "video" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">TIMELINE / EDIT</text>
+        <rect x="68" y="28" width="184" height="108" rx="10" style="fill:oklch(0.17 0.015 250)" />
+        <g clip-path={url("c1")}>
+          <rect x="70" y="30" width="180" height="104" style="fill:oklch(0.42 0.045 245)" />
+          <circle cx="212" cy="64" r="13" style="fill:oklch(0.9 0.06 80)" />
+          <path d="M70 108 Q110 78 150 100 T250 92 V134 H70 Z" style="fill:oklch(0.5 0.05 160)" />
+          <path d="M70 122 Q130 98 180 118 T250 112 V134 H70 Z" style="fill:oklch(0.38 0.04 160)" />
+          <g class="a vd-b">
+            <rect x="70" y="30" width="180" height="104" style="fill:oklch(0.36 0.025 250)" />
+            <circle cx="160" cy="74" r="17" style="fill:oklch(0.7 0.03 250)" />
+            <path d="M122 134 C122 108 138 96 160 96 C182 96 198 108 198 134 Z" style="fill:oklch(0.7 0.03 250)" />
+            <rect x="200" y="44" width="34" height="46" rx="3" style="fill:oklch(0.42 0.03 250)" />
+          </g>
+        </g>
+        <path d="M77 125 L77 131 L82 128 Z" fill="#fff" opacity=".85" />
+        <rect x="88" y="127" width="70" height="2" rx="1" fill="#fff" opacity=".3" />
+
+        <rect x="20" y="150" width="280" height="114" rx="10" class="fc" />
+        <rect x="20.5" y="150.5" width="279" height="113" rx="9.5" class="sl" />
+        {rulerTicks.map((t) => (
+          <path d={`M${t.x} ${t.tall ? 158 : 161} V165`} class="sm" stroke-width="1" opacity={t.tall ? 0.7 : 0.4} />
+        ))}
+        {[[30, 96], [99, 158], [161, 236], [239, 290]].map(([a, b]) => (
+          <g>
+            <rect x={a} y="196" width={b - a} height="20" rx="4" style="fill:oklch(0.5 0.02 250)" />
+            <rect x={a + 2} y="198" width="16" height="16" rx="2.5" style="fill:oklch(0.62 0.02 250)" />
+          </g>
+        ))}
+        <rect x="104" y="172" width="66" height="18" rx="4" style="fill:oklch(0.8 0.06 80)" />
+        <rect x="108" y="179" width="30" height="4" rx="2" style="fill:oklch(0.45 0.04 70)" />
+        <rect x="200" y="172" width="58" height="18" rx="4" style="fill:oklch(0.8 0.06 80)" />
+        <rect x="204" y="179" width="24" height="4" rx="2" style="fill:oklch(0.45 0.04 70)" />
+        <rect x="30" y="222" width="260" height="30" rx="4" style="fill:oklch(0.34 0.025 160)" />
+        {audioBars.map((b) => (
+          <rect x={b.x + 0.6} y={237 - b.h} width="1.6" height={b.h * 2} rx="0.8" style="fill:oklch(0.7 0.07 160)" />
+        ))}
+        <g class="a vd-ph">
+          <path d="M0 160 V258" class="sa" stroke-width="1.5" />
+          <path d="M-5 153 H5 V159 L0 164 L-5 159 Z" class="fa" />
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────────── 09 Images ───────────────────────── */}
+    {id === "images" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">VARIATIONS / PICK</text>
+        <rect x="60" y="38" width="200" height="174" rx="12" class="fc" filter={sh} />
+        <g clip-path={url("c1")}>
+          <rect x="68" y="46" width="184" height="158" style="fill:oklch(0.96 0.006 150)" />
+          <g class="a im-other" filter={url("bl")}>
+            <rect x="164" y="46" width="88" height="75" rx="6" style="fill:oklch(0.9 0.035 70)" />
+            <ellipse cx="208" cy="110" rx="22" ry="4" style="fill:oklch(0.8 0.05 70)" />
+            <rect x="200" y="70" width="16" height="40" rx="5" style="fill:oklch(0.32 0.02 250)" />
+            <rect x="68" y="129" width="88" height="75" rx="6" style="fill:oklch(0.42 0.04 250)" />
+            <circle cx="132" cy="150" r="8" style="fill:oklch(0.92 0.02 90)" />
+            <path d="M68 190 Q100 170 124 184 T156 180 V204 H68 Z" style="fill:oklch(0.3 0.03 200)" />
+            <rect x="164" y="129" width="88" height="75" rx="6" style="fill:oklch(0.9 0.05 55)" />
+            <circle cx="208" cy="176" r="22" style="fill:oklch(0.8 0.1 55)" />
+            <path d="M164 192 H252 V204 H164 Z" style="fill:oklch(0.74 0.06 150)" />
+          </g>
+          <g class="a im-chosen">
+            <rect x="68" y="46" width="184" height="158" style="fill:oklch(0.92 0.03 240)" />
+            <circle cx="206" cy="92" r="18" style="fill:oklch(0.88 0.09 78)" />
+            <path d="M68 160 Q112 118 160 146 T252 132 V204 H68 Z" style="fill:oklch(0.79 0.06 155)" />
+            <path d="M68 184 Q132 150 190 176 T252 170 V204 H68 Z" style="fill:oklch(0.64 0.07 155)" />
+            <g class="a im-soft" filter={url("bl")}>
+              <rect x="68" y="46" width="184" height="158" style="fill:oklch(0.92 0.03 240)" />
+              <circle cx="206" cy="92" r="18" style="fill:oklch(0.88 0.09 78)" />
+              <path d="M68 160 Q112 118 160 146 T252 132 V204 H68 Z" style="fill:oklch(0.79 0.06 155)" />
+              <path d="M68 184 Q132 150 190 176 T252 170 V204 H68 Z" style="fill:oklch(0.64 0.07 155)" />
+            </g>
+          </g>
+          <rect x="69" y="47" width="86" height="73" rx="6" class="sa a im-sel" stroke-width="2" />
+        </g>
+
+        {[
+          ["oklch(0.92 0.03 240)", "oklch(0.64 0.07 155)"],
+          ["oklch(0.9 0.035 70)", "oklch(0.32 0.02 250)"],
+          ["oklch(0.42 0.04 250)", "oklch(0.92 0.02 90)"],
+          ["oklch(0.9 0.05 55)", "oklch(0.8 0.1 55)"],
+        ].map(([bg, fg], i) => (
+          <g>
+            <rect x={88 + i * 38} y="226" width="30" height="24" rx="5" style={`fill:${bg}`} />
+            <circle cx={103 + i * 38} cy="240" r="5" style={`fill:${fg}`} />
+          </g>
+        ))}
+        <rect x="85.5" y="223.5" width="35" height="29" rx="7" class="sa a sv-flag" stroke-width="1.6" />
+        <g transform="translate(120 224)">
+          <g class="a sv-flagpop">
+            <circle r="6" class="fa" stroke="#fff" stroke-width="1.5" />
+            <path d="M-2.6 0.1 L-0.8 1.9 L2.7 -1.7" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────────── 10 Music / audio ───────────────────────── */}
+    {id === "music-audio" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">TRACK / BEAT</text>
+        <rect x="24" y="46" width="272" height="196" rx="14" class="fc" filter={sh} />
+        <circle cx="50" cy="74" r="12" class="fa" />
+        <path d="M46.5 68.5 L46.5 79.5 L55.5 74 Z" fill="#fff" />
+        <rect x="70" y="67" width="86" height="7" rx="3.5" class="fi" />
+        <rect x="70" y="79" width="56" height="5" rx="2.5" class="fs" />
+        <g transform="translate(278 74)">
+          <circle r="6.5" class="fa a mu-beat" style="fill-opacity:.18" />
+          <circle r="3" class="fa" />
+        </g>
+        <text x="266" y="77" text-anchor="end" class="sv-lbl">BEAT</text>
+
+        <g class="mu-bars">
+          {musicBars.map((b) => (
+            <rect x={b.x} y={160 - b.h / 2} width="2.4" height={b.h} rx="1.2" class="a mu-bar" style="fill:oklch(0.85 0.012 250)" />
+          ))}
+        </g>
+        <g class="a mu-acc">
+          <g clip-path={url("c1")} class="mu-bars">
+            {musicBars.map((b) => (
+              <rect x={b.x} y={160 - b.h / 2} width="2.4" height={b.h} rx="1.2" class="fa a mu-bar" />
+            ))}
+          </g>
+        </g>
+        {[40, 100, 160, 220, 280].map((x) => (
+          <g>
+            <path d={`M${x} 204 V214`} class="sl" />
+            <rect x={x - 3} y="218" width="6" height="6" rx="1" transform={`rotate(45 ${x} 221)`} class="fl" />
+          </g>
+        ))}
+        <g class="a mu-ph">
+          <path d="M0 110 V210" class="sm" stroke-width="1.2" />
+          <circle cx="0" cy="110" r="3.2" class="fi" />
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────────── 11 AI follow-up ───────────────────────── */}
+    {id === "ai-follow-up" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">NEW LEAD / AUTO REPLY</text>
+        <g class="a ai-notif">
+          <rect x="34" y="40" width="252" height="50" rx="14" class="fc" filter={sh} />
+          <circle cx="59" cy="65" r="13" class="fa" style="fill-opacity:.18" />
+          <path transform="translate(59 65)" d="M-6.5 -4.5 C-6.5 -6 -5.5 -7 -4 -7 L-2.5 -7 L-1 -3.5 L-2.8 -2.2 C-1.8 0 0 1.8 2.2 2.8 L3.5 1 L7 2.5 L7 4 C7 5.5 6 6.5 4.5 6.5 C-1.5 6.5 -6.5 1.5 -6.5 -4.5 Z" class="fa" />
+          <text x="81" y="62" class="tx fi" font-size="10" font-weight="700">Missed call</text>
+          <rect x="81" y="70" width="96" height="5" rx="2.5" class="fs" />
+          <text x="272" y="62" text-anchor="end" class="tx fm" font-size="8">now</text>
+        </g>
+        <g class="a ai-lead">
+          <rect x="34" y="104" width="150" height="42" rx="15" class="fc" />
+          <rect x="48" y="117" width="112" height="5" rx="2.5" class="fs" />
+          <rect x="48" y="128" width="78" height="5" rx="2.5" class="fs" />
+        </g>
+        <g class="a ai-typing">
+          <rect x="232" y="170" width="54" height="28" rx="14" class="fc" />
+          <circle cx="249" cy="184" r="3" class="fm a ai-dot" />
+          <circle cx="259" cy="184" r="3" class="fm a ai-dot ai-d1" />
+          <circle cx="269" cy="184" r="3" class="fm a ai-dot ai-d2" />
+        </g>
+        <g class="a ai-reply">
+          <rect x="114" y="158" width="172" height="56" rx="15" class="fa" />
+          <rect x="128" y="172" width="132" height="5" rx="2.5" fill="#fff" opacity=".92" />
+          <rect x="128" y="183" width="144" height="5" rx="2.5" fill="#fff" opacity=".92" />
+          <rect x="128" y="194" width="86" height="5" rx="2.5" fill="#fff" opacity=".7" />
+        </g>
+        <g class="a ai-cap">
+          <text x="270" y="232" text-anchor="end" class="sv-lbl">AUTO REPLY · SENT</text>
+          <path d="M275 228 L277.5 230.5 L282 225.5 M279 230.5 L284 225.5" fill="none" class="sa" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────────── 12 CRM automation ───────────────────────── */}
+    {id === "crm-automation" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">PIPELINE / STAGES</text>
+        {["New", "Replied", "Booked"].map((name, c) => (
+          <g>
+            <rect x={20 + c * 96} y="40" width="88" height="182" rx="12" style="fill:oklch(0.945 0.008 250)" />
+            <text x={32 + c * 96} y="60" class="tx fi" font-size="9.5" font-weight="700">{name}</text>
+            <circle cx={96 + c * 96} cy="57" r="3" class={c === 2 ? "fa" : "fl"} />
+            {[0, 1].map((r) => (
+              <g filter={sh}>
+                <rect x={28 + c * 96} y={72 + r * 44} width="72" height="36" rx="8" class="fc" />
+                <circle cx={42 + c * 96} cy={90 + r * 44} r="6" class="fs" />
+                <rect x={54 + c * 96} y={84 + r * 44} width={[36, 28, 32][c] - r * 6} height="5" rx="2.5" class="fi" opacity=".65" />
+                <rect x={54 + c * 96} y={94 + r * 44} width="26" height="4" rx="2" class="fs" />
+              </g>
+            ))}
+          </g>
+        ))}
+        <path d="M64 246 H256" class="sl" stroke-width="1.5" />
+        <path d="M64 246 H256" class="sa a crm-line" stroke-width="2" stroke-linecap="round" pathLength="1" style="stroke-dasharray:1 1" />
+        {[64, 160, 256].map((x, i) => (
+          <circle cx={x} cy="246" r="4" class={i === 0 ? "fa" : "fc"} stroke-width="1.5" style={i === 0 ? "" : "stroke:oklch(0.82 0.012 250)"} />
+        ))}
+        <circle cx="256" cy="246" r="4" class="fa a sv-flag" />
+        <g class="a crm-lead">
+          <g filter={sh}>
+            <rect x="28" y="160" width="72" height="40" rx="8" class="fc" />
+          </g>
+          <rect x="28.75" y="160.75" width="70.5" height="38.5" rx="7.25" class="sa" stroke-width="1.5" />
+          <circle cx="42" cy="180" r="6" class="fa" />
+          <rect x="54" y="174" width="34" height="5" rx="2.5" class="fi" />
+          <rect x="54" y="184" width="24" height="4" rx="2" class="fs" />
+          <g transform="translate(98 162)">
+            <g class="a sv-flagpop crm-check">
+              <circle r="7.5" class="fa" stroke="#fff" stroke-width="1.6" />
+              <path d="M-3 0.1 L-0.9 2.2 L3.1 -1.9" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+          </g>
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────────── Unknown id ───────────────────────── */}
+    {!known && (
+      <g>
+        <rect x="100" y="80" width="120" height="120" rx="18" class="sl" stroke-width="1.5" stroke-dasharray="4 5" />
+        <circle cx="160" cy="140" r="10" class="fs" />
+      </g>
+    )}
+  </svg>
+</div>
+
+<style is:global>
+  /* ── Root + tints ─────────────────────────────────────────── */
+  .sv {
+    --sv-ink: oklch(0.22 0.02 250);
+    --sv-mute: #414b56;
+    --sv-line: oklch(0.88 0.01 250);
+    --sv-soft: oklch(0.925 0.008 250);
+    --sv-card: #fff;
+    --sv-acc: #0072bc;
+    --sv-bg: oklch(0.985 0.004 250);
+    --sv-sh1: 0.06;
+    --sv-sh2: 0.08;
+    --sv-d: 6s;
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 8 / 7;
+    overflow: hidden;
+    border-radius: inherit;
+    background: var(--sv-bg);
+    color: var(--sv-ink);
+    isolation: isolate;
+  }
+  .sv > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .sv.sv--t-blue { --sv-bg: oklch(0.95 0.025 245); }
+  .sv.sv--t-sand { --sv-bg: oklch(0.95 0.02 80); }
+  .sv.sv--t-sage { --sv-bg: oklch(0.95 0.02 150); }
+  .sv.sv--t-paper { --sv-bg: oklch(0.985 0.004 250); }
+  .sv.sv--dark {
+    --sv-bg: oklch(0.24 0.02 250);
+    --sv-ink: oklch(0.95 0.006 250);
+    --sv-mute: oklch(0.74 0.015 250);
+    --sv-line: oklch(0.37 0.02 250);
+    --sv-soft: oklch(0.43 0.02 250);
+    --sv-card: oklch(0.3 0.022 250);
+    --sv-acc: oklch(0.68 0.14 247);
+    --sv-sh1: 0.25;
+    --sv-sh2: 0.35;
+  }
+  .sv .sv-sh1 { flood-opacity: var(--sv-sh1); }
+  .sv .sv-sh2 { flood-opacity: var(--sv-sh2); }
+
+  /* ── Paint helpers ────────────────────────────────────────── */
+  .sv .fc { fill: var(--sv-card); }
+  .sv .fs { fill: var(--sv-soft); }
+  .sv .fl { fill: var(--sv-line); }
+  .sv .fi { fill: var(--sv-ink); }
+  .sv .fm { fill: var(--sv-mute); }
+  .sv .fa { fill: var(--sv-acc); }
+  .sv .sl { fill: none; stroke: var(--sv-line); }
+  .sv .sa { fill: none; stroke: var(--sv-acc); }
+  .sv .sm { fill: none; stroke: var(--sv-mute); }
+  .sv text { font-family: inherit; }
+  .sv .sv-lbl,
+  .sv .sv-num {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    fill: var(--sv-mute);
+    opacity: 0.85;
+  }
+  .sv .sv-num { font-size: 10px; letter-spacing: 0.04em; fill: var(--sv-ink); }
+
+  /* ── Animation engine: paused until hovered or [data-sv-play] ─ */
+  .sv .a {
+    animation-duration: var(--sv-d);
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+    animation-fill-mode: both;
+    animation-play-state: paused;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .sv:hover .a,
+  .sv[data-sv-play] .a,
+  [data-sv-play] .sv .a {
+    animation-play-state: running;
+  }
+  /* At rest, hold the first keyframe (the finished still) through a long delay, so a visual
+     always returns to its still when hover ends instead of freezing mid-loop. */
+  .sv:not(:hover):not([data-sv-play]):not([data-sv-play] .sv) .a {
+    animation-delay: 9999s !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sv .a,
+    .sv:hover .a,
+    .sv[data-sv-play] .a,
+    [data-sv-play] .sv .a {
+      animation-play-state: paused !important;
+      animation-delay: 9999s !important;
+    }
+  }
+
+  /* shared keyframes */
+  .sv .sv-rise { animation-name: sv-rise; }
+  .sv .sv-pop { animation-name: sv-pop; }
+  .sv .sv-flag { animation-name: sv-flag; }
+  .sv .sv-flagpop { animation-name: sv-flagpop; }
+  @keyframes sv-rise {
+    0%, 6% { opacity: 1; transform: none; }
+    11%, 18% { opacity: 0; transform: translateY(6px); }
+    28%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-pop {
+    0%, 6% { opacity: 1; transform: none; }
+    11%, 18% { opacity: 0; transform: scale(0.8); }
+    28%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-flag {
+    0%, 8% { opacity: 1; }
+    12%, 62% { opacity: 0; }
+    70%, 100% { opacity: 1; }
+  }
+  @keyframes sv-flagpop {
+    0%, 8% { opacity: 1; transform: none; }
+    12%, 62% { opacity: 0; transform: scale(0.4); }
+    70%, 100% { opacity: 1; transform: none; }
+  }
+
+  /* 01 google-ads */
+  .sv--google-ads { --sv-d: 6s; }
+  .sv .ga-cover { transform: translateX(94px); animation-name: sv-ga-cover; }
+  .sv .ga-caret { animation-name: sv-blink; animation-duration: 1s; animation-timing-function: steps(1, end); }
+  .sv .ga-row { animation-name: sv-ga-row; }
+  .sv .ga-d1 { animation-delay: 0.25s; }
+  .sv .ga-d2 { animation-delay: 0.5s; }
+  .sv .ga-hl { animation-name: sv-ga-hl; }
+  .sv .ga-cur { animation-name: sv-ga-cur; }
+  .sv .ga-ring { opacity: 0; animation-name: sv-ga-ring; }
+  @keyframes sv-ga-cover {
+    0%, 6% { transform: translateX(94px); animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0); }
+    12% { transform: translateX(0); }
+    16% { transform: translateX(0); animation-timing-function: steps(15, end); }
+    42%, 100% { transform: translateX(94px); }
+  }
+  @keyframes sv-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  @keyframes sv-ga-row {
+    0%, 7% { opacity: 1; transform: none; }
+    12% { opacity: 0; transform: none; }
+    44% { opacity: 0; transform: translateY(6px); }
+    54%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-ga-hl {
+    0%, 7% { opacity: 1; }
+    12%, 64% { opacity: 0; }
+    72%, 100% { opacity: 1; }
+  }
+  @keyframes sv-ga-cur {
+    0%, 7% { opacity: 1; transform: none; }
+    12% { opacity: 0; transform: none; }
+    56% { opacity: 0; transform: translate(50px, 80px); }
+    60% { opacity: 1; }
+    70%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-ga-ring {
+    0%, 70% { opacity: 0; transform: scale(0.4); }
+    72% { opacity: 0.8; transform: scale(0.5); }
+    86%, 100% { opacity: 0; transform: scale(1.7); }
+  }
+
+  /* 02 meta-ads */
+  .sv--meta-ads { --sv-d: 6s; }
+  .sv .mt-feed { animation-name: sv-mt-feed; }
+  .sv .mt-cta { animation-name: sv-mt-cta; }
+  .sv .mt-ring { opacity: 0; animation-name: sv-mt-ring; }
+  .sv .mt-like { animation-name: sv-mt-like; }
+  .sv .mt-av { animation-name: sv-mt-av; }
+  .sv .mt-fl { opacity: 0; animation-name: sv-mt-fl; }
+  .sv .mt-d1 { animation-delay: 0.3s; }
+  .sv .mt-d2 { animation-delay: 0.6s; }
+  @keyframes sv-mt-feed {
+    0%, 7% { opacity: 1; transform: none; }
+    12% { opacity: 0; transform: none; }
+    13% { opacity: 0; transform: translateY(64px); }
+    18% { opacity: 1; transform: translateY(64px); animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1); }
+    40%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-mt-cta {
+    0%, 44% { transform: none; }
+    47% { transform: scale(0.96); }
+    53%, 100% { transform: none; }
+  }
+  @keyframes sv-mt-ring {
+    0%, 45% { opacity: 0; transform: none; }
+    47% { opacity: 0.8; transform: none; }
+    62%, 100% { opacity: 0; transform: scale(1.1, 1.5); }
+  }
+  @keyframes sv-mt-like {
+    0%, 57% { transform: none; }
+    60% { transform: scale(1.25); }
+    66%, 100% { transform: none; }
+  }
+  @keyframes sv-mt-av {
+    0%, 7% { opacity: 1; transform: none; }
+    12%, 62% { opacity: 0; transform: scale(0.4); }
+    70%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-mt-fl {
+    0%, 57% { opacity: 0; transform: translate(0, 0) scale(0.6); }
+    61% { opacity: 1; transform: translate(-2px, -12px) scale(1); }
+    84%, 100% { opacity: 0; transform: translate(8px, -70px) scale(0.9); }
+  }
+
+  /* 03 seo */
+  .sv--seo { --sv-d: 6.5s; }
+  .sv .seo-list { animation-name: sv-seo-list; }
+  .sv .seo-c { animation-name: sv-seo-c; }
+  .sv .seo-f5 { animation-name: sv-seo-f5; }
+  .sv .seo-f4 { animation-name: sv-seo-f4; }
+  .sv .seo-f3 { animation-name: sv-seo-f3; }
+  .sv .seo-f2 { animation-name: sv-seo-f2; }
+  .sv .seo-rail { stroke-dashoffset: 0; animation-name: sv-seo-rail; }
+  @keyframes sv-seo-list {
+    0%, 7% { opacity: 1; }
+    10%, 13% { opacity: 0; }
+    19%, 100% { opacity: 1; }
+  }
+  @keyframes sv-seo-c {
+    0%, 10% { transform: none; }
+    12%, 24% { transform: translateY(152px); }
+    32%, 36% { transform: translateY(114px); }
+    44%, 48% { transform: translateY(76px); }
+    56%, 60% { transform: translateY(38px); }
+    68%, 100% { transform: none; }
+  }
+  @keyframes sv-seo-f5 { 0%, 10% { transform: none; } 12%, 24% { transform: translateY(-38px); } 32%, 100% { transform: none; } }
+  @keyframes sv-seo-f4 { 0%, 10% { transform: none; } 12%, 36% { transform: translateY(-38px); } 44%, 100% { transform: none; } }
+  @keyframes sv-seo-f3 { 0%, 10% { transform: none; } 12%, 48% { transform: translateY(-38px); } 56%, 100% { transform: none; } }
+  @keyframes sv-seo-f2 { 0%, 10% { transform: none; } 12%, 60% { transform: translateY(-38px); } 68%, 100% { transform: none; } }
+  @keyframes sv-seo-rail {
+    0%, 10% { stroke-dashoffset: 0; }
+    12%, 24% { stroke-dashoffset: 1; }
+    32%, 36% { stroke-dashoffset: 0.75; }
+    44%, 48% { stroke-dashoffset: 0.5; }
+    56%, 60% { stroke-dashoffset: 0.25; }
+    68%, 100% { stroke-dashoffset: 0; }
+  }
+
+  /* 04 local-seo */
+  .sv--local-seo { --sv-d: 5.5s; }
+  .sv .ls-pin { animation-name: sv-ls-pin; }
+  .sv .ls-shadow { animation-name: sv-ls-shadow; }
+  .sv .ls-pulse { opacity: 0; animation-name: sv-ls-pulse; }
+  .sv .ls-star { animation-name: sv-ls-star; }
+  .sv .ls-d1 { animation-delay: 0.22s; }
+  .sv .ls-d2 { animation-delay: 0.44s; }
+  .sv .ls-d3 { animation-delay: 0.66s; }
+  .sv .ls-d4 { animation-delay: 0.88s; }
+  @keyframes sv-ls-pin {
+    0%, 7% { opacity: 1; transform: none; }
+    11% { opacity: 0; transform: none; }
+    12% { opacity: 0; transform: translateY(-56px); }
+    17% { opacity: 1; transform: translateY(-56px); animation-timing-function: cubic-bezier(0.5, 0, 0.3, 1); }
+    30%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-ls-shadow {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 12% { opacity: 0; transform: scale(0.4); }
+    17% { opacity: 0.3; transform: scale(0.4); animation-timing-function: cubic-bezier(0.5, 0, 0.3, 1); }
+    30%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-ls-pulse {
+    0%, 29% { opacity: 0; transform: scale(0.4); }
+    31% { opacity: 0.85; transform: scale(0.5); }
+    54%, 100% { opacity: 0; transform: scale(1.7); }
+  }
+  @keyframes sv-ls-star {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 40% { opacity: 0; transform: scale(0.3); }
+    48%, 100% { opacity: 1; transform: none; }
+  }
+
+  /* 05 websites */
+  .sv--websites { --sv-d: 6s; }
+  .sv .wb-d1 { animation-delay: 0.35s; }
+  .sv .wb-d2 { animation-delay: 0.6s; }
+  .sv .wb-d3 { animation-delay: 0.9s; }
+  .sv .wb-d4 { animation-delay: 1.05s; }
+  .sv .wb-d5 { animation-delay: 1.2s; }
+  .sv .wb-d6 { animation-delay: 1.5s; }
+
+  /* 06 apps */
+  .sv--apps { --sv-d: 6s; }
+  .sv .ap-list { animation-name: sv-ap-list; }
+  .sv .ap-detail { transform: translateX(112px); animation-name: sv-ap-detail; }
+  .sv .ap-hl { opacity: 0; animation-name: sv-ap-hl; }
+  .sv .ap-tap { opacity: 0; animation-name: sv-ap-tap; }
+  @keyframes sv-ap-tap {
+    0%, 14% { opacity: 0; transform: scale(0.3); }
+    16% { opacity: 0.35; transform: scale(0.4); }
+    28%, 100% { opacity: 0; transform: scale(1.5); }
+  }
+  @keyframes sv-ap-hl {
+    0%, 14% { opacity: 0; }
+    18%, 30% { opacity: 1; }
+    38%, 100% { opacity: 0; }
+  }
+  @keyframes sv-ap-list {
+    0%, 26% { opacity: 1; transform: none; }
+    38%, 70% { opacity: 0.4; transform: translateX(-40px); }
+    82%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-ap-detail {
+    0%, 26% { transform: translateX(112px); }
+    38%, 70% { transform: none; }
+    82%, 100% { transform: translateX(112px); }
+  }
+
+  /* 07 landing-pages */
+  .sv--landing-pages { --sv-d: 5.5s; }
+  .sv .ld-bar { transform-origin: 0 50%; animation-name: sv-ld-bar; }
+  @keyframes sv-ld-bar {
+    0%, 7% { transform: none; }
+    12%, 22% { transform: scaleX(0); }
+    62%, 100% { transform: none; }
+  }
+
+  /* 08 video */
+  .sv--video { --sv-d: 6s; }
+  .sv .vd-ph { transform: translateX(110px); animation-name: sv-vd-ph; animation-timing-function: linear; }
+  .sv .vd-b { opacity: 0; animation-name: sv-vd-b; animation-timing-function: linear; }
+  @keyframes sv-vd-ph {
+    0% { transform: translateX(110px); opacity: 1; }
+    55% { transform: translateX(290px); opacity: 1; }
+    58% { transform: translateX(290px); opacity: 0; }
+    60% { transform: translateX(30px); opacity: 0; }
+    63% { transform: translateX(36px); opacity: 1; }
+    100% { transform: translateX(110px); opacity: 1; }
+  }
+  @keyframes sv-vd-b {
+    0%, 14.6% { opacity: 0; }
+    15.4%, 38.6% { opacity: 1; }
+    39.4%, 59% { opacity: 0; }
+    60%, 93.4% { opacity: 1; }
+    94.2%, 100% { opacity: 0; }
+  }
+
+  /* 09 images */
+  .sv--images { --sv-d: 6s; }
+  .sv .im-other { opacity: 0; animation-name: sv-im-other; }
+  .sv .im-chosen { transform-origin: 0 0; animation-name: sv-im-chosen; }
+  .sv .im-soft { opacity: 0; animation-name: sv-im-soft; }
+  .sv .im-sel { opacity: 0; animation-name: sv-im-sel; }
+  @keyframes sv-im-other {
+    0%, 8% { opacity: 0; }
+    16%, 50% { opacity: 1; }
+    60%, 100% { opacity: 0; }
+  }
+  @keyframes sv-im-chosen {
+    0%, 8% { transform: none; }
+    16%, 50% { transform: scale(0.478); }
+    64%, 100% { transform: none; }
+  }
+  @keyframes sv-im-soft {
+    0%, 8% { opacity: 0; }
+    16%, 54% { opacity: 1; }
+    68%, 100% { opacity: 0; }
+  }
+  @keyframes sv-im-sel {
+    0%, 16% { opacity: 0; transform: translate(96px, 0); }
+    20%, 27% { opacity: 1; transform: translate(96px, 0); }
+    32%, 37% { opacity: 1; transform: translate(0, 83px); }
+    42%, 47% { opacity: 1; transform: none; }
+    52%, 100% { opacity: 0; transform: none; }
+  }
+
+  /* 10 music-audio */
+  .sv--music-audio { --sv-d: 6s; }
+  .sv .mu-ph { transform: translateX(136px); animation-name: sv-mu-ph; animation-timing-function: linear; }
+  .sv .mu-prog { transform-origin: 4px 0; transform: scaleX(0.4); animation-name: sv-mu-prog; animation-timing-function: linear; }
+  .sv .mu-acc { animation-name: sv-mu-acc; animation-timing-function: linear; }
+  .sv .mu-beat { animation-name: sv-mu-beat; animation-duration: 1s; animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1); }
+  .sv .mu-bar { animation-name: sv-mu-bar; animation-duration: 1.6s; animation-timing-function: ease-in-out; }
+  .sv .mu-bars > :nth-child(4n + 2) { animation-delay: 0.2s; }
+  .sv .mu-bars > :nth-child(4n + 3) { animation-delay: 0.45s; }
+  .sv .mu-bars > :nth-child(4n + 4) { animation-delay: 0.7s; }
+  @keyframes sv-mu-ph {
+    0% { transform: translateX(136px); opacity: 1; }
+    54% { transform: translateX(280px); opacity: 1; }
+    57% { transform: translateX(280px); opacity: 0; }
+    63% { transform: translateX(40px); opacity: 0; }
+    64% { transform: translateX(40px); opacity: 1; }
+    100% { transform: translateX(136px); opacity: 1; }
+  }
+  @keyframes sv-mu-prog {
+    0% { transform: scaleX(0.4); }
+    54%, 57% { transform: scaleX(1); }
+    59%, 64% { transform: scaleX(0); }
+    100% { transform: scaleX(0.4); }
+  }
+  @keyframes sv-mu-acc {
+    0%, 55% { opacity: 1; }
+    58%, 62% { opacity: 0; }
+    63%, 100% { opacity: 1; }
+  }
+  @keyframes sv-mu-beat {
+    0% { transform: scale(1.5); opacity: 1; }
+    60%, 100% { transform: scale(1); opacity: 0.6; }
+  }
+  @keyframes sv-mu-bar {
+    0%, 100% { transform: none; }
+    50% { transform: scaleY(0.72); }
+  }
+
+  /* 11 ai-follow-up */
+  .sv--ai-follow-up { --sv-d: 6s; }
+  .sv .ai-notif { animation-name: sv-ai-notif; }
+  .sv .ai-lead { animation-name: sv-ai-lead; }
+  .sv .ai-typing { opacity: 0; transform-origin: 100% 100%; animation-name: sv-ai-typing; }
+  .sv .ai-dot { animation-name: sv-ai-dot; animation-duration: 1s; animation-timing-function: ease-in-out; }
+  .sv .ai-d1 { animation-delay: 0.15s; }
+  .sv .ai-d2 { animation-delay: 0.3s; }
+  .sv .ai-reply { transform-origin: 100% 100%; animation-name: sv-ai-reply; }
+  .sv .ai-cap { animation-name: sv-ai-cap; }
+  @keyframes sv-ai-notif {
+    0%, 6% { opacity: 1; transform: none; }
+    10% { opacity: 0; transform: none; }
+    12% { opacity: 0; transform: translateY(-10px); }
+    20%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-ai-lead {
+    0%, 6% { opacity: 1; transform: none; }
+    10%, 22% { opacity: 0; transform: translateY(8px); }
+    30%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-ai-typing {
+    0%, 34% { opacity: 0; transform: scale(0.7); }
+    38%, 60% { opacity: 1; transform: none; }
+    63%, 100% { opacity: 0; transform: scale(0.9); }
+  }
+  @keyframes sv-ai-dot {
+    0%, 60%, 100% { opacity: 0.5; transform: none; }
+    30% { opacity: 1; transform: translateY(-3px); }
+  }
+  @keyframes sv-ai-reply {
+    0%, 6% { opacity: 1; transform: none; }
+    10%, 62% { opacity: 0; transform: scale(0.88); }
+    70%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-ai-cap {
+    0%, 6% { opacity: 1; }
+    10%, 70% { opacity: 0; }
+    76%, 100% { opacity: 1; }
+  }
+
+  /* 12 crm-automation */
+  .sv--crm-automation { --sv-d: 6s; }
+  .sv .crm-lead { transform: translateX(192px); animation-name: sv-crm-lead; }
+  .sv .crm-line { stroke-dashoffset: 0; animation-name: sv-crm-line; }
+  .sv .crm-check { animation-name: sv-crm-check; }
+  @keyframes sv-crm-lead {
+    0%, 7% { opacity: 1; transform: translateX(192px); }
+    11% { opacity: 0; transform: translateX(192px); }
+    13% { opacity: 0; transform: translateX(0); }
+    20%, 26% { opacity: 1; transform: translateX(0); }
+    40%, 50% { opacity: 1; transform: translateX(96px); }
+    64%, 100% { opacity: 1; transform: translateX(192px); }
+  }
+  @keyframes sv-crm-line {
+    0%, 7% { stroke-dashoffset: 0; }
+    11%, 26% { stroke-dashoffset: 1; }
+    40%, 50% { stroke-dashoffset: 0.5; }
+    64%, 100% { stroke-dashoffset: 0; }
+  }
+  @keyframes sv-crm-check {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 64% { opacity: 0; transform: scale(0.4); }
+    72%, 100% { opacity: 1; transform: none; }
+  }
+</style>

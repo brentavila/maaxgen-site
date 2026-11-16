@@ -4,6 +4,8 @@ import Footer from "../components/Footer.astro";
 import ConsentBanner from "../components/ConsentBanner.astro";
 import ConsentManager from "../components/analytics/ConsentManager.astro";
 import MetaPixelEvents from "../components/analytics/MetaPixelEvents.astro";
+import PlanDialog from "../components/studio/PlanDialog.astro";
+import ShortlistPill from "../components/studio/ShortlistPill.astro";
 
 interface Props {
   title?: string;
@@ -37,7 +39,7 @@ const pageTitle = title === "MaaxGen" ? title : `${title} | MaaxGen`;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400;1,500&display=swap"
       rel="stylesheet"
     />
     <title>{pageTitle}</title>
@@ -54,7 +56,13 @@ const pageTitle = title === "MaaxGen" ? title : `${title} | MaaxGen`;
     </main>
     <Footer landing={landing} />
     <ConsentBanner />
+    {!landing && <PlanDialog />}
+    {!landing && <ShortlistPill />}
     <MetaPixelEvents />
+    <script>
+      import { initShortlistUI } from "../lib/shortlist";
+      initShortlistUI();
+    </script>
     <script>
       const targets = document.querySelectorAll("[data-reveal]");
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

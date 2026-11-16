@@ -24,6 +24,7 @@ Use CSS custom properties. Tint neutrals toward brand blue hue (chroma ~0.01).
 - **Display / headings:** Wide, bold sans with moderate letter-spacing (logo-adjacent feel). Prefer **DM Sans**, **Outfit**, or **Plus Jakarta Sans** over Inter.
 - **Body:** Clean sans at 16–18px base, 1.5–1.65 line height.
 - **Scale:** Clear hierarchy; minimum 1.25 ratio between heading steps.
+- Hero headlines may use a second line in muted italic Plus Jakarta Sans (400/500); small uppercase labels may use the system monospace stack.
 
 ## Logo assets
 
@@ -49,6 +50,7 @@ Marketing site weighting (design-motion-principles): Jakub primary, Jhey seconda
 - Page load: one orchestrated reveal max; respect `prefers-reduced-motion`
 - No bounce or elastic easing on UI chrome
 - Do not animate layout properties (width, height, margin)
+- Card illustrations animate only when active or hovered and rest on a complete still; hero auto-advance stops at first interaction and never runs under reduced motion.
 
 ## Components (v1)
 
@@ -61,3 +63,7 @@ Marketing site weighting (design-motion-principles): Jakub primary, Jhey seconda
 - Scope-led engagement tiers on the legacy `/pricing` page; no public MaaxGen fees
 - Ad account grader as the primary global acquisition CTA
 - Contact form placeholder (name, email, message)
+- Service Studio hero (`#studio`): three views (stack, focus, grid), toolbar with search and category filters, and a bottom dock
+- Service cards: solid surfaces, blue accent, each with its own illustration (`ServiceVisual.astro`); no glass effects
+- Shortlist pill: floating site-wide pill showing interested services
+- Plan dialog: "Get my plan" form for name, email, business type, and the shortlist
