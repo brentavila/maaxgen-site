@@ -100,7 +100,7 @@ Full detail is in `tracking/gtm/README.md`. In short:
 
 *Why:* GTM reads the site's events and sends them to GA4 and Google Ads, so all Google tagging is managed in one place.
 
-Do not add the snippet Google showed you (`gtm.js` plus `gtag('js')`). The site already has the standard GTM loader, and a second one would double count every event.
+The site loads GTM with an async `gtm.js?id=GTM-MF279RR2` script plus `gtag('js')` (Consent Mode defaults run first). Do not paste a second GTM or gtag.js snippet into the page or into GTM — that would double count every event.
 
 ## Step 5. Configure GA4
 
