@@ -1,5 +1,18 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getImage } from "astro:assets";
+import "../styles/founder.css";
+import FounderImage from "../components/founder/FounderImage.astro";
+import { getFounderImage, hasFounderDeskVideo } from "../components/founder/founder-assets";
+
+// Each founder placement renders only when its image exists in src/assets/founder/.
+const portrait = getFounderImage("founder-portrait");
+const deskStill = getFounderImage("founder-desk");
+const clientImg = getFounderImage("founder-client");
+const deskPoster =
+  hasFounderDeskVideo() && deskStill
+    ? await getImage({ src: deskStill, width: 1000, format: "webp", quality: 72 })
+    : undefined;
 
 const principles = [
   {
@@ -21,15 +34,30 @@ const principles = [
 ---
 <BaseLayout title="About" description="About MaaxGen, a bundled marketing, advertising, and AI agency for local and e-commerce SMBs.">
   <section class="page-hero page-hero--accent">
-    <div class="container split-block">
-      <div>
+    <div class:list={["container split-block", portrait && "founder-hero"]}>
+      <div class={portrait ? "founder-hero__text" : undefined}>
         <p class="eyebrow">About MaaxGen</p>
         <h1>Built for owners who need a growth partner, not another vendor to manage</h1>
         <p class="lead">
           MaaxGen helps local and e-commerce SMBs connect the work that often gets split apart: positioning, creative, paid media, reporting, and practical AI workflows.
         </p>
       </div>
-      <div class="proof-panel">
+      {portrait && (
+      <figure class="founder-figure founder-hero__figure">
+        <div class="founder-figure__frame">
+          <FounderImage
+            src={portrait}
+            alt="Portrait of Brent Avila, founder of MaaxGen, smiling in his office"
+            widths={[320, 480, 640]}
+            sizes="(min-width: 56rem) 24rem, (min-width: 40rem) 22rem, calc(100vw - 2rem)"
+            position="0% 18%"
+            eager
+          />
+        </div>
+        <figcaption>Brent Avila, Founder</figcaption>
+      </figure>
+      )}
+      <div class:list={["proof-panel", portrait && "founder-hero__panel"]}>
         <h2>Our role</h2>
         <p>
           We translate goals into a working growth system, then keep the pieces moving together so the business is not left coordinating disconnected specialists.
@@ -39,12 +67,12 @@ const principles = [
   </section>
 
   <section class="section">
-    <div class="container split-block">
-      <div>
+    <div class:list={["container split-block", deskPoster && "founder-story"]}>
+      <div class={deskPoster ? "founder-story__head" : undefined}>
         <p class="eyebrow">Agency story</p>
         <h2>Strategy, execution, and AI under one roof</h2>
       </div>
-      <div>
+      <div class={deskPoster ? "founder-story__body" : undefined}>
         <p>
           Small teams are asked to move like large marketing departments. They need better offers, sharper creative, paid campaigns, content, follow-up, and reporting, all while running the business.
         </p>
@@ -52,6 +80,24 @@ const principles = [
           MaaxGen was shaped around that reality. The bundle keeps strategic planning close to execution, so ads do not drift away from the offer, creative does not miss the campaign, and AI tools support the workflow instead of becoming another thing to manage.
         </p>
       </div>
+      {deskPoster && (
+      <div class="founder-photo founder-story__media">
+        <video
+          muted
+          loop
+          playsinline
+          preload="none"
+          poster={deskPoster.src}
+          aria-hidden="true"
+          tabindex="-1"
+          width="1176"
+          height="784"
+          data-founder-video
+        >
+          <source src="/video/founder/founder-desk-broll.mp4" type="video/mp4" />
+        </video>
+      </div>
+      )}
     </div>
   </section>
 
@@ -76,12 +122,12 @@ const principles = [
   </section>
 
   <section class="section">
-    <div class="container split-block">
-      <div>
+    <div class:list={["container split-block", clientImg && "founder-final"]}>
+      <div class={clientImg ? "founder-final__head" : undefined}>
         <p class="eyebrow">Who we serve</p>
         <h2>Local presence and online revenue both need coordination</h2>
       </div>
-      <div class="audience-list">
+      <div class:list={["audience-list", clientImg && "founder-final__list"]}>
         <article>
           <h3>Local businesses</h3>
           <p>Service areas, reputation, offers, and booking paths need to line up so every campaign supports real customer intent.</p>
@@ -91,10 +137,46 @@ const principles = [
           <p>Catalog decisions, creative refreshes, email, paid social, and landing pages need one rhythm so spend is not wasted.</p>
         </article>
       </div>
-      <div class="cta-row">
-        <a class="btn btn--primary" href="/contact">Book a call</a>
-        <a class="btn btn--secondary" href="/case-studies">View case studies</a>
+      {clientImg && (
+      <div class="founder-photo founder-final__media">
+        <FounderImage
+          src={clientImg}
+          alt="Brent Avila talking through a plan with a client at a meeting table"
+          widths={[480, 720, 960, 1200]}
+          sizes="(min-width: 56rem) 32rem, calc(100vw - 2rem)"
+          position="36% 30%"
+        />
+      </div>
+      )}
+      <div class:list={["cta-row", clientImg && "founder-final__cta"]}>
+        <a class="btn btn--primary" href="/contact/">Book a call</a>
+        <a class="btn btn--secondary" href="/case-studies/">View case studies</a>
       </div>
     </div>
   </section>
+
+  {deskPoster && (
+  <script is:inline>
+    const video = document.querySelector("[data-founder-video]");
+    if (video && "IntersectionObserver" in window) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+      let inView = false;
+      const sync = () => {
+        if (inView && !reduce.matches) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      };
+      new IntersectionObserver(
+        ([entry]) => {
+          inView = entry.isIntersecting;
+          sync();
+        },
+        { threshold: 0.35 }
+      ).observe(video);
+      reduce.addEventListener("change", sync);
+    }
+  </script>
+  )}
 </BaseLayout>

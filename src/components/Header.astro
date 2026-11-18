@@ -1,4 +1,8 @@
 ---
+import "../styles/promo.css";
+import { PROMO, isPromoActive } from "../data/promo";
+import { industries } from "../data/industries";
+
 interface Props {
   landing?: boolean;
   ctaHref?: string;
@@ -7,35 +11,59 @@ interface Props {
 
 const {
   landing = false,
-  ctaHref = "/ad-account-grader",
+  ctaHref = "/ad-account-grader/",
   ctaLabel = "Grade my ads",
 } = Astro.props;
 
 const nav = [
   { href: "/", label: "Home" },
-  { href: "/services", label: "Services" },
-  { href: "/case-studies", label: "Case studies" },
-  { href: "/ad-account-grader", label: "Ad grader" },
-  { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" },
+  { href: "/services/", label: "Services" },
+  ...(industries.length > 0 ? [{ href: "/industries/", label: "Industries" }] : []),
+  { href: "/case-studies/", label: "Case studies" },
+  { href: "/ad-account-grader/", label: "Ad grader" },
+  { href: "/blog/", label: "Blog" },
+  { href: "/contact/", label: "Contact" },
 ];
 
 const pathname = Astro.url.pathname;
 
+const promoActive = isPromoActive(new Date());
+const buildOff = (when: "active" | "ended") =>
+  (when === "active") !== promoActive ? { "data-promo-build-off": "" } : {};
+
 function isActive(href: string) {
   if (href === "/") return pathname === "/" || pathname === "";
-  return pathname === href || pathname.startsWith(`${href}/`);
+  const base = href.endsWith("/") ? href.slice(0, -1) : href;
+  const current = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  return current === base || current.startsWith(`${base}/`);
 }
 ---
+<script is:inline define:vars={{ promoStart: PROMO.start, promoEnd: PROMO.end }}>
+  // Pre-paint: mark whether the promotion is live on the visitor's clock (same rule as isPromoActive).
+  (function () {
+    var now = Date.now();
+    document.documentElement.setAttribute("data-promo", now >= Date.parse(promoStart) && now < Date.parse(promoEnd) ? "on" : "off");
+  })();
+</script>
 {!landing && (
-  <aside class="promo-bar" aria-label="Free ad account grader">
+  <aside class="promo-bar" aria-label={`${PROMO.name} offer`} data-promo-when="active" {...buildOff("active")}>
+    <div class="container promo-bar__inner">
+      <p>
+        <strong class="promo-bar__lead promo-bar__lead--offer">{PROMO.name}:</strong>
+        <span class="promo-bar__long">{PROMO.benefits.map((b) => b.label).join(" · ")}</span>
+        <span class="promo-bar__short">{PROMO.copy.barShort}</span>
+      </p>
+      <a href="/black-friday/" data-promo-cta data-promo-placement="bar">{PROMO.cta.see}</a>
+    </div>
+  </aside>
+  <aside class="promo-bar" aria-label="Free ad account grader" data-promo-when="ended" {...buildOff("ended")}>
     <div class="container promo-bar__inner">
       <p>
         <strong class="promo-bar__lead">Free two-minute diagnostic:</strong>
         <span class="promo-bar__long">Find the weak point in the system around your ads.</span>
         <span class="promo-bar__short">Free two-minute ad diagnostic</span>
       </p>
-      <a href="/ad-account-grader">Get my grade</a>
+      <a href="/ad-account-grader/">Get my grade</a>
     </div>
   </aside>
 )}
@@ -144,4 +172,8 @@ function isActive(href: string) {
     if (wide.addEventListener) wide.addEventListener("change", onWide);
     else if (wide.addListener) wide.addListener(onWide);
   })();
+</script>
+<script>
+  import { initPromo } from "../components/promo/promo-client";
+  initPromo();
 </script>

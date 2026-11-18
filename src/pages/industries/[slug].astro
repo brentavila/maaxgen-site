@@ -1,0 +1,107 @@
+---
+/**
+ * /industries/<slug>/ — one landing page per vertical, generated from
+ * src/data/industries/verticals/<slug>.ts. Order: breadcrumb + hero (IndustryStudio:
+ * h1 block, then the short answer, then the deck), content blocks with two inline
+ * calls to action, FAQ, promotion band, lead form, other industries.
+ * A markdown rendering of the same page lives at /industries/<slug>.md.
+ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import IndustryStudio from "../../components/industry/IndustryStudio.astro";
+import IndustryBlocks from "../../components/industry/blocks/IndustryBlocks.astro";
+import IndustryFaq from "../../components/industry/IndustryFaq.astro";
+import IndustryLeadForm from "../../components/industry/IndustryLeadForm.astro";
+import IndustryOthers from "../../components/industry/IndustryOthers.astro";
+import IndustryMobileCta from "../../components/industry/IndustryMobileCta.astro";
+import PromoBand from "../../components/promo/PromoBand.astro";
+import { industries, type Industry } from "../../data/industries";
+import { SITE_URL } from "../../data/site";
+import { INDUSTRY_LAUNCH_DATE, founderRef, washHues } from "../../components/industry/industry-utils";
+import "../../styles/industry.css";
+
+export function getStaticPaths() {
+  return industries.map((industry) => ({ params: { slug: industry.slug }, props: { industry } }));
+}
+
+interface Props {
+  industry: Industry;
+}
+
+const { industry } = Astro.props;
+const path = `/industries/${industry.slug}/`;
+const url = `${SITE_URL}${path}`;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["WebPage", "FAQPage"],
+      "@id": `${url}#webpage`,
+      url,
+      name: industry.seo.title,
+      description: industry.seo.description,
+      datePublished: INDUSTRY_LAUNCH_DATE,
+      dateModified: industry.updated,
+      lastReviewed: industry.updated,
+      author: founderRef(SITE_URL),
+      reviewedBy: founderRef(SITE_URL),
+      isPartOf: { "@id": `${SITE_URL}/#website` },
+      about: { "@id": `${url}#service` },
+      breadcrumb: { "@id": `${url}#breadcrumb` },
+      inLanguage: "en-US",
+      mainEntity: industry.faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.q,
+        acceptedAnswer: { "@type": "Answer", text: faq.a },
+      })),
+    },
+    {
+      "@type": "Service",
+      "@id": `${url}#service`,
+      name: industry.seo.serviceType,
+      serviceType: industry.seo.serviceType,
+      provider: { "@id": `${SITE_URL}/#organization` },
+      audience: { "@type": "BusinessAudience", audienceType: industry.audience },
+      description: industry.seo.serviceSummary,
+      url,
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${url}#breadcrumb`,
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+        { "@type": "ListItem", position: 2, name: "Industries", item: `${SITE_URL}/industries/` },
+        { "@type": "ListItem", position: 3, name: industry.name, item: url },
+      ],
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title={industry.seo.title}
+  description={industry.seo.description}
+  canonical={path}
+  jsonLd={jsonLd}
+  ctaHref="#plan"
+  ctaLabel="Get my plan"
+>
+  <link slot="head" rel="alternate" type="text/markdown" href={`/industries/${industry.slug}.md`} title={`${industry.name}: markdown version`} />
+  <div
+    class={`ind ind--${industry.slug}`}
+    data-industry-page={industry.slug}
+    style={`--ind-wash-a:${washHues(industry.slug)[0]};--ind-wash-b:${washHues(industry.slug)[1]}`}
+  >
+    <IndustryStudio industry={industry} />
+    <IndustryBlocks blocks={industry.blocks} ctas={{ lines: industry.ctaLines, label: industry.hero.ctaLabel }} />
+    <IndustryFaq industry={industry} />
+    <PromoBand
+      href="#plan"
+      label="Claim it with your plan"
+      placement="industry_band"
+    />
+    <IndustryLeadForm industry={industry} />
+    <IndustryOthers industry={industry} />
+    <IndustryMobileCta label={industry.hero.ctaLabel} />
+  </div>
+</BaseLayout>

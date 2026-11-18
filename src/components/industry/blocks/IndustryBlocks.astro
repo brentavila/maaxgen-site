@@ -1,0 +1,47 @@
+---
+/**
+ * Renders an industry's blocks in the order the data gives, one component per type.
+ * With `ctas`, a compact call to action follows the 2nd block and the last block.
+ */
+import type { IndustryBlock } from "../../../data/industries";
+import PainsBlock from "./PainsBlock.astro";
+import LanesBlock from "./LanesBlock.astro";
+import FlowBlock from "./FlowBlock.astro";
+import TableBlock from "./TableBlock.astro";
+import MetricsBlock from "./MetricsBlock.astro";
+import ChecklistBlock from "./ChecklistBlock.astro";
+import NoteBlock from "./NoteBlock.astro";
+import IndustryInlineCta from "../IndustryInlineCta.astro";
+
+interface Props {
+  blocks: IndustryBlock[];
+  /** [line after block 2, line after the last block] and the button label. */
+  ctas?: { lines: [string, string]; label: string };
+}
+const { blocks, ctas } = Astro.props;
+const last = blocks.length - 1;
+const ctaAfter = (i: number): string | undefined => {
+  if (!ctas) return undefined;
+  if (i === last) return ctas.lines[1];
+  if (i === 1) return ctas.lines[0];
+  return undefined;
+};
+---
+
+{
+  blocks.map((block, i) => {
+    const line = ctaAfter(i);
+    return (
+      <>
+        {block.type === "pains" && <PainsBlock block={block} />}
+        {block.type === "lanes" && <LanesBlock block={block} />}
+        {block.type === "flow" && <FlowBlock block={block} />}
+        {block.type === "table" && <TableBlock block={block} />}
+        {block.type === "metrics" && <MetricsBlock block={block} />}
+        {block.type === "checklist" && <ChecklistBlock block={block} />}
+        {block.type === "note" && <NoteBlock block={block} />}
+        {line && ctas && <IndustryInlineCta line={line} label={ctas.label} tone={block.tone} />}
+      </>
+    );
+  })
+}

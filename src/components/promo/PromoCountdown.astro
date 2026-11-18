@@ -1,0 +1,13 @@
+---
+/**
+ * Live countdown to PROMO.end. Numbers are filled in by promo-client.ts from the
+ * visitor's clock; without JavaScript the block stays hidden (a build-time number
+ * would be stale) and the deadline line next to it carries the date.
+ */
+---
+<p class="promo-countdown" data-promo-countdown role="timer">
+  <span class="sr-only">Time left: </span>
+  <span class="promo-countdown__unit"><span class="promo-countdown__num" data-unit="days">0</span> <span class="promo-countdown__label" data-unit-label="days">days</span></span>
+  <span class="promo-countdown__unit"><span class="promo-countdown__num" data-unit="hours">0</span> <span class="promo-countdown__label" data-unit-label="hours">hours</span></span>
+  <span class="promo-countdown__unit"><span class="promo-countdown__num" data-unit="minutes">0</span> <span class="promo-countdown__label" data-unit-label="minutes">minutes</span></span>
+</p>

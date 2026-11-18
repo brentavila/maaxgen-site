@@ -1,0 +1,12 @@
+---
+import { PROMO } from "../../data/promo";
+---
+<ul class="promo-benefits" aria-label="What the offer includes">
+  {PROMO.benefits.map((b, i) => (
+    <li>
+      <span class="promo-benefits__num" aria-hidden="true">0{i + 1}</span>
+      <strong>{b.label}</strong>
+      <p>{b.line}</p>
+    </li>
+  ))}
+</ul>

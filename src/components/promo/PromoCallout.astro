@@ -1,0 +1,30 @@
+---
+import "../../styles/promo.css";
+import { PROMO, isPromoActive } from "../../data/promo";
+
+const active = isPromoActive(new Date());
+---
+<section
+  class="promo-callout-section"
+  aria-label={`${PROMO.name} offer`}
+  data-promo-when="active"
+  {...(!active ? { "data-promo-build-off": "" } : {})}
+>
+  <div class="container">
+    <div class="promo-callout">
+      <p class="promo-callout__text">
+        <span class="promo-callout__label">{PROMO.name}</span>
+        <strong>{PROMO.benefits.map((b) => b.label).join(". ")}.</strong>
+      </p>
+      <a
+        href="/black-friday/"
+        data-promo-cta
+        data-promo-placement="pricing"
+      >{PROMO.cta.see} <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+<script>
+  import { initPromo } from "./promo-client";
+  initPromo();
+</script>

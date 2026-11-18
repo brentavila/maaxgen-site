@@ -1,0 +1,1573 @@
+---
+/**
+ * IndustryVisual — two bespoke, living scenes per industry landing page.
+ * Same hand, palette and contract as ServiceVisual:
+ *
+ *   <IndustryVisual id="gd-emergency" uid="card" />
+ *
+ * - Root: <div class="sv sv--{id}" aria-hidden="true"> with one inline SVG (viewBox 320x280, 8:7).
+ * - Every SVG id is suffixed with `uid` so the same visual can render more than once per page.
+ * - Motion is CSS only and paused by default. It runs when an ancestor has [data-sv-play]
+ *   or while the visual is hovered. Never animates under prefers-reduced-motion.
+ * - The un-animated (paused, first-frame) state of every visual is its finished still.
+ * - Shares ServiceVisual's base classes (.sv, .fc/.fs/.fa…, .sv-lbl, .a). The base block at the
+ *   top of the stylesheet below is an identical copy so this component also works on its own.
+ */
+interface Props {
+  id: string;
+  uid?: string;
+}
+
+const { id, uid } = Astro.props;
+
+const TINTS: Record<string, "blue" | "sand" | "sage" | "paper" | "dark"> = {
+  "gd-emergency": "dark",
+  "gd-service-area": "sage",
+  "auto-bays": "dark",
+  "auto-followup": "paper",
+  "shop-profit": "blue",
+  "shop-feed": "dark",
+  "cars-inventory": "sand",
+  "cars-lead": "dark",
+  "law-intake": "paper",
+  "law-pipeline": "dark",
+  "kb-before-after": "sand",
+  "kb-consult": "sage",
+};
+
+const known = Object.prototype.hasOwnProperty.call(TINTS, id);
+const tint = known ? TINTS[id] : "paper";
+const u = String(uid ?? Math.random().toString(36).slice(2, 8)).replace(/[^a-zA-Z0-9_-]/g, "") || "x";
+const idKey = String(id).replace(/[^a-zA-Z0-9_-]/g, "") || "x";
+const ref = (n: string) => `sv-${n}-${idKey}-${u}`;
+const url = (n: string) => `url(#${ref(n)})`;
+const sh = url("sh");
+const rootClass = `sv sv--${known ? id : "unknown"} sv--t-${tint}${tint === "dark" ? " sv--dark" : ""}`;
+
+/* Shared glyphs */
+const phone =
+  "M-6.5 -4.5 C-6.5 -6 -5.5 -7 -4 -7 L-2.5 -7 L-1 -3.5 L-2.8 -2.2 C-1.8 0 0 1.8 2.2 2.8 L3.5 1 L7 2.5 L7 4 C7 5.5 6 6.5 4.5 6.5 C-1.5 6.5 -6.5 1.5 -6.5 -4.5 Z";
+const check = "M-3 0.1 L-0.9 2.2 L3.1 -1.9";
+/* Neutral side-profile car, 100 wide, wheels sit on y=36.2 */
+const carBody =
+  "M3 27 V20 C3 16.5 5 15 9 14.4 L25 12 L37 4.2 C39.2 2.8 41.5 2.2 44.5 2.2 H64 C67.5 2.2 70 3.2 72.4 5.4 L80 12.2 L92 14 C95.4 14.6 97 16.6 97 20 V27 C97 28.4 96 29.2 94.6 29.2 H5.4 C4 29.2 3 28.4 3 27 Z";
+const carWin =
+  "M39.5 6.2 C40.8 5.3 42.4 5 44 5 H52 V12 H29.5 Z M55 5 H63.6 C66 5 67.8 5.8 69.6 7.4 L74.4 12 H55 Z";
+/* Small map pin, tip at 0,0 */
+const pin = "M0 0 C-2 -4.6 -7 -7.6 -7 -13.4 A7 7 0 1 1 7 -13.4 C7 -7.6 2 -4.6 0 0 Z";
+/* Case-file folder, 72 x 36 */
+const folder = (x: number, y: number) =>
+  `M${x} ${y + 4} A4 4 0 0 1 ${x + 4} ${y} H${x + 22} L${x + 26} ${y + 4} H${x + 68} A4 4 0 0 1 ${x + 72} ${y + 8} V${y + 32} A4 4 0 0 1 ${x + 68} ${y + 36} H${x + 4} A4 4 0 0 1 ${x} ${y + 32} Z`;
+const tee = "M-6 -9 L-11 -6 L-14 -1 L-10 1.5 L-8 0 V9 H8 V0 L10 1.5 L14 -1 L11 -6 L6 -9 C4.5 -6.5 -4.5 -6.5 -6 -9 Z";
+
+/* auto-bays: [startDay, spanDays, new?] per bay */
+const bays = [
+  [[0, 2, 0], [2, 1, 1], [3, 2, 0]],
+  [[0, 1, 1], [1, 3, 0], [4, 1, 1]],
+  [[0, 3, 0], [3, 2, 1]],
+];
+let bayNew = 0;
+const bayBlocks = bays.flatMap((row, r) =>
+  row.map(([c, s, n]) => ({ x: 178 + c * 23, y: 75 + r * 48, w: s * 23 - 2, n: !!n, k: n ? bayNew++ : -1 }))
+);
+
+/* cars-inventory bunting */
+const bunting = Array.from({ length: 12 }, (_, i) => {
+  const x = 36 + i * 22.6;
+  const t = (x - 28) / 264;
+  return { x, y: 52 + 20 * t * (1 - t), alt: i % 2 === 0 };
+});
+---
+<div class={rootClass} aria-hidden="true">
+  <svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg" focusable="false" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <filter id={ref("sh")} x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
+        <feDropShadow class="sv-sh1" dx="0" dy="1" stdDeviation="0.8" flood-color="#0b1b2e" />
+        <feDropShadow class="sv-sh2" dx="0" dy="6" stdDeviation="8" flood-color="#0b1b2e" />
+      </filter>
+      <clipPath id={ref("c1")}>
+        {id === "gd-emergency" && <rect x="52" y="140" width="132" height="110" />}
+        {id === "gd-service-area" && <rect x="20" y="40" width="280" height="224" rx="14" />}
+        {id === "kb-before-after" && <rect x="20" y="40" width="280" height="222" rx="12" />}
+      </clipPath>
+      {id === "kb-before-after" && (
+        <clipPath id={ref("c2")}>
+          <rect x="20" y="40" width="280" height="222" class="a kba-wipe" />
+        </clipPath>
+      )}
+    </defs>
+
+    {/* ───────────────────── Garage doors · emergency call ───────────────────── */}
+    {id === "gd-emergency" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">EMERGENCY / CALL</text>
+        <circle cx="46" cy="62" r="8" style="fill:oklch(0.86 0.04 85)" />
+        <circle cx="50.5" cy="58.5" r="7" style="fill:var(--sv-bg)" />
+        <circle cx="80" cy="46" r="1.1" class="fm" opacity=".7" />
+        <circle cx="26" cy="84" r="1" class="fm" opacity=".6" />
+        <circle cx="98" cy="60" r=".9" class="fm" opacity=".6" />
+
+        <path d="M18 108 L118 56 L218 108 Z" class="fs" />
+        <rect x="30" y="108" width="176" height="142" class="fc" />
+        <rect x="14" y="105" width="208" height="5" rx="2" style="fill:oklch(0.5 0.02 250)" />
+        <circle cx="118" cy="86" r="7" class="fc" />
+        <path d="M113 84 H123 M113 88 H123" class="sl" stroke-width="1.2" />
+        <path d="M30 122 H46 M30 131 H46 M30 140 H46 M30 172 H46 M30 181 H46 M30 190 H46 M30 199 H46 M30 208 H46 M30 217 H46 M30 226 H46 M30 235 H46 M30 244 H46 M190 122 H206 M190 131 H206 M190 140 H206 M190 172 H206 M190 181 H206 M190 190 H206 M190 199 H206 M190 208 H206 M190 217 H206 M190 226 H206 M190 235 H206 M190 244 H206 M30 122 H206" class="sl" opacity=".7" />
+        <circle cx="38" cy="156" r="10" style="fill:oklch(0.86 0.06 85)" opacity=".14" />
+        <rect x="35" y="150" width="6" height="11" rx="2" style="fill:oklch(0.86 0.06 85)" />
+        <circle cx="198" cy="156" r="10" style="fill:oklch(0.86 0.06 85)" opacity=".14" />
+        <rect x="195" y="150" width="6" height="11" rx="2" style="fill:oklch(0.86 0.06 85)" />
+
+        <rect x="46" y="134" width="144" height="116" rx="3" style="fill:oklch(0.44 0.02 250)" />
+        <rect x="52" y="140" width="132" height="110" style="fill:oklch(0.16 0.015 250)" />
+        <ellipse cx="118" cy="150" rx="26" ry="9" style="fill:oklch(0.86 0.05 85)" opacity=".12" />
+        <rect x="111" y="144" width="14" height="4" rx="2" style="fill:oklch(0.86 0.05 85)" />
+        <rect x="52" y="140" width="3" height="110" style="fill:oklch(0.3 0.015 250)" />
+        <rect x="181" y="140" width="3" height="110" style="fill:oklch(0.3 0.015 250)" />
+        <ellipse cx="118" cy="246" rx="44" ry="3" fill="#000" opacity=".4" />
+        <path d="M90 200 L97 180 C98 178 100 177 103 177 H133 C136 177 138 178 139 180 L146 200 Z" style="fill:oklch(0.52 0.02 250)" />
+        <path d="M95 198 L100.5 183 H135.5 L141 198 Z" style="fill:oklch(0.25 0.015 250)" />
+        <rect x="80" y="197" width="76" height="32" rx="8" style="fill:oklch(0.58 0.02 250)" />
+        <rect x="84" y="204" width="15" height="6" rx="3" style="fill:oklch(0.62 0.08 30)" />
+        <rect x="137" y="204" width="15" height="6" rx="3" style="fill:oklch(0.62 0.08 30)" />
+        <rect x="108" y="213" width="20" height="9" rx="2" style="fill:oklch(0.86 0.01 250)" />
+        <rect x="82" y="225" width="72" height="5" rx="2.5" style="fill:oklch(0.42 0.02 250)" />
+        <rect x="84" y="228" width="13" height="16" rx="3" style="fill:oklch(0.12 0.01 250)" />
+        <rect x="139" y="228" width="13" height="16" rx="3" style="fill:oklch(0.12 0.01 250)" />
+
+        <g clip-path={url("c1")}>
+          <g class="a gde-door">
+            {[0, 1, 2, 3].map((s) => (
+              <g>
+                <rect x="52" y={140 + s * 27.5} width="132" height="27.5" style="fill:oklch(0.88 0.006 250)" />
+                {[0, 1, 2, 3].map((k) => (
+                  <rect x={57.6 + k * 31.6} y={145 + s * 27.5} width="26" height="17.5" rx="2" style={s === 0 ? "fill:oklch(0.32 0.02 250)" : "fill:oklch(0.8 0.01 250)"} />
+                ))}
+                <path d={`M52 ${140 + s * 27.5} H184`} style="stroke:oklch(0.68 0.01 250)" />
+              </g>
+            ))}
+            <rect x="112" y="240" width="12" height="3" rx="1.5" style="fill:oklch(0.6 0.01 250)" />
+            <rect x="52" y="247.5" width="132" height="2.5" style="fill:oklch(0.35 0.015 250)" />
+          </g>
+        </g>
+        <path d="M20 250.5 H300" class="sl" />
+        <path d="M52 251 H184 L198 280 H38 Z" class="fs" opacity=".35" />
+
+        <g class="a gde-tile">
+          <rect x="178" y="40" width="126" height="58" rx="14" class="fc" filter={sh} />
+          <circle cx="199" cy="69" r="12" class="fa" style="fill-opacity:.2" />
+          <circle cx="199" cy="69" r="12" class="sa a gde-ring" stroke-width="1.4" vector-effect="non-scaling-stroke" />
+          <g transform="translate(199 69)"><path d={phone} class="fa a gde-hs" /></g>
+          <text x="218" y="66" class="tx fi a gde-t1" font-size="9.5" font-weight="700">Incoming call</text>
+          <text x="218" y="66" class="tx fi a gde-t2" font-size="9.5" font-weight="700">Answered</text>
+          <rect x="218" y="73" width="62" height="5" rx="2.5" class="fs" />
+          <g transform="translate(300 44)">
+            <g class="a gde-check">
+              <circle r="7.5" class="fa" stroke="#fff" stroke-width="1.6" />
+              <path d={check} fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+          </g>
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────── Garage doors · service area ───────────────────── */}
+    {id === "gd-service-area" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">SERVICE AREA / ZONES</text>
+        <rect x="20" y="40" width="280" height="224" rx="14" class="fc" filter={sh} />
+        <g clip-path={url("c1")}>
+          <rect x="20" y="40" width="280" height="224" style="fill:oklch(0.975 0.006 150)" />
+          <rect x="236" y="52" width="58" height="44" rx="10" style="fill:oklch(0.9 0.05 150)" />
+          <circle cx="252" cy="68" r="5" style="fill:oklch(0.84 0.06 150)" />
+          <circle cx="274" cy="82" r="7" style="fill:oklch(0.84 0.06 150)" />
+          <rect x="28" y="190" width="34" height="26" rx="6" style="fill:oklch(0.94 0.008 250)" />
+          <rect x="266" y="150" width="30" height="40" rx="6" style="fill:oklch(0.94 0.008 250)" />
+          <path d="M20 140 H300 M70 40 V264 M260 40 V264 M20 228 H300" fill="none" stroke-width="2.5" style="stroke:oklch(0.91 0.01 250)" />
+          <path d="M20 176 H300 M120 40 V264 M212 40 V264 M20 104 L300 70" fill="none" stroke-width="9" stroke-linecap="round" style="stroke:oklch(0.93 0.008 250)" />
+          <path d="M20 176 H300 M120 40 V264 M212 40 V264 M20 104 L300 70" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="4 5" />
+
+          <path d="M58 92 L128 74 L150 130 L96 158 L52 136 Z" class="fa a gds-z" style="fill-opacity:.13" />
+          <path d="M128 74 L214 70 L238 128 L150 130 Z" class="fa a gds-z gds-d1" style="fill-opacity:.13" />
+          <path d="M96 158 L150 130 L238 128 L246 196 L170 214 L108 200 Z" class="fa a gds-z gds-d2" style="fill-opacity:.13" />
+          <path d="M58 92 L128 74 L214 70 L238 128 L246 196 L170 214 L108 200 L96 158 L52 136 Z M128 74 L150 130 L96 158 M150 130 L238 128" class="sa" stroke-width="1.4" stroke-dasharray="4 3" stroke-linejoin="round" stroke-opacity=".75" />
+
+          <g transform="translate(272 244)">
+            <circle cy="-12" r="13" class="sl" stroke-dasharray="3 3" style="stroke:oklch(0.78 0.01 250)" />
+            <g class="a gds-pin gds-d4">
+              <path d={pin} style="fill:oklch(0.8 0.01 250)" />
+              <circle cy="-13.4" r="2.6" fill="#fff" />
+            </g>
+          </g>
+          {[[96, 124, 0], [182, 104, 1], [134, 192, 2], [208, 180, 3]].map(([x, y, d]) => (
+            <g transform={`translate(${x} ${y})`}>
+              <ellipse rx="4" ry="1.4" class="fi" style="fill-opacity:.15" />
+              <g class={`a gds-pin gds-d${d}`}>
+                <path d={pin} class="fa" />
+                <circle cy="-13.4" r="2.6" fill="#fff" />
+              </g>
+            </g>
+          ))}
+
+          <g transform="translate(146 162)">
+            <g class="a gds-van">
+              <path d="M3 -1.6 H19 M5 -1.6 V0 M9 -1.6 V0 M13 -1.6 V0 M17 -1.6 V0" class="sm" stroke-width="1.1" />
+              <path d="M0 10 V3 C0 1.3 1.3 0 3 0 H22 C23.3 0 24.3 .6 25 1.6 L29.5 7 C30.2 7.9 31 8.6 32 9 C33.3 9.5 34 10.4 34 11.8 V14 C34 15 33.2 15.6 32.2 15.6 H1.6 C.7 15.6 0 14.9 0 14 Z" class="fa" />
+              <path d="M23 2.6 H24.2 L28.2 7.4 H23 Z" fill="#fff" opacity=".9" />
+              <rect x="4" y="5" width="14" height="3" rx="1.5" fill="#fff" opacity=".55" />
+              <circle cx="7.5" cy="15.6" r="3.4" class="fi" />
+              <circle cx="26.5" cy="15.6" r="3.4" class="fi" />
+              <circle cx="7.5" cy="15.6" r="1.2" fill="#fff" />
+              <circle cx="26.5" cy="15.6" r="1.2" fill="#fff" />
+            </g>
+          </g>
+        </g>
+        <rect x="30" y="52" width="98" height="24" rx="8" class="fc" filter={sh} />
+        <rect x="38.5" y="59.5" width="10" height="10" rx="3" class="fa" style="fill-opacity:.18" />
+        <rect x="38.5" y="59.5" width="10" height="10" rx="3" class="sa" stroke-dasharray="2.5 2" />
+        <text x="55" y="67.5" class="tx fi" font-size="8.5" font-weight="600">Service area</text>
+      </g>
+    )}
+
+    {/* ───────────────────── Auto repair · bays this week ───────────────────── */}
+    {id === "auto-bays" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">BAYS / THIS WEEK</text>
+        <path d="M20 250.5 H140" class="sl" />
+        <ellipse cx="77" cy="250" rx="44" ry="3" fill="#000" opacity=".3" />
+        <rect x="26" y="64" width="102" height="8" rx="2" style="fill:oklch(0.5 0.02 250)" />
+        <rect x="26" y="70" width="11" height="180" rx="2" style="fill:oklch(0.5 0.02 250)" />
+        <rect x="117" y="70" width="11" height="180" rx="2" style="fill:oklch(0.5 0.02 250)" />
+        <rect x="29.5" y="78" width="4" height="164" rx="2" style="fill:oklch(0.42 0.02 250)" />
+        <rect x="120.5" y="78" width="4" height="164" rx="2" style="fill:oklch(0.42 0.02 250)" />
+        <rect x="22" y="246" width="19" height="5" rx="1.5" style="fill:oklch(0.44 0.02 250)" />
+        <rect x="113" y="246" width="19" height="5" rx="1.5" style="fill:oklch(0.44 0.02 250)" />
+        <path d="M66 212 H88 L82 222 H72 Z" style="fill:oklch(0.46 0.02 250)" />
+        <rect x="75.5" y="222" width="3" height="20" style="fill:oklch(0.42 0.02 250)" />
+        <rect x="64" y="241" width="26" height="4" rx="2" style="fill:oklch(0.42 0.02 250)" />
+        <circle cx="67" cy="247.5" r="2.5" style="fill:oklch(0.36 0.02 250)" />
+        <circle cx="87" cy="247.5" r="2.5" style="fill:oklch(0.36 0.02 250)" />
+        <g class="a aub-lift">
+          <rect x="37" y="160" width="8" height="18" rx="1.5" style="fill:oklch(0.66 0.02 250)" />
+          <rect x="109" y="160" width="8" height="18" rx="1.5" style="fill:oklch(0.66 0.02 250)" />
+          <path d="M44 173 H70 M110 173 H84" stroke-width="4" stroke-linecap="round" style="stroke:oklch(0.66 0.02 250)" />
+          <rect x="66" y="168" width="7" height="4" rx="1" style="fill:oklch(0.82 0.01 250)" />
+          <rect x="81" y="168" width="7" height="4" rx="1" style="fill:oklch(0.82 0.01 250)" />
+          <g transform="translate(77 172)">
+            <path d="M-24 -22 L-18 -38 C-17 -40 -15.5 -41 -13 -41 H13 C15.5 -41 17 -40 18 -38 L24 -22 Z" style="fill:oklch(0.7 0.02 250)" />
+            <path d="M-19.5 -24 L-14.5 -36.5 H14.5 L19.5 -24 Z" style="fill:oklch(0.27 0.015 250)" />
+            <rect x="-38" y="-27" width="6" height="4" rx="1.5" style="fill:oklch(0.62 0.02 250)" />
+            <rect x="32" y="-27" width="6" height="4" rx="1.5" style="fill:oklch(0.62 0.02 250)" />
+            <rect x="-34" y="-24" width="68" height="22" rx="7" style="fill:oklch(0.74 0.02 250)" />
+            <rect x="-29" y="-18" width="13" height="5" rx="2.5" style="fill:oklch(0.94 0.02 90)" />
+            <rect x="16" y="-18" width="13" height="5" rx="2.5" style="fill:oklch(0.94 0.02 90)" />
+            <rect x="-11" y="-17" width="22" height="7" rx="3" style="fill:oklch(0.3 0.015 250)" />
+            <rect x="-32" y="-6" width="64" height="4" rx="2" style="fill:oklch(0.55 0.02 250)" />
+            <rect x="-31" y="-2" width="12" height="14" rx="3" style="fill:oklch(0.13 0.01 250)" />
+            <rect x="19" y="-2" width="12" height="14" rx="3" style="fill:oklch(0.13 0.01 250)" />
+          </g>
+        </g>
+
+        <rect x="146" y="40" width="156" height="224" rx="12" class="fc" filter={sh} />
+        {["M", "T", "W", "T", "F"].map((d, c) => (
+          <text x={188.5 + c * 23} y="62" text-anchor="middle" class="sv-lbl">{d}</text>
+        ))}
+        {[0, 1, 2].map((r) => (
+          <g>
+            <text x="156" y={96 + r * 48} class="sv-lbl">{`B${r + 1}`}</text>
+            {r > 0 && <path d={`M154 ${70 + r * 48} H294`} class="sl" />}
+          </g>
+        ))}
+        <path d="M154 70 H294" class="sl" />
+        {bayBlocks.map((b) => (
+          b.n ? (
+            <g>
+              <rect x={b.x + 0.5} y={b.y + 0.5} width={b.w - 1} height="35" rx="5" fill="none" stroke-dasharray="3 3" style="stroke:oklch(0.5 0.02 250)" />
+              <g class={`a aub-new aub-d${b.k}`}>
+                <rect x={b.x} y={b.y} width={b.w} height="36" rx="5" class="fa" />
+                <rect x={b.x + 5} y={b.y + 8} width={Math.max(8, b.w - 12)} height="4" rx="2" fill="#fff" opacity=".9" />
+                <rect x={b.x + 5} y={b.y + 16} width={Math.max(6, b.w - 18)} height="4" rx="2" fill="#fff" opacity=".55" />
+              </g>
+            </g>
+          ) : (
+            <g>
+              <rect x={b.x} y={b.y} width={b.w} height="36" rx="5" class="fs" />
+              <rect x={b.x + 5} y={b.y + 8} width={b.w - 12} height="4" rx="2" style="fill:oklch(0.58 0.02 250)" />
+              <rect x={b.x + 5} y={b.y + 16} width={Math.max(6, b.w - 24)} height="4" rx="2" style="fill:oklch(0.52 0.02 250)" />
+            </g>
+          )
+        ))}
+        <text x="156" y="238" class="sv-lbl">BOOKED</text>
+        <rect x="156" y="245" width="134" height="6" rx="3" class="fl" />
+        <rect x="156" y="245" width="134" height="6" rx="3" class="fa a aub-bar" />
+      </g>
+    )}
+
+    {/* ───────────────────── Auto repair · inspection follow-up ───────────────────── */}
+    {id === "auto-followup" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">INSPECTION / FOLLOW-UP</text>
+        <rect x="24" y="44" width="152" height="216" rx="12" class="fc" filter={sh} />
+        <rect x="78" y="37" width="44" height="14" rx="5" style="fill:oklch(0.8 0.012 250)" />
+        <rect x="92" y="41" width="16" height="5" rx="2.5" class="fc" />
+        <text x="38" y="72" class="tx fi" font-size="10" font-weight="700">Inspection</text>
+        <rect x="38" y="79" width="66" height="5" rx="2.5" class="fs" />
+        <g transform="translate(134 64) scale(.3)">
+          <path d={carBody} class="fs" />
+          <circle cx="24" cy="29" r="7.2" class="fm" opacity=".5" />
+          <circle cx="77" cy="29" r="7.2" class="fm" opacity=".5" />
+        </g>
+        <path d="M34 92 H166" class="sl" />
+        {[0, 1, 2, 3].map((r) => (
+          <g>
+            <rect x="58" y={104 + r * 36} width={[58, 46, 64, 52][r]} height="5" rx="2.5" class="fi" opacity=".7" />
+            <rect x="58" y={112 + r * 36} width={[38, 44, 30, 40][r]} height="4" rx="2" class="fs" />
+            {r < 3 && <path d={`M34 ${128 + r * 36} H166`} class="sl" />}
+          </g>
+        ))}
+        {[0, 1].map((r) => (
+          <g>
+            <circle cx="44" cy={110 + r * 36} r="8" class="fs" />
+            <path d={`M40.2 ${110.2 + r * 36} L43 ${113 + r * 36} L48 ${107.6 + r * 36}`} class="sm" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            <text x="166" y={113 + r * 36} text-anchor="end" class="tx fm" font-size="7.5" font-weight="600">Done</text>
+          </g>
+        ))}
+        {[2, 3].map((r) => (
+          <g class={r === 2 ? "a auf-def" : ""}>
+            <circle cx="44" cy={110 + r * 36} r="8" style="fill:oklch(0.94 0.045 80)" />
+            <circle cx="44" cy={110 + r * 36} r="4.6" fill="none" stroke-width="1.3" style="stroke:oklch(0.55 0.09 65)" />
+            <path d={`M44 ${107.6 + r * 36} V${110 + r * 36} H46`} fill="none" stroke-width="1.3" stroke-linecap="round" style="stroke:oklch(0.55 0.09 65)" />
+            <text x="166" y={113 + r * 36} text-anchor="end" class="tx" font-size="7.5" font-weight="600" style="fill:oklch(0.5 0.09 65)">Deferred</text>
+          </g>
+        ))}
+        <g class="a auf-bk">
+          <circle cx="44" cy="182" r="8" class="fa" />
+          <path d="M40.6 182.2 L43 184.6 L47.6 179.8" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="166" y="185" text-anchor="end" class="tx" font-size="7.5" font-weight="700" style="fill:var(--sv-acc)">Booked</text>
+        </g>
+        <rect x="31" y="167" width="138" height="66" rx="9" class="fa a auf-hl" style="fill-opacity:.07" />
+        <rect x="31.5" y="167.5" width="137" height="65" rx="8.5" class="sa a auf-hl" stroke-opacity=".55" stroke-dasharray="3 3" />
+        <path d="M38 246 H112" class="sl" />
+        <rect x="124" y="242" width="40" height="5" rx="2.5" class="fs" />
+
+        {[[2, ""], [3, " auf-d1"]].map(([r, d]) => (
+          <g transform={`translate(138 ${106 + Number(r) * 36 - 4})`}>
+            <rect width="20" height="8" rx="4" class={`fa a auf-fly${d} auf-fly${r}`} />
+          </g>
+        ))}
+
+        <text x="188" y="62" class="sv-lbl">REMINDER</text>
+        <g class="a auf-bubble">
+          <rect x="186" y="70" width="114" height="60" rx="15" class="fa" />
+          <circle cx="200" cy="87.5" r="3" fill="#fff" opacity=".9" />
+          <rect x="208" y="85" width="76" height="5" rx="2.5" fill="#fff" opacity=".92" />
+          <circle cx="200" cy="101" r="3" fill="#fff" opacity=".9" />
+          <rect x="208" y="98.5" width="60" height="5" rx="2.5" fill="#fff" opacity=".92" />
+          <rect x="198" y="112" width="84" height="5" rx="2.5" fill="#fff" opacity=".7" />
+        </g>
+        <g class="a auf-sent">
+          <text x="282" y="146" text-anchor="end" class="sv-lbl">SENT</text>
+          <path d="M286 142 L288.5 144.5 L293 139.5 M290 144.5 L295 139.5" fill="none" class="sa" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+        <g class="a auf-card">
+          <rect x="186" y="162" width="114" height="62" rx="12" class="fc" filter={sh} />
+          <rect x="198" y="176" width="26" height="26" rx="5" class="fs" />
+          <path d="M198 184 V181 A5 5 0 0 1 203 176 H219 A5 5 0 0 1 224 181 V184 Z" class="fa" />
+          <rect x="203" y="188" width="5" height="4" rx="1" class="fm" opacity=".5" />
+          <rect x="210.5" y="188" width="5" height="4" rx="1" class="fa" />
+          <rect x="203" y="194" width="5" height="4" rx="1" class="fm" opacity=".5" />
+          <text x="232" y="188" class="tx fi" font-size="10" font-weight="700">Booked</text>
+          <rect x="232" y="195" width="54" height="5" rx="2.5" class="fs" />
+        </g>
+        <g transform="translate(296 166)">
+          <g class="a auf-check">
+            <circle r="7.5" class="fa" stroke="#fff" stroke-width="1.6" />
+            <path d={check} fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────── Shopify · order profit ───────────────────── */}
+    {id === "shop-profit" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">ORDER / PROFIT</text>
+        <rect x="28" y="40" width="264" height="66" rx="14" class="fc" filter={sh} />
+        <rect x="40" y="51" width="44" height="44" rx="9" style="fill:oklch(0.92 0.035 75)" />
+        <rect x="59" y="57" width="6" height="7" rx="1.5" style="fill:oklch(0.35 0.03 250)" />
+        <rect x="55" y="62" width="14" height="26" rx="4" style="fill:oklch(0.42 0.03 250)" />
+        <rect x="55" y="70" width="14" height="9" style="fill:oklch(0.95 0.02 80)" />
+        <text x="96" y="64" class="tx fi" font-size="10" font-weight="700">Order</text>
+        <rect x="96" y="72" width="96" height="5" rx="2.5" class="fs" />
+        <rect x="96" y="82" width="62" height="5" rx="2.5" class="fs" />
+        <rect x="240" y="55" width="40" height="16" rx="8" class="fs" />
+        <text x="260" y="66" text-anchor="middle" class="tx fm" font-size="8" font-weight="700">Paid</text>
+
+        <text x="28" y="128" class="sv-lbl">ONE ORDER</text>
+        <g class="a shp-brk">
+          <path d="M240.5 133 V128.5 H291.5 V133" class="sa" stroke-width="1.3" stroke-linejoin="round" />
+        </g>
+        <rect x="28" y="138" width="264" height="30" rx="8" class="fi a shp-rev" />
+        {[
+          [28, 84, "oklch(0.76 0.015 250)", "Product", 0],
+          [114, 42, "oklch(0.84 0.012 250)", "Shipping", 1],
+          [158, 56, "oklch(0.7 0.02 250)", "Ads", 2],
+          [216, 22, "oklch(0.88 0.01 250)", "Fees", 3],
+        ].map(([x, w, f, l, d]) => (
+          <g>
+            <rect x={x} y="138" width={w} height="30" rx="6" class={`a shp-seg shp-d${d}`} style={`fill:${f}`} />
+            <path d={`M${Number(x) + 0.5} 173 V178`} class="sm" opacity=".5" />
+            <text x={Number(x) + 3} y="186" class={`tx fm a shp-lab shp-d${d}`} font-size="8" font-weight="600">{l}</text>
+          </g>
+        ))}
+        <rect x="240" y="138" width="52" height="30" rx="6" class="fa a shp-pro" />
+        <rect x="240" y="138" width="52" height="30" rx="6" class="sa a shp-ring" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+        <path d="M240.5 173 V178" class="sa" />
+        <text x="243" y="186" class="tx a shp-plab" font-size="8" font-weight="700" style="fill:var(--sv-acc)">Profit</text>
+
+        <path d="M28 200 H292" class="sl" />
+        {[0, 1, 2].map((i) => (
+          <g>
+            <rect x="28" y={210 + i * 18} width="12" height="12" rx="3.5" style={`fill:${["oklch(0.9 0.035 75)", "oklch(0.88 0.03 245)", "oklch(0.9 0.03 150)"][i]}`} />
+            <rect x="48" y={213 + i * 18} width="244" height="6" rx="3" class="fl" />
+            <rect x={292 - [40, 58, 30][i]} y={213 + i * 18} width={[40, 58, 30][i]} height="6" rx="3" class={`fa a shp-tail shp-t${i}`} />
+          </g>
+        ))}
+      </g>
+    )}
+
+    {/* ───────────────────── Shopify · product feed ───────────────────── */}
+    {id === "shop-feed" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">FEED / SHOPPING</text>
+        <rect x="20" y="40" width="138" height="222" rx="12" class="fc" filter={sh} />
+        <text x="32" y="60" class="tx fi" font-size="9.5" font-weight="700">Product feed</text>
+        <path d="M30 68 H148" class="sl" />
+        <rect x="24" y="137" width="130" height="34" rx="8" class="a shf-band" style="fill:oklch(0.8 0.1 75);fill-opacity:.14" />
+        {[0, 1, 2, 3, 4].map((i) => (
+          <g>
+            <rect x="30" y={71 + i * 36} width="22" height="22" rx="5" style={`fill:${["oklch(0.72 0.04 80)", "oklch(0.62 0.03 250)", "oklch(0.7 0.04 160)", "oklch(0.78 0.02 250)", "oklch(0.66 0.05 60)"][i]}`} />
+            <rect x="60" y={76 + i * 36} width={[52, 44, 56, 40, 48][i]} height="5" rx="2.5" class="fi" opacity=".75" />
+            <rect x="60" y={84 + i * 36} width={[36, 40, 30, 44, 34][i]} height="4" rx="2" class="fs" />
+            {i !== 2 && <path d={`M137.5 ${82.2 + i * 36} L140.5 ${85 + i * 36} L146 ${79.4 + i * 36}`} class="sm" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />}
+            {i < 4 && <path d={`M30 ${99 + i * 36} H148`} class="sl" />}
+          </g>
+        ))}
+        <g transform="translate(142 154)">
+          <g class="a shf-warn">
+            <path d="M0 -7 L7 5.5 H-7 Z" stroke-linejoin="round" stroke-width="2" style="fill:oklch(0.8 0.1 75);stroke:oklch(0.8 0.1 75)" />
+            <path d="M0 -2.6 V1.4" stroke-width="1.6" stroke-linecap="round" style="stroke:oklch(0.25 0.02 250)" />
+            <circle cy="3.8" r=".9" style="fill:oklch(0.25 0.02 250)" />
+          </g>
+          <g class="a shf-fix">
+            <circle r="7" class="fa" />
+            <path d="M-3 0.1 L-0.9 2.2 L3.1 -1.9" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+        </g>
+        <path d="M160 151 L164 155 L160 159" class="sm" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity=".7" />
+
+        {[0, 1, 2, 3, 4, 5].map((t) => {
+          const x = 168 + (t % 2) * 68;
+          const y = 40 + Math.floor(t / 2) * 76;
+          const g = t % 3;
+          return (
+            <g class={t === 5 ? "a shf-t5" : `a shf-tile shf-d${t}`}>
+              <rect x={x} y={y} width="62" height="70" rx="10" class="fc" filter={sh} />
+              <rect x={x + 5} y={y + 5} width="52" height="36" rx="6" style={t === 5 ? "fill:oklch(0.4 0.04 245)" : "fill:oklch(0.38 0.02 250)"} />
+              <g transform={`translate(${x + 31} ${y + 23})`}>
+                {g === 0 && <path d={tee} style={`fill:${["oklch(0.8 0.04 80)", "", "", "oklch(0.75 0.03 250)"][t] || "oklch(0.8 0.04 80)"}`} />}
+                {g === 1 && (
+                  <g style={`fill:${t === 1 ? "oklch(0.74 0.04 160)" : "oklch(0.85 0.01 250)"}`}>
+                    <rect x="-3" y="-12" width="6" height="5" rx="1.2" />
+                    <rect x="-6.5" y="-8" width="13" height="20" rx="4" />
+                  </g>
+                )}
+                {g === 2 && (
+                  <g>
+                    <circle cx="8" cy="0" r="5" fill="none" stroke-width="2.4" style={`stroke:${t === 5 ? "oklch(0.92 0.01 250)" : "oklch(0.72 0.05 60)"}`} />
+                    <rect x="-10" y="-9" width="18" height="19" rx="3" style={`fill:${t === 5 ? "oklch(0.92 0.01 250)" : "oklch(0.72 0.05 60)"}`} />
+                  </g>
+                )}
+              </g>
+              <rect x={x + 6} y={y + 48} width="40" height="4" rx="2" class="fi" opacity=".75" />
+              <rect x={x + 6} y={y + 57} width="24" height="4" rx="2" class={t === 5 ? "fa" : "fs"} />
+            </g>
+          );
+        })}
+        <rect x="235" y="191" width="64" height="72" rx="11" class="sa a sv-flag shf-flag" stroke-width="1.5" />
+      </g>
+    )}
+
+    {/* ───────────────────── Used cars · inventory to listings ───────────────────── */}
+    {id === "cars-inventory" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">INVENTORY / LISTINGS</text>
+        <rect x="20" y="40" width="280" height="90" rx="12" style="fill:oklch(0.91 0.006 250)" />
+        <path d="M28 52 Q160 72 292 52" class="sm" stroke-width=".9" opacity=".5" />
+        {bunting.map((b) => (
+          <path d={`M${b.x - 4} ${b.y} L${b.x + 4} ${b.y} L${b.x} ${b.y + 8} Z`} style={`fill:${b.alt ? "oklch(0.8 0.05 75)" : "oklch(0.72 0.015 250)"}`} />
+        ))}
+        <rect x="112.5" y="76" width="2" height="50" rx="1" fill="#fff" />
+        <rect x="205.5" y="76" width="2" height="50" rx="1" fill="#fff" />
+        {[
+          [66, "oklch(0.62 0.02 250)", ""],
+          [160, "oklch(0.8 0.035 78)", ""],
+        ].map(([cx, f]) => (
+          <g transform={`translate(${Number(cx) - 39} 92) scale(.78)`}>
+            <ellipse cx="50" cy="36.5" rx="46" ry="2.6" class="fi" style="fill-opacity:.12" />
+            <path d={carBody} style={`fill:${f}`} />
+            <path d={carWin} style="fill:oklch(0.9 0.015 240)" />
+            <circle cx="24" cy="29" r="7.2" style="fill:oklch(0.28 0.015 250)" />
+            <circle cx="77" cy="29" r="7.2" style="fill:oklch(0.28 0.015 250)" />
+            <circle cx="24" cy="29" r="3" style="fill:oklch(0.86 0.005 250)" />
+            <circle cx="77" cy="29" r="3" style="fill:oklch(0.86 0.005 250)" />
+          </g>
+        ))}
+        <g transform="translate(215 92)">
+          <g class="a cai-car">
+            <g transform="scale(.78)">
+              <ellipse cx="50" cy="36.5" rx="46" ry="2.6" class="fi" style="fill-opacity:.12" />
+              <path d={carBody} class="fa" />
+              <path d={carWin} style="fill:oklch(0.9 0.015 240)" />
+              <circle cx="24" cy="29" r="7.2" style="fill:oklch(0.28 0.015 250)" />
+              <circle cx="77" cy="29" r="7.2" style="fill:oklch(0.28 0.015 250)" />
+              <circle cx="24" cy="29" r="3" style="fill:oklch(0.86 0.005 250)" />
+              <circle cx="77" cy="29" r="3" style="fill:oklch(0.86 0.005 250)" />
+            </g>
+          </g>
+        </g>
+        <path d="M254 132 V142" class="sa a cai-link" stroke-width="1.5" stroke-dasharray="2.5 2.5" stroke-linecap="round" />
+
+        {[0, 1, 2].map((i) => {
+          const x = 22 + i * 94;
+          const fresh = i === 2;
+          return (
+            <g class={fresh ? "a cai-card" : ""}>
+              <rect x={x} y="146" width="88" height="112" rx="10" class="fc" filter={sh} />
+              <rect x={x + 6} y="152" width="76" height="46" rx="6" style={fresh ? "fill:oklch(0.93 0.025 245)" : "fill:oklch(0.95 0.008 250)"} />
+              <g transform={`translate(${x + 16} 172) scale(.56)`}>
+                <path d={carBody} style={`fill:${["oklch(0.62 0.02 250)", "oklch(0.8 0.035 78)", "var(--sv-acc)"][i]}`} />
+                <path d={carWin} style="fill:oklch(0.9 0.015 240)" />
+                <circle cx="24" cy="29" r="7.2" style="fill:oklch(0.28 0.015 250)" />
+                <circle cx="77" cy="29" r="7.2" style="fill:oklch(0.28 0.015 250)" />
+              </g>
+              <rect x={x + 8} y="208" width={[56, 50, 60][i]} height="6" rx="3" class="fi" opacity=".8" />
+              <rect x={x + 8} y="220" width="64" height="4" rx="2" class="fs" />
+              <rect x={x + 8} y="229" width="42" height="4" rx="2" class="fs" />
+              <rect x={x + 8} y="240" width="30" height="10" rx="5" class={fresh ? "fa" : "fs"} style={fresh ? "fill-opacity:.16" : ""} />
+            </g>
+          );
+        })}
+        <rect x="209" y="145" width="90" height="114" rx="11" class="sa a sv-flag cai-flag" stroke-width="1.5" />
+        <g transform="translate(243 163)">
+          <g class="a cai-tag">
+            <rect x="-27" y="-7.5" width="54" height="15" rx="7.5" class="fa" />
+            <text y="2.6" text-anchor="middle" class="tx" font-size="7.2" font-weight="700" fill="#fff">New arrival</text>
+          </g>
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────── Used cars · inquiry to test drive ───────────────────── */}
+    {id === "cars-lead" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">INQUIRY / TEST DRIVE</text>
+        <rect x="20" y="40" width="152" height="132" rx="12" class="fc" filter={sh} />
+        <rect x="28" y="48" width="136" height="72" rx="8" style="fill:oklch(0.38 0.022 250)" />
+        <ellipse cx="96" cy="112" rx="48" ry="3" fill="#000" opacity=".3" />
+        <g transform="translate(51 80) scale(.9)">
+          <path d={carBody} style="fill:oklch(0.8 0.012 250)" />
+          <path d={carWin} style="fill:oklch(0.3 0.02 250)" />
+          <circle cx="24" cy="29" r="7.2" style="fill:oklch(0.16 0.01 250)" />
+          <circle cx="77" cy="29" r="7.2" style="fill:oklch(0.16 0.01 250)" />
+          <circle cx="24" cy="29" r="3" style="fill:oklch(0.66 0.01 250)" />
+          <circle cx="77" cy="29" r="3" style="fill:oklch(0.66 0.01 250)" />
+        </g>
+        <rect x="28" y="130" width="84" height="7" rx="3.5" class="fi" opacity=".85" />
+        <rect x="28" y="143" width="62" height="5" rx="2.5" class="fs" />
+        <rect x="28" y="154" width="36" height="9" rx="4.5" class="fs" />
+        <rect x="19" y="39" width="154" height="134" rx="13" class="sa a cal-ping" stroke-width="1.5" />
+
+        <g class="a cal-enq">
+          <rect x="140" y="52" width="156" height="42" rx="15" class="fs" filter={sh} />
+          <rect x="154" y="65" width="112" height="5" rx="2.5" style="fill:oklch(0.82 0.01 250)" />
+          <rect x="154" y="76" width="74" height="5" rx="2.5" style="fill:oklch(0.82 0.01 250)" />
+        </g>
+        <g class="a cal-typ">
+          <rect x="242" y="110" width="54" height="28" rx="14" class="fs" />
+          <circle cx="259" cy="124" r="3" class="fm a cal-dot" />
+          <circle cx="269" cy="124" r="3" class="fm a cal-dot cal-d1" />
+          <circle cx="279" cy="124" r="3" class="fm a cal-dot cal-d2" />
+        </g>
+        <g class="a cal-rep">
+          <rect x="164" y="104" width="132" height="44" rx="15" class="fa" />
+          <rect x="178" y="117" width="96" height="5" rx="2.5" fill="#fff" opacity=".92" />
+          <rect x="178" y="128" width="106" height="5" rx="2.5" fill="#fff" opacity=".7" />
+        </g>
+        <g class="a cal-cap">
+          <text x="282" y="164" text-anchor="end" class="sv-lbl">INSTANT REPLY</text>
+          <path d="M286 160 L288.5 162.5 L293 157.5" fill="none" class="sa" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+
+        <rect x="20" y="180" width="280" height="84" rx="12" class="fc" filter={sh} />
+        {["M", "T", "W", "T", "F"].map((d, c) => (
+          <text x={78 + c * 48} y="197" text-anchor="middle" class="sv-lbl">{d}</text>
+        ))}
+        <rect x="30" y="206" width="16" height="3" rx="1.5" class="fl" />
+        <rect x="30" y="232" width="16" height="3" rx="1.5" class="fl" />
+        {[0, 1].map((r) =>
+          [0, 1, 2, 3, 4].map((c) => {
+            const busy = (r === 0 && (c === 0 || c === 3)) || (r === 1 && (c === 1 || c === 4));
+            const tgt = r === 1 && c === 2;
+            return tgt ? (
+              <rect x={56.5 + c * 48} y={203.5 + r * 26} width="43" height="21" rx="5" fill="none" stroke-dasharray="3 3" style="stroke:oklch(0.48 0.02 250)" />
+            ) : busy ? (
+              <rect x={56 + c * 48} y={203 + r * 26} width="44" height="22" rx="5" class="fs" />
+            ) : (
+              <rect x={56.5 + c * 48} y={203.5 + r * 26} width="43" height="21" rx="5" fill="none" stroke-dasharray="3 3" style="stroke:oklch(0.42 0.02 250)" />
+            );
+          })
+        )}
+        <g class="a cal-slot">
+          <rect x="152" y="229" width="44" height="22" rx="5" class="fa" />
+          <text x="174" y="242.6" text-anchor="middle" class="tx" font-size="7" font-weight="700" fill="#fff">Test drive</text>
+        </g>
+        <rect x="150.5" y="227.5" width="47" height="25" rx="6.5" class="sa a sv-flag cal-flag" stroke-width="1.2" />
+      </g>
+    )}
+
+    {/* ───────────────────── Law firms · intake ───────────────────── */}
+    {id === "law-intake" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">INTAKE / QUALIFY</text>
+        <g class="a lwi-tile">
+          <rect x="24" y="40" width="176" height="50" rx="14" class="fc" filter={sh} />
+          <circle cx="49" cy="65" r="13" class="fa" style="fill-opacity:.16" />
+          <rect x="43.5" y="58" width="11" height="14" rx="2" class="sa" stroke-width="1.4" />
+          <path d="M46.5 62.5 H51.5 M46.5 65.5 H51.5 M46.5 68.5 H49.5" class="sa" stroke-width="1.2" stroke-linecap="round" />
+          <text x="70" y="62" class="tx fi" font-size="10" font-weight="700">New inquiry</text>
+          <rect x="70" y="70" width="96" height="5" rx="2.5" class="fs" />
+          <circle cx="186" cy="58" r="3" class="fa" />
+        </g>
+        <path d="M49 92 V104" class="sa" stroke-width="1.5" stroke-dasharray="2 3" stroke-linecap="round" />
+
+        <rect x="36" y="104" width="264" height="114" rx="14" class="fc" filter={sh} />
+        <text x="52" y="126" class="tx fi" font-size="9.5" font-weight="700">Intake</text>
+        <g class="a lwi-q">
+          <rect x="230" y="114" width="56" height="15" rx="7.5" class="fa" style="fill-opacity:.14" />
+          <text x="258" y="124.2" text-anchor="middle" class="tx" font-size="7.5" font-weight="700" style="fill:var(--sv-acc)">Qualified</text>
+        </g>
+        <path d="M48 135 H288" class="sl" />
+        {["Case type", "Location", "Timing"].map((l, r) => (
+          <g>
+            <text x="52" y={154 + r * 26} class="tx fm" font-size="8.5" font-weight="600">{l}</text>
+            <rect x="126" y={148 + r * 26} width={[78, 60, 70][r]} height="6" rx="3" class="fs" />
+            <rect x="126" y={148 + r * 26} width={[78, 60, 70][r]} height="6" rx="3" class={`fi a lwi-val lwi-d${r}`} opacity=".5" />
+            <circle cx="276" cy={151 + r * 26} r="7" class="sl" stroke-width="1.3" />
+            <g transform={`translate(276 ${151 + r * 26})`}>
+              <g class={`a lwi-ck lwi-d${r}`}>
+                <circle r="7" class="fa" />
+                <path d={check} fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+              </g>
+            </g>
+            {r < 2 && <path d={`M48 ${164 + r * 26} H288`} class="sl" opacity=".6" />}
+          </g>
+        ))}
+
+        <g class="a lwi-book">
+          <rect x="128" y="228" width="172" height="34" rx="17" class="fa" />
+          <rect x="144" y="237" width="15" height="15" rx="3.5" fill="none" stroke="#fff" stroke-width="1.4" />
+          <path d="M144 242 H159 M148 235 V239 M155 235 V239" stroke="#fff" stroke-width="1.4" stroke-linecap="round" />
+          <text x="168" y="249" class="tx" font-size="10" font-weight="700" fill="#fff">Consult booked</text>
+        </g>
+        <rect x="128" y="228" width="172" height="34" rx="17" class="sa a lwi-ring" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+      </g>
+    )}
+
+    {/* ───────────────────── Law firms · matter pipeline ───────────────────── */}
+    {id === "law-pipeline" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">MATTERS / PIPELINE</text>
+        {["Inquiry", "Qualified", "Signed"].map((name, c) => (
+          <g>
+            <rect x={20 + c * 96} y="40" width="88" height="160" rx="12" style="fill:oklch(0.285 0.02 250)" />
+            <text x={32 + c * 96} y="60" class="tx fi" font-size="9.5" font-weight="700">{name}</text>
+            <circle cx={96 + c * 96} cy="57" r="3" class={c === 2 ? "fa" : "fl"} />
+          </g>
+        ))}
+        {[[28, 72, 40], [124, 72, 34], [220, 72, 38]].map(([x, y, w]) => (
+          <g filter={sh}>
+            <path d={folder(x, y)} style="fill:oklch(0.4 0.022 250)" />
+            <rect x={x + 10} y={y + 14} width={w} height="5" rx="2.5" class="fi" opacity=".7" />
+            <rect x={x + 10} y={y + 24} width="26" height="4" rx="2" style="fill:oklch(0.55 0.02 250)" />
+          </g>
+        ))}
+
+        <rect x="20.5" y="210.5" width="279" height="52" rx="11.5" fill="none" stroke-dasharray="4 4" style="stroke:oklch(0.42 0.02 250)" />
+        <text x="32" y="232" class="sv-lbl">SET ASIDE</text>
+        <path d="M32 242 H96" class="sl" />
+        {[[124, 218, "lwp-b", 30], [206, 218, "lwp-a", 36]].map(([x, y, k, w]) => (
+          <g class={`a ${k}`}>
+            <path d={folder(Number(x), Number(y))} style="fill:oklch(0.4 0.022 250)" />
+            <rect x={Number(x) + 10} y={Number(y) + 14} width={w} height="5" rx="2.5" class="fi" opacity=".7" />
+            <rect x={Number(x) + 10} y={Number(y) + 24} width="26" height="4" rx="2" style="fill:oklch(0.55 0.02 250)" />
+          </g>
+        ))}
+
+        <g class="a lwp-matter">
+          <g filter={sh}><path d={folder(220, 116)} style="fill:oklch(0.4 0.022 250)" /></g>
+          <path d={folder(220, 116)} class="sa" stroke-width="1.5" />
+          <rect x="230" y="130" width="40" height="5" rx="2.5" class="fi" />
+          <rect x="230" y="140" width="22" height="4" rx="2" class="fa" />
+          <g transform="translate(290 118)">
+            <g class="a lwp-check">
+              <circle r="7.5" class="fa" stroke="oklch(0.24 0.02 250)" stroke-width="1.6" />
+              <path d={check} fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+          </g>
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────── Kitchen & bath · before / after ───────────────────── */}
+    {id === "kb-before-after" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">BEFORE / AFTER</text>
+        <rect x="20" y="40" width="280" height="222" rx="12" class="fc" filter={sh} />
+        <g clip-path={url("c1")}>
+          {/* after */}
+          <g>
+            <rect x="20" y="40" width="280" height="222" style="fill:oklch(0.985 0.004 250)" />
+            <rect x="20" y="238" width="280" height="24" style="fill:oklch(0.86 0.035 70)" />
+            <path d="M20 238.5 H300" style="stroke:oklch(0.78 0.04 70)" />
+            <rect x="30" y="112" width="260" height="38" style="fill:oklch(0.95 0.008 250)" />
+            <path d="M30 120 H290 M30 128 H290 M30 136 H290 M30 144 H290" style="stroke:oklch(0.9 0.008 250)" stroke-width=".8" />
+            <rect x="136" y="62" width="48" height="58" rx="2" style="fill:oklch(0.9 0.035 240)" />
+            <rect x="136" y="62" width="48" height="58" rx="2" fill="none" stroke-width="2.4" style="stroke:oklch(0.28 0.02 250)" />
+            <path d="M160 62 V120 M136 91 H184" stroke-width="1.6" style="stroke:oklch(0.28 0.02 250)" />
+            {[34, 64, 94, 196, 226, 256].map((x) => (
+              <g>
+                <rect x={x + 0.5} y="58.5" width="29" height="49" style="fill:oklch(0.975 0.004 250);stroke:oklch(0.82 0.01 250)" />
+                <rect x={x + 13} y="96" width="4" height="8" rx="2" style="fill:oklch(0.28 0.02 250)" />
+              </g>
+            ))}
+            <path d="M157 148 V138 Q157 133 162 133 Q166 133 166 137" fill="none" stroke-width="2" stroke-linecap="round" style="stroke:oklch(0.28 0.02 250)" />
+            <rect x="28" y="148" width="264" height="5" rx="1.5" style="fill:oklch(0.93 0.004 250)" />
+            <rect x="30" y="153" width="260" height="85" style="fill:oklch(0.32 0.03 250)" />
+            <path d="M73 157 V234 M116 157 V234 M160 157 V234 M204 157 V234 M247 157 V234" stroke="#fff" stroke-opacity=".14" />
+            {[40, 83, 126, 170, 214, 257].map((x) => (
+              <rect x={x} y="162" width="22" height="3" rx="1.5" fill="#fff" opacity=".5" />
+            ))}
+            <rect x="68" y="174" width="184" height="7" rx="2" style="fill:oklch(0.97 0.004 250)" />
+            <rect x="74" y="181" width="172" height="57" class="fa" />
+            <path d="M117 185 V234 M160 185 V234 M203 185 V234" stroke="#fff" stroke-opacity=".22" />
+            {[96, 204].map((x) => (
+              <g style="stroke:oklch(0.25 0.02 250)" stroke-width="2" stroke-linecap="round">
+                <path d={`M${x - 7} 238 L${x - 4} 206 M${x + 7} 238 L${x + 4} 206 M${x - 6} 224 H${x + 6}`} />
+                <rect x={x - 11} y="200" width="22" height="5" rx="2.5" stroke="none" style="fill:oklch(0.25 0.02 250)" />
+              </g>
+            ))}
+            {[120, 160, 200].map((x) => (
+              <g>
+                <path d={`M${x} 40 V124`} stroke-width="1.1" style="stroke:oklch(0.28 0.02 250)" />
+                <ellipse cx={x} cy="142" rx="16" ry="8" style="fill:oklch(0.92 0.08 85)" opacity=".35" />
+                <path d={`M${x - 11} 138 C${x - 11} 128 ${x - 6} 124 ${x} 124 C${x + 6} 124 ${x + 11} 128 ${x + 11} 138 Z`} style="fill:oklch(0.25 0.02 250)" />
+                <ellipse cx={x} cy="138.5" rx="6" ry="2" style="fill:oklch(0.94 0.08 88)" />
+              </g>
+            ))}
+            <text x="290" y="255" text-anchor="end" class="sv-lbl">AFTER</text>
+          </g>
+          {/* before */}
+          <g clip-path={url("c2")}>
+            <rect x="20" y="40" width="280" height="222" style="fill:oklch(0.93 0.018 85)" />
+            <rect x="20" y="238" width="280" height="24" style="fill:oklch(0.82 0.015 80)" />
+            <path d="M20 238.5 H300" style="stroke:oklch(0.74 0.02 80)" />
+            <ellipse cx="160" cy="43" rx="15" ry="5" style="fill:oklch(0.97 0.01 90)" />
+            <rect x="144" y="72" width="32" height="40" rx="1.5" style="fill:oklch(0.86 0.02 240)" />
+            <rect x="144" y="72" width="32" height="40" rx="1.5" fill="none" stroke-width="2.4" style="stroke:oklch(0.7 0.02 80)" />
+            {[40, 83, 194, 237].map((x) => (
+              <g>
+                <rect x={x} y="66" width="43" height="44" style="fill:oklch(0.8 0.04 70)" />
+                <rect x={x + 5} y="71" width="33" height="34" rx="2" fill="none" style="stroke:oklch(0.68 0.045 65)" />
+                <circle cx={x + 34} cy="99" r="1.6" style="fill:oklch(0.55 0.04 65)" />
+              </g>
+            ))}
+            <rect x="28" y="148" width="264" height="5" rx="1" style="fill:oklch(0.78 0.025 85)" />
+            <rect x="30" y="153" width="260" height="85" style="fill:oklch(0.8 0.04 70)" />
+            {[30, 73, 116, 160, 204, 247].map((x) => (
+              <g>
+                <rect x={x + 5} y="160" width="33" height="72" rx="2" fill="none" style="stroke:oklch(0.68 0.045 65)" />
+                <circle cx={x + 34} cy="168" r="1.6" style="fill:oklch(0.55 0.04 65)" />
+              </g>
+            ))}
+            <path d="M158 148 V141 H166" fill="none" stroke-width="2" style="stroke:oklch(0.62 0.01 250)" />
+            <text x="30" y="255" class="sv-lbl">BEFORE</text>
+          </g>
+        </g>
+        <g class="a kba-div">
+          <path d="M20 40 V262" stroke="#fff" stroke-width="2.5" />
+          <path d="M20 40 V262" class="sm" stroke-width=".6" opacity=".35" />
+          <circle cx="20" cy="190" r="12" class="fc" filter={sh} />
+          <path d="M16.5 186 L12.5 190 L16.5 194 M23.5 186 L27.5 190 L23.5 194" fill="none" class="sa" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────── Kitchen & bath · inquiry to consult ───────────────────── */}
+    {id === "kb-consult" && (
+      <g>
+        <text class="sv-lbl" x="20" y="26">INQUIRY / CONSULT</text>
+        <rect x="24" y="40" width="156" height="222" rx="14" class="fc" filter={sh} />
+        <text x="38" y="63" class="tx fi" font-size="10" font-weight="700">Your project</text>
+
+        <text x="38" y="86" class="sv-lbl">TYPE</text>
+        <rect x="38.5" y="92.5" width="55" height="19" rx="9.5" class="sl" />
+        <text x="66" y="105" text-anchor="middle" class="tx fm" font-size="8" font-weight="600">Kitchen</text>
+        <rect x="100.5" y="92.5" width="43" height="19" rx="9.5" class="sl" />
+        <text x="122" y="105" text-anchor="middle" class="tx fm" font-size="8" font-weight="600">Bath</text>
+        <g class="a kbc-kit">
+          <rect x="38" y="92" width="56" height="20" rx="10" class="fa" />
+          <text x="66" y="105" text-anchor="middle" class="tx" font-size="8" font-weight="700" fill="#fff">Kitchen</text>
+        </g>
+
+        <text x="38" y="132" class="sv-lbl">TIMELINE</text>
+        <rect x="38" y="138" width="128" height="20" rx="10" class="fs" />
+        <g class="a kbc-knob">
+          <rect x="82" y="140" width="42" height="16" rx="8" class="fc" filter={sh} />
+        </g>
+        {[0, 1, 2].map((k) => (
+          <rect x={52 + k * 42} y="146.5" width="14" height="3" rx="1.5" class={k === 1 ? "fa" : "fm"} opacity={k === 1 ? 1 : 0.45} />
+        ))}
+
+        <text x="38" y="180" class="sv-lbl">BUDGET</text>
+        <rect x="44" y="193" width="116" height="4" rx="2" class="fl" />
+        <rect x="70" y="193" width="66" height="4" rx="2" class="fa a kbc-range" />
+        {[44, 60, 76, 92, 108, 124, 140, 156].map((x) => (
+          <rect x={x} y="203" width="1.2" height="4" class="fl" />
+        ))}
+        <g class="a kbc-kl"><circle cx="70" cy="195" r="6" class="fc" filter={sh} /><circle cx="70" cy="195" r="5.2" class="sa" stroke-width="1.6" /></g>
+        <g class="a kbc-kr"><circle cx="136" cy="195" r="6" class="fc" filter={sh} /><circle cx="136" cy="195" r="5.2" class="sa" stroke-width="1.6" /></g>
+
+        <g class="a kbc-btn">
+          <rect x="38" y="224" width="128" height="26" rx="13" class="fi" />
+          <text x="102" y="240.5" text-anchor="middle" class="tx" font-size="8.5" font-weight="700" style="fill:var(--sv-card)">Book a consult</text>
+        </g>
+
+        <g class="a kbc-cal">
+          <rect x="192" y="62" width="108" height="172" rx="14" class="fc" filter={sh} />
+          <rect x="204" y="78" width="44" height="6" rx="3" class="fi" opacity=".8" />
+          <path d="M276 78 L273 81 L276 84 M284 78 L287 81 L284 84" class="sm" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity=".6" />
+          {[0, 1, 2, 3].map((r) =>
+            [0, 1, 2, 3, 4].map((c) => (
+              <rect x={203 + c * 18} y={96 + r * 18} width="14" height="14" rx="4" class="fs" opacity={r === 0 && c < 2 ? 0.45 : 1} />
+            ))
+          )}
+          <path d="M202 174 H290" class="sl" />
+          <text x="204" y="191" class="tx fi" font-size="8.5" font-weight="700">Design consult</text>
+          <rect x="204" y="198" width="58" height="5" rx="2.5" class="fs" />
+          <g class="a kbc-book">
+            <rect x="204" y="210" width="50" height="14" rx="7" class="fa" style="fill-opacity:.14" />
+            <text x="229" y="219.8" text-anchor="middle" class="tx" font-size="7.5" font-weight="700" style="fill:var(--sv-acc)">Booked</text>
+          </g>
+        </g>
+        <g transform="translate(264 139)">
+          <g class="a kbc-day">
+            <rect x="-7" y="-7" width="14" height="14" rx="4" class="fa" />
+            <circle r="2" fill="#fff" />
+          </g>
+        </g>
+        <g transform="translate(296 66)">
+          <g class="a kbc-check">
+            <circle r="7.5" class="fa" stroke="#fff" stroke-width="1.6" />
+            <path d={check} fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+        </g>
+      </g>
+    )}
+
+    {/* ───────────────────────── Unknown id ───────────────────────── */}
+    {!known && (
+      <g>
+        <rect x="100" y="80" width="120" height="120" rx="18" class="sl" stroke-width="1.5" stroke-dasharray="4 5" />
+        <circle cx="160" cy="140" r="10" class="fs" />
+      </g>
+    )}
+  </svg>
+</div>
+
+<style is:global>
+  /* ── Base: identical copy of ServiceVisual's shared rules (keep in sync) ── */
+  /* ── Root + tints ─────────────────────────────────────────── */
+  .sv {
+    --sv-ink: oklch(0.22 0.02 250);
+    --sv-mute: #414b56;
+    --sv-line: oklch(0.88 0.01 250);
+    --sv-soft: oklch(0.925 0.008 250);
+    --sv-card: #fff;
+    --sv-acc: #0072bc;
+    --sv-bg: oklch(0.985 0.004 250);
+    --sv-sh1: 0.06;
+    --sv-sh2: 0.08;
+    --sv-d: 6s;
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 8 / 7;
+    overflow: hidden;
+    border-radius: inherit;
+    background: var(--sv-bg);
+    color: var(--sv-ink);
+    isolation: isolate;
+  }
+  .sv > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .sv.sv--t-blue { --sv-bg: oklch(0.95 0.025 245); }
+  .sv.sv--t-sand { --sv-bg: oklch(0.95 0.02 80); }
+  .sv.sv--t-sage { --sv-bg: oklch(0.95 0.02 150); }
+  .sv.sv--t-paper { --sv-bg: oklch(0.985 0.004 250); }
+  .sv.sv--dark {
+    --sv-bg: oklch(0.24 0.02 250);
+    --sv-ink: oklch(0.95 0.006 250);
+    --sv-mute: oklch(0.74 0.015 250);
+    --sv-line: oklch(0.37 0.02 250);
+    --sv-soft: oklch(0.43 0.02 250);
+    --sv-card: oklch(0.3 0.022 250);
+    --sv-acc: oklch(0.68 0.14 247);
+    --sv-sh1: 0.25;
+    --sv-sh2: 0.35;
+  }
+  .sv .sv-sh1 { flood-opacity: var(--sv-sh1); }
+  .sv .sv-sh2 { flood-opacity: var(--sv-sh2); }
+
+  /* ── Paint helpers ────────────────────────────────────────── */
+  .sv .fc { fill: var(--sv-card); }
+  .sv .fs { fill: var(--sv-soft); }
+  .sv .fl { fill: var(--sv-line); }
+  .sv .fi { fill: var(--sv-ink); }
+  .sv .fm { fill: var(--sv-mute); }
+  .sv .fa { fill: var(--sv-acc); }
+  .sv .sl { fill: none; stroke: var(--sv-line); }
+  .sv .sa { fill: none; stroke: var(--sv-acc); }
+  .sv .sm { fill: none; stroke: var(--sv-mute); }
+  .sv text { font-family: inherit; }
+  .sv .sv-lbl,
+  .sv .sv-num {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    fill: var(--sv-mute);
+    opacity: 0.85;
+  }
+  .sv .sv-num { font-size: 10px; letter-spacing: 0.04em; fill: var(--sv-ink); }
+
+  /* ── Animation engine: paused until hovered or [data-sv-play] ─ */
+  .sv .a {
+    animation-duration: var(--sv-d);
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+    animation-fill-mode: both;
+    animation-play-state: paused;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .sv:hover .a,
+  .sv[data-sv-play] .a,
+  [data-sv-play] .sv .a {
+    animation-play-state: running;
+  }
+  /* At rest, hold the first keyframe (the finished still) through a long delay, so a visual
+     always returns to its still when hover ends instead of freezing mid-loop. */
+  .sv:not(:hover):not([data-sv-play]):not([data-sv-play] .sv) .a {
+    animation-delay: 9999s !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sv .a,
+    .sv:hover .a,
+    .sv[data-sv-play] .a,
+    [data-sv-play] .sv .a {
+      animation-play-state: paused !important;
+      animation-delay: 9999s !important;
+    }
+  }
+
+  /* shared keyframes */
+  .sv .sv-rise { animation-name: sv-rise; }
+  .sv .sv-pop { animation-name: sv-pop; }
+  .sv .sv-flag { animation-name: sv-flag; }
+  .sv .sv-flagpop { animation-name: sv-flagpop; }
+  @keyframes sv-rise {
+    0%, 6% { opacity: 1; transform: none; }
+    11%, 18% { opacity: 0; transform: translateY(6px); }
+    28%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-pop {
+    0%, 6% { opacity: 1; transform: none; }
+    11%, 18% { opacity: 0; transform: scale(0.8); }
+    28%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes sv-flag {
+    0%, 8% { opacity: 1; }
+    12%, 62% { opacity: 0; }
+    70%, 100% { opacity: 1; }
+  }
+  @keyframes sv-flagpop {
+    0%, 8% { opacity: 1; transform: none; }
+    12%, 62% { opacity: 0; transform: scale(0.4); }
+    70%, 100% { opacity: 1; transform: none; }
+  }
+
+  /* ═════════════════════ Industry scenes ═════════════════════
+     Every selector is prefixed .sv.sv--<id>; keyframes are prefixed iv-. */
+
+  /* gd-emergency */
+  .sv.sv--gd-emergency { --sv-d: 6.5s; }
+  .sv.sv--gd-emergency .gde-door { transform: translateY(-96px); animation-name: iv-gde-door; }
+  .sv.sv--gd-emergency .gde-tile { animation-name: iv-gde-tile; }
+  .sv.sv--gd-emergency .gde-ring { opacity: 0; animation-name: iv-gde-ring; }
+  .sv.sv--gd-emergency .gde-hs { animation-name: iv-gde-hs; }
+  .sv.sv--gd-emergency .gde-t1 { opacity: 0; animation-name: iv-gde-t1; }
+  .sv.sv--gd-emergency .gde-t2 { animation-name: iv-gde-t2; }
+  .sv.sv--gd-emergency .gde-check { animation-name: iv-gde-check; }
+  @keyframes iv-gde-door {
+    0%, 7% { transform: translateY(-96px); animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5); }
+    12% { transform: translateY(-48px) rotate(-5deg); }
+    14% { transform: translateY(-50px) rotate(-4.4deg); }
+    56% { transform: translateY(-50px) rotate(-4.4deg); }
+    61% { transform: translateY(-50px) rotate(0deg); }
+    76%, 100% { transform: translateY(-96px); }
+  }
+  @keyframes iv-gde-tile {
+    0%, 7% { opacity: 1; transform: none; }
+    10% { opacity: 0; transform: none; }
+    18% { opacity: 0; transform: translateY(-8px); }
+    25%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-gde-ring {
+    0%, 25% { opacity: 0; transform: scale(0.9); }
+    27% { opacity: 0.85; transform: scale(1); }
+    38% { opacity: 0; transform: scale(1.9); }
+    39% { opacity: 0; transform: scale(0.9); }
+    41% { opacity: 0.85; transform: scale(1); }
+    52%, 100% { opacity: 0; transform: scale(1.9); }
+  }
+  @keyframes iv-gde-hs {
+    0%, 26% { transform: none; }
+    27.5% { transform: rotate(-14deg); }
+    29% { transform: rotate(12deg); }
+    30.5% { transform: rotate(-10deg); }
+    32%, 40% { transform: none; }
+    41.5% { transform: rotate(-14deg); }
+    43% { transform: rotate(12deg); }
+    44.5% { transform: rotate(-10deg); }
+    46%, 100% { transform: none; }
+  }
+  @keyframes iv-gde-t1 {
+    0%, 10% { opacity: 0; }
+    11%, 52% { opacity: 1; }
+    55%, 100% { opacity: 0; }
+  }
+  @keyframes iv-gde-t2 {
+    0%, 9% { opacity: 1; }
+    10%, 52% { opacity: 0; }
+    55%, 100% { opacity: 1; }
+  }
+  @keyframes iv-gde-check {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 54% { opacity: 0; transform: scale(0.4); }
+    60%, 100% { opacity: 1; transform: none; }
+  }
+
+  /* gd-service-area */
+  .sv.sv--gd-service-area { --sv-d: 6s; }
+  .sv.sv--gd-service-area .gds-z { animation-name: iv-gds-z; }
+  .sv.sv--gd-service-area .gds-pin { animation-name: iv-gds-pin; }
+  .sv.sv--gd-service-area .gds-van { animation-name: iv-gds-van; }
+  .sv.sv--gd-service-area .gds-d1 { animation-delay: 0.25s; }
+  .sv.sv--gd-service-area .gds-d2 { animation-delay: 0.5s; }
+  .sv.sv--gd-service-area .gds-d3 { animation-delay: 0.75s; }
+  .sv.sv--gd-service-area .gds-d4 { animation-delay: 1.1s; }
+  @keyframes iv-gds-z {
+    0%, 7% { opacity: 1; }
+    11%, 18% { opacity: 0; }
+    28%, 100% { opacity: 1; }
+  }
+  @keyframes iv-gds-pin {
+    0%, 7% { opacity: 1; transform: none; }
+    11% { opacity: 0; transform: none; }
+    12%, 30% { opacity: 0; transform: translateY(-22px); }
+    32% { opacity: 1; transform: translateY(-22px); animation-timing-function: cubic-bezier(0.5, 0, 0.3, 1); }
+    40%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-gds-van {
+    0%, 7% { opacity: 1; transform: none; }
+    10% { opacity: 0; transform: none; }
+    12% { opacity: 0; transform: translateX(-132px); }
+    16% { opacity: 1; transform: translateX(-132px); animation-timing-function: cubic-bezier(0.4, 0, 0.25, 1); }
+    68%, 100% { opacity: 1; transform: none; }
+  }
+
+  /* auto-bays */
+  .sv.sv--auto-bays { --sv-d: 6.5s; }
+  .sv.sv--auto-bays .aub-lift { animation-name: iv-aub-lift; }
+  .sv.sv--auto-bays .aub-new { animation-name: iv-aub-new; }
+  .sv.sv--auto-bays .aub-d1 { animation-delay: 0.3s; }
+  .sv.sv--auto-bays .aub-d2 { animation-delay: 0.6s; }
+  .sv.sv--auto-bays .aub-d3 { animation-delay: 0.9s; }
+  .sv.sv--auto-bays .aub-d4 { animation-delay: 1.2s; }
+  .sv.sv--auto-bays .aub-bar { transform-origin: 0 50%; animation-name: iv-aub-bar; }
+  @keyframes iv-aub-lift {
+    0%, 7% { transform: none; }
+    14%, 20% { transform: translateY(64px); }
+    38%, 100% { transform: none; }
+  }
+  @keyframes iv-aub-new {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 36% { opacity: 0; transform: scale(0.7); }
+    44%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-aub-bar {
+    0%, 7% { transform: none; }
+    12%, 36% { transform: scaleX(0.55); }
+    72%, 100% { transform: none; }
+  }
+
+  /* auto-followup */
+  .sv.sv--auto-followup { --sv-d: 6.5s; }
+  .sv.sv--auto-followup .auf-def { opacity: 0; animation-name: iv-auf-def; }
+  .sv.sv--auto-followup .auf-bk { animation-name: iv-auf-bk; }
+  .sv.sv--auto-followup .auf-hl { opacity: 0; animation-name: iv-auf-hl; }
+  .sv.sv--auto-followup .auf-fly2 { opacity: 0; animation-name: iv-auf-fly2; }
+  .sv.sv--auto-followup .auf-fly3 { opacity: 0; animation-name: iv-auf-fly3; }
+  .sv.sv--auto-followup .auf-d1 { animation-delay: 0.15s; }
+  .sv.sv--auto-followup .auf-bubble { transform-origin: 100% 100%; animation-name: iv-auf-bubble; }
+  .sv.sv--auto-followup .auf-sent { animation-name: iv-auf-sent; }
+  .sv.sv--auto-followup .auf-card { animation-name: iv-auf-card; }
+  .sv.sv--auto-followup .auf-check { animation-name: iv-auf-check; }
+  @keyframes iv-auf-def {
+    0%, 7% { opacity: 0; }
+    10%, 58% { opacity: 1; }
+    62%, 100% { opacity: 0; }
+  }
+  @keyframes iv-auf-bk {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 58% { opacity: 0; transform: scale(0.5); }
+    64%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-auf-hl {
+    0%, 15% { opacity: 0; }
+    19%, 32% { opacity: 1; }
+    38%, 100% { opacity: 0; }
+  }
+  @keyframes iv-auf-fly2 {
+    0%, 22% { opacity: 0; transform: none; }
+    24% { opacity: 1; transform: none; }
+    34% { opacity: 1; transform: translate(92px, -86px); }
+    36%, 100% { opacity: 0; transform: translate(92px, -86px); }
+  }
+  @keyframes iv-auf-fly3 {
+    0%, 22% { opacity: 0; transform: none; }
+    24% { opacity: 1; transform: none; }
+    34% { opacity: 1; transform: translate(92px, -122px); }
+    36%, 100% { opacity: 0; transform: translate(92px, -122px); }
+  }
+  @keyframes iv-auf-bubble {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 34% { opacity: 0; transform: scale(0.86); }
+    42%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-auf-sent {
+    0%, 7% { opacity: 1; }
+    10%, 44% { opacity: 0; }
+    50%, 100% { opacity: 1; }
+  }
+  @keyframes iv-auf-card {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 52% { opacity: 0; transform: translateY(8px); }
+    60%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-auf-check {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 62% { opacity: 0; transform: scale(0.4); }
+    68%, 100% { opacity: 1; transform: none; }
+  }
+
+  /* shop-profit */
+  .sv.sv--shop-profit { --sv-d: 6s; }
+  .sv.sv--shop-profit .shp-rev { opacity: 0; animation-name: iv-shp-rev; }
+  .sv.sv--shop-profit .shp-seg { transform-origin: 0 50%; animation-name: iv-shp-seg; }
+  .sv.sv--shop-profit .shp-lab { animation-name: iv-shp-lab; }
+  .sv.sv--shop-profit .shp-seg.shp-d1 { animation-name: iv-shp-seg1; }
+  .sv.sv--shop-profit .shp-lab.shp-d1 { animation-name: iv-shp-lab1; }
+  .sv.sv--shop-profit .shp-seg.shp-d2 { animation-name: iv-shp-seg2; }
+  .sv.sv--shop-profit .shp-lab.shp-d2 { animation-name: iv-shp-lab2; }
+  .sv.sv--shop-profit .shp-seg.shp-d3 { animation-name: iv-shp-seg3; }
+  .sv.sv--shop-profit .shp-lab.shp-d3 { animation-name: iv-shp-lab3; }
+  .sv.sv--shop-profit .shp-pro { transform-origin: 0 50%; animation-name: iv-shp-pro; }
+  .sv.sv--shop-profit .shp-plab,
+  .sv.sv--shop-profit .shp-brk { animation-name: iv-shp-plab; }
+  .sv.sv--shop-profit .shp-ring { opacity: 0; animation-name: iv-shp-ring; }
+  .sv.sv--shop-profit .shp-tail { transform-origin: 100% 50%; animation-name: iv-shp-tail; }
+  .sv.sv--shop-profit .shp-t1 { animation-delay: 0.2s; }
+  .sv.sv--shop-profit .shp-t2 { animation-delay: 0.4s; }
+  @keyframes iv-shp-rev {
+    0%, 7% { opacity: 0; }
+    11%, 30% { opacity: 0.85; }
+    46%, 100% { opacity: 0; }
+  }
+  @keyframes iv-shp-seg {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 24% { opacity: 0; transform: scaleX(0.4); }
+    32%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-shp-lab {
+    0%, 7% { opacity: 1; }
+    11%, 24% { opacity: 0; }
+    32%, 100% { opacity: 1; }
+  }
+  @keyframes iv-shp-seg1 {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 28% { opacity: 0; transform: scaleX(0.4); }
+    36%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-shp-lab1 {
+    0%, 7% { opacity: 1; }
+    11%, 28% { opacity: 0; }
+    36%, 100% { opacity: 1; }
+  }
+  @keyframes iv-shp-seg2 {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 32% { opacity: 0; transform: scaleX(0.4); }
+    40%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-shp-lab2 {
+    0%, 7% { opacity: 1; }
+    11%, 32% { opacity: 0; }
+    40%, 100% { opacity: 1; }
+  }
+  @keyframes iv-shp-seg3 {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 36% { opacity: 0; transform: scaleX(0.4); }
+    44%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-shp-lab3 {
+    0%, 7% { opacity: 1; }
+    11%, 36% { opacity: 0; }
+    44%, 100% { opacity: 1; }
+  }
+  @keyframes iv-shp-pro {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 46% { opacity: 0; transform: scaleX(0.4); }
+    54%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-shp-plab {
+    0%, 7% { opacity: 1; }
+    11%, 50% { opacity: 0; }
+    58%, 100% { opacity: 1; }
+  }
+  @keyframes iv-shp-ring {
+    0%, 54% { opacity: 0; transform: none; }
+    56% { opacity: 0.8; transform: none; }
+    72%, 100% { opacity: 0; transform: scale(1.18, 1.6); }
+  }
+  @keyframes iv-shp-tail {
+    0%, 7% { transform: none; }
+    11%, 58% { transform: scaleX(0); }
+    74%, 100% { transform: none; }
+  }
+
+  /* shop-feed */
+  .sv.sv--shop-feed { --sv-d: 6.5s; }
+  .sv.sv--shop-feed .shf-tile { animation-name: iv-shf-tile; }
+  .sv.sv--shop-feed .shf-d1 { animation-delay: 0.15s; }
+  .sv.sv--shop-feed .shf-d2 { animation-delay: 0.3s; }
+  .sv.sv--shop-feed .shf-d3 { animation-delay: 0.45s; }
+  .sv.sv--shop-feed .shf-d4 { animation-delay: 0.6s; }
+  .sv.sv--shop-feed .shf-t5 { animation-name: iv-shf-t5; }
+  .sv.sv--shop-feed .shf-warn,
+  .sv.sv--shop-feed .shf-band { opacity: 0; animation-name: iv-shf-warn; }
+  .sv.sv--shop-feed .shf-fix { animation-name: iv-shf-fix; }
+  @keyframes iv-shf-tile {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 20% { opacity: 0; transform: translateY(6px); }
+    30%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-shf-t5 {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 54% { opacity: 0; transform: translateY(6px); }
+    63%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-shf-warn {
+    0%, 7% { opacity: 0; }
+    11%, 44% { opacity: 1; }
+    48%, 100% { opacity: 0; }
+  }
+  @keyframes iv-shf-fix {
+    0%, 7% { opacity: 1; transform: none; }
+    11%, 46% { opacity: 0; transform: scale(0.4); }
+    52%, 100% { opacity: 1; transform: none; }
+  }
+
+  /* cars-inventory */
+  .sv.sv--cars-inventory { --sv-d: 6.5s; }
+  .sv.sv--cars-inventory .cai-car { animation-name: iv-cai-car; }
+  .sv.sv--cars-inventory .cai-link { animation-name: iv-cai-link; }
+  .sv.sv--cars-inventory .cai-card { animation-name: iv-cai-card; }
+  .sv.sv--cars-inventory .cai-tag { animation-name: iv-cai-tag; }
+  @keyframes iv-cai-car {
+    0%, 7% { opacity: 1; transform: none; }
+    10% { opacity: 0; transform: none; }
+    12% { opacity: 0; transform: translateX(118px); }
+    16% { opacity: 1; transform: translateX(118px); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
+    38%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-cai-link {
+    0%, 7% { opacity: 1; }
+    10%, 38% { opacity: 0; }
+    44%, 100% { opacity: 1; }
+  }
+  @keyframes iv-cai-card {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 42% { opacity: 0; transform: translateY(8px); }
+    52%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-cai-tag {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 54% { opacity: 0; transform: scale(0.5); }
+    61%, 100% { opacity: 1; transform: none; }
+  }
+
+  /* cars-lead */
+  .sv.sv--cars-lead { --sv-d: 6.5s; }
+  .sv.sv--cars-lead .cal-ping { opacity: 0; animation-name: iv-cal-ping; }
+  .sv.sv--cars-lead .cal-enq { animation-name: iv-cal-enq; }
+  .sv.sv--cars-lead .cal-typ { opacity: 0; transform-origin: 100% 100%; animation-name: iv-cal-typ; }
+  .sv.sv--cars-lead .cal-dot { animation-name: iv-cal-dot; animation-duration: 1s; animation-timing-function: ease-in-out; }
+  .sv.sv--cars-lead .cal-d1 { animation-delay: 0.15s; }
+  .sv.sv--cars-lead .cal-d2 { animation-delay: 0.3s; }
+  .sv.sv--cars-lead .cal-rep { transform-origin: 100% 0; animation-name: iv-cal-rep; }
+  .sv.sv--cars-lead .cal-cap { animation-name: iv-cal-cap; }
+  .sv.sv--cars-lead .cal-slot { animation-name: iv-cal-slot; }
+  .sv.sv--cars-lead .cal-flag { animation-name: iv-cal-flag; }
+  @keyframes iv-cal-ping {
+    0%, 17% { opacity: 0; }
+    20% { opacity: 0.9; }
+    34%, 100% { opacity: 0; }
+  }
+  @keyframes iv-cal-enq {
+    0%, 7% { opacity: 1; transform: none; }
+    10% { opacity: 0; transform: none; }
+    12% { opacity: 0; transform: translateY(-10px); }
+    20%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-cal-typ {
+    0%, 26% { opacity: 0; transform: scale(0.7); }
+    30%, 44% { opacity: 1; transform: none; }
+    47%, 100% { opacity: 0; transform: scale(0.9); }
+  }
+  @keyframes iv-cal-dot {
+    0%, 60%, 100% { opacity: 0.5; transform: none; }
+    30% { opacity: 1; transform: translateY(-3px); }
+  }
+  @keyframes iv-cal-rep {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 46% { opacity: 0; transform: scale(0.88); }
+    54%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-cal-cap {
+    0%, 7% { opacity: 1; }
+    10%, 54% { opacity: 0; }
+    60%, 100% { opacity: 1; }
+  }
+  @keyframes iv-cal-slot {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 62% { opacity: 0; transform: scale(0.6); }
+    70%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-cal-flag {
+    0%, 7% { opacity: 1; }
+    10%, 68% { opacity: 0; }
+    74%, 100% { opacity: 1; }
+  }
+
+  /* law-intake */
+  .sv.sv--law-intake { --sv-d: 6.5s; }
+  .sv.sv--law-intake .lwi-tile { animation-name: iv-lwi-tile; }
+  .sv.sv--law-intake .lwi-ck { animation-name: iv-lwi-ck; }
+  .sv.sv--law-intake .lwi-val { animation-name: iv-lwi-val; }
+  .sv.sv--law-intake .lwi-val.lwi-d1 { animation-name: iv-lwi-val1; }
+  .sv.sv--law-intake .lwi-ck.lwi-d1 { animation-name: iv-lwi-ck1; }
+  .sv.sv--law-intake .lwi-val.lwi-d2 { animation-name: iv-lwi-val2; }
+  .sv.sv--law-intake .lwi-ck.lwi-d2 { animation-name: iv-lwi-ck2; }
+  .sv.sv--law-intake .lwi-book { animation-name: iv-lwi-book; }
+  .sv.sv--law-intake .lwi-q { animation-name: iv-lwi-q; }
+  @keyframes iv-lwi-q {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 50% { opacity: 0; transform: scale(0.6); }
+    56%, 100% { opacity: 1; transform: none; }
+  }
+  .sv.sv--law-intake .lwi-ring { opacity: 0; animation-name: iv-lwi-ring; }
+  @keyframes iv-lwi-tile {
+    0%, 7% { opacity: 1; transform: none; }
+    10% { opacity: 0; transform: none; }
+    12% { opacity: 0; transform: translateY(-10px); }
+    20%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-lwi-val {
+    0%, 7% { opacity: 1; }
+    10%, 24% { opacity: 0; }
+    31%, 100% { opacity: 1; }
+  }
+  @keyframes iv-lwi-ck {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 27% { opacity: 0; transform: scale(0.4); }
+    33%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-lwi-val1 {
+    0%, 7% { opacity: 1; }
+    10%, 32% { opacity: 0; }
+    39%, 100% { opacity: 1; }
+  }
+  @keyframes iv-lwi-ck1 {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 35% { opacity: 0; transform: scale(0.4); }
+    41%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-lwi-val2 {
+    0%, 7% { opacity: 1; }
+    10%, 40% { opacity: 0; }
+    47%, 100% { opacity: 1; }
+  }
+  @keyframes iv-lwi-ck2 {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 43% { opacity: 0; transform: scale(0.4); }
+    49%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-lwi-book {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 56% { opacity: 0; transform: translateY(8px); }
+    64%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-lwi-ring {
+    0%, 63% { opacity: 0; transform: none; }
+    65% { opacity: 0.8; transform: none; }
+    80%, 100% { opacity: 0; transform: scale(1.1, 1.5); }
+  }
+
+  /* law-pipeline */
+  .sv.sv--law-pipeline { --sv-d: 6.5s; }
+  .sv.sv--law-pipeline .lwp-matter { animation-name: iv-lwp-matter; }
+  .sv.sv--law-pipeline .lwp-check { animation-name: iv-lwp-check; }
+  .sv.sv--law-pipeline .lwp-a { opacity: 0.45; animation-name: iv-lwp-a; }
+  .sv.sv--law-pipeline .lwp-b { opacity: 0.45; animation-name: iv-lwp-b; }
+  @keyframes iv-lwp-matter {
+    0%, 7% { opacity: 1; transform: none; }
+    10% { opacity: 0; transform: none; }
+    12% { opacity: 0; transform: translateX(-192px); }
+    18%, 30% { opacity: 1; transform: translateX(-192px); }
+    40%, 50% { opacity: 1; transform: translateX(-96px); }
+    62%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-lwp-check {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 62% { opacity: 0; transform: scale(0.4); }
+    68%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-lwp-b {
+    0%, 7% { opacity: 0.45; transform: none; }
+    10% { opacity: 0; transform: none; }
+    12% { opacity: 0; transform: translate(0, -102px); }
+    18%, 22% { opacity: 1; transform: translate(0, -102px); }
+    34%, 100% { opacity: 0.45; transform: none; }
+  }
+  @keyframes iv-lwp-a {
+    0%, 7% { opacity: 0.45; transform: none; }
+    10% { opacity: 0; transform: none; }
+    12% { opacity: 0; transform: translate(-178px, -58px); }
+    18%, 54% { opacity: 1; transform: translate(-178px, -58px); }
+    66%, 100% { opacity: 0.45; transform: none; }
+  }
+
+  /* kb-before-after */
+  .sv.sv--kb-before-after { --sv-d: 7s; }
+  .sv.sv--kb-before-after .kba-wipe { transform-box: view-box; transform-origin: 20px 0; transform: scaleX(0.4286); animation-name: iv-kba-wipe; }
+  .sv.sv--kb-before-after .kba-div { transform: translateX(120px); animation-name: iv-kba-div; }
+  @keyframes iv-kba-wipe {
+    0%, 6% { transform: scaleX(0.4286); }
+    22%, 32% { transform: scaleX(1); }
+    56%, 66% { transform: scaleX(0); }
+    84%, 100% { transform: scaleX(0.4286); }
+  }
+  @keyframes iv-kba-div {
+    0%, 6% { transform: translateX(120px); }
+    22%, 32% { transform: translateX(280px); }
+    56%, 66% { transform: translateX(0); }
+    84%, 100% { transform: translateX(120px); }
+  }
+
+  /* kb-consult */
+  .sv.sv--kb-consult { --sv-d: 6.5s; }
+  .sv.sv--kb-consult .kbc-kit { animation-name: iv-kbc-kit; }
+  .sv.sv--kb-consult .kbc-knob { animation-name: iv-kbc-knob; }
+  .sv.sv--kb-consult .kbc-range { animation-name: iv-kbc-range; }
+  .sv.sv--kb-consult .kbc-kl { animation-name: iv-kbc-kl; }
+  .sv.sv--kb-consult .kbc-kr { animation-name: iv-kbc-kr; }
+  .sv.sv--kb-consult .kbc-btn { animation-name: iv-kbc-btn; }
+  .sv.sv--kb-consult .kbc-cal { animation-name: iv-kbc-cal; }
+  .sv.sv--kb-consult .kbc-day { animation-name: iv-kbc-day; }
+  .sv.sv--kb-consult .kbc-book { animation-name: iv-kbc-book; }
+  .sv.sv--kb-consult .kbc-check { animation-name: iv-kbc-check; }
+  @keyframes iv-kbc-kit {
+    0%, 7% { opacity: 1; }
+    10%, 16% { opacity: 0; }
+    21%, 100% { opacity: 1; }
+  }
+  @keyframes iv-kbc-knob {
+    0%, 7% { transform: none; }
+    11%, 21% { transform: translateX(-42px); }
+    29%, 100% { transform: none; }
+  }
+  @keyframes iv-kbc-range {
+    0%, 7% { transform: none; }
+    11%, 29% { transform: scaleX(0.15); }
+    40%, 100% { transform: none; }
+  }
+  @keyframes iv-kbc-kl {
+    0%, 7% { transform: none; }
+    11%, 29% { transform: translateX(28px); }
+    40%, 100% { transform: none; }
+  }
+  @keyframes iv-kbc-kr {
+    0%, 7% { transform: none; }
+    11%, 29% { transform: translateX(-28px); }
+    40%, 100% { transform: none; }
+  }
+  @keyframes iv-kbc-btn {
+    0%, 44% { transform: none; }
+    47% { transform: scale(0.95); }
+    52%, 100% { transform: none; }
+  }
+  @keyframes iv-kbc-cal {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 50% { opacity: 0; transform: translateY(8px); }
+    58%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-kbc-day {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 60% { opacity: 0; transform: scale(0.4); }
+    66%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes iv-kbc-book {
+    0%, 7% { opacity: 1; }
+    10%, 64% { opacity: 0; }
+    70%, 100% { opacity: 1; }
+  }
+  @keyframes iv-kbc-check {
+    0%, 7% { opacity: 1; transform: none; }
+    10%, 68% { opacity: 0; transform: scale(0.4); }
+    74%, 100% { opacity: 1; transform: none; }
+  }
+</style>

@@ -1,0 +1,398 @@
+/* ==========================================================================
+   Black Friday / Cyber Monday promotion (src/data/promo.ts)
+   Shared by the promo bar, homepage band, /black-friday, pricing callout, and
+   the form notes. Class prefix: .promo
+   ========================================================================== */
+
+/* ---- Visibility by date -------------------------------------------------
+   `html[data-promo]` is set before first paint by an inline script in
+   Header.astro and kept current by promo-client.ts. Without JavaScript the
+   attribute is absent and the build-time choice (data-promo-build-off) wins. */
+html[data-promo="off"] [data-promo-when="active"],
+html[data-promo="on"] [data-promo-when="ended"],
+html:not([data-promo]) [data-promo-build-off] {
+  display: none !important;
+}
+
+/* ---- Tokens ------------------------------------------------------------- */
+.promo {
+  --promo-dark: oklch(0.24 0.02 250);
+  --promo-dark-2: oklch(0.3 0.022 250);
+  --promo-line: oklch(0.37 0.02 250);
+  --promo-ink: oklch(0.95 0.006 250);
+  --promo-mute: oklch(0.78 0.015 250);
+  --promo-accent: oklch(0.74 0.12 240);
+  --promo-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+  --promo-radius: 1.25rem;
+  --promo-shadow:
+    0 1px 2px oklch(0.3 0.03 250 / 0.06),
+    0 4px 12px -2px oklch(0.3 0.03 250 / 0.06),
+    0 22px 44px -16px oklch(0.3 0.03 250 / 0.2);
+}
+
+.promo [hidden] { display: none !important; }
+
+.promo-label {
+  margin: 0 0 0.6rem;
+  font-family: var(--promo-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--promo-accent);
+}
+
+/* ---- Promo bar: offer variant (rules for .promo-bar itself live in global.css) */
+@media (min-width: 48rem) and (max-width: 63.99rem) {
+  /* Tablet: drop the lead-in so all three benefits stay on one line. */
+  .promo-bar .promo-bar__lead--offer { display: none; }
+}
+
+/* ---- Benefits ----------------------------------------------------------- */
+.promo-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--promo-line);
+}
+.promo-benefits li {
+  padding: 1.25rem 1.5rem 0 0;
+}
+.promo-benefits li + li {
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--promo-line);
+}
+.promo-benefits__num {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-family: var(--promo-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--promo-accent);
+}
+.promo-benefits strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.6vw, 1.45rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.promo-benefits p {
+  margin: 0;
+  color: var(--promo-mute);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+/* ---- Countdown + deadline ----------------------------------------------- */
+.promo-deadline {
+  margin: 0;
+  color: var(--promo-ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.promo-countdown {
+  display: none;
+  gap: 1.25rem;
+  margin: 0;
+}
+html.js .promo-countdown { display: flex; }
+.promo-countdown__unit {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.promo-countdown__num {
+  min-width: 1.5ch;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.promo-countdown__label {
+  color: var(--promo-mute);
+  font-family: var(--promo-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.promo a:focus-visible,
+.promo .btn:focus-visible {
+  outline: 2px solid var(--promo-accent);
+  outline-offset: 3px;
+}
+
+/* ---- Homepage band ------------------------------------------------------ */
+.promo-band-section {
+  padding-block: clamp(1.5rem, 3vw, 2.5rem);
+}
+.promo-band {
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1.25rem, 3vw, 2.25rem) clamp(1.25rem, 2.5vw, 1.75rem);
+  border: 1px solid var(--promo-line);
+  border-radius: var(--promo-radius);
+  background: var(--promo-dark);
+  color: var(--promo-ink);
+  box-shadow: var(--promo-shadow);
+}
+.promo-band__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-bottom: 1.4rem;
+}
+.promo-band__title {
+  margin: 0;
+  max-width: 36ch;
+  color: #fff;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+.promo-band__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  margin-top: 1.4rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--promo-line);
+}
+
+/* ---- /black-friday hero ------------------------------------------------- */
+.promo-hero {
+  padding-block: clamp(2.5rem, 6vw, 4.5rem);
+  background: var(--promo-dark);
+  color: var(--promo-ink);
+}
+.promo-hero h1 {
+  margin: 0 0 1rem;
+  max-width: 20ch;
+  color: #fff;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.promo-hero__lead {
+  max-width: 40rem;
+  margin: 0 0 2rem;
+  color: var(--promo-mute);
+  font-size: clamp(1.02rem, 1.6vw, 1.2rem);
+  line-height: 1.55;
+}
+.promo-hero .promo-benefits { margin-bottom: 0; }
+.promo-hero__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--promo-line);
+}
+.promo-hero__timing {
+  display: grid;
+  gap: 0.6rem;
+  margin-right: auto;
+}
+
+/* ---- How it works ------------------------------------------------------- */
+.promo-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.promo-steps li {
+  padding: 1.25rem 1.4rem 1.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--promo-radius, 1.25rem);
+  background: var(--color-bg);
+}
+.promo-steps span {
+  display: block;
+  margin-bottom: 0.6rem;
+  color: var(--color-brand);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.promo-steps strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--color-slate);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+.promo-steps p { margin: 0; color: var(--color-muted); font-size: 0.95rem; }
+.promo-mix {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+}
+.promo-mix p { margin: 0; color: var(--color-slate); font-weight: 600; }
+.promo-mix a { font-weight: 700; }
+
+/* ---- Claim form --------------------------------------------------------- */
+.promo-claim { scroll-margin-top: 5rem; }
+.promo-claim__grid {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+}
+@media (min-width: 56rem) {
+  .promo-claim__grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 3rem; }
+}
+.promo-claim__copy h2 { margin-top: 0; }
+.promo-claim__copy p { color: var(--color-muted); }
+.promo-claim__terms {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.promo-claim__terms li {
+  position: relative;
+  padding-left: 1.4rem;
+  color: var(--color-slate);
+  font-weight: 600;
+}
+.promo-claim__terms li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--color-brand);
+}
+.promo-claim__card {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  background: var(--color-bg);
+  box-shadow:
+    0 1px 2px oklch(0.3 0.03 250 / 0.06),
+    0 4px 12px -2px oklch(0.3 0.03 250 / 0.06),
+    0 22px 44px -16px oklch(0.3 0.03 250 / 0.2);
+}
+.promo-claim__card textarea { min-height: 5rem; }
+.promo-claim__interest {
+  margin-bottom: 1.1rem;
+  padding: 0.9rem 1rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+}
+.promo-claim__interest p {
+  margin: 0 0 0.6rem;
+  color: var(--color-slate);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.promo-claim__interest[hidden] { display: none; }
+.promo-claim__submit { width: 100%; }
+.promo-claim__submit:disabled { cursor: wait; opacity: 0.7; }
+.promo-claim__success { text-align: center; padding: 1rem 0.5rem; }
+.promo-claim__success:focus { outline: none; }
+.promo-claim__success[hidden] { display: none; }
+.promo-claim__success h3 { margin-top: 0; }
+.promo-claim__success p { color: var(--color-muted); }
+.promo-claim__tick {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto 1.1rem;
+  border-radius: 50%;
+  background: oklch(0.91 0.08 150);
+  color: oklch(0.4 0.12 150);
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+/* ---- Ended state -------------------------------------------------------- */
+.promo-ended { padding-block: clamp(3rem, 8vw, 6rem); }
+.promo-ended h1 { margin: 0 0 1rem; }
+
+/* ---- Pricing callout ---------------------------------------------------- */
+.promo-callout-section { padding-block: 1.5rem 0; }
+.promo-callout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 1rem 1.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+}
+.promo-callout__text { margin: 0; color: var(--color-slate); }
+.promo-callout__label {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--color-brand);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.promo-callout__text strong { font-weight: 700; }
+.promo-callout a { font-weight: 700; white-space: nowrap; }
+
+/* ---- Form note ---------------------------------------------------------- */
+.promo-note {
+  margin: 0 0 0.6rem;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+.promo-note strong { color: var(--color-slate); font-weight: 700; }
+
+/* ---- Phones ------------------------------------------------------------- */
+@media (max-width: 47.99rem) {
+  .promo-benefits { grid-template-columns: 1fr; }
+  .promo-benefits li,
+  .promo-benefits li + li {
+    padding: 1rem 0 1rem;
+    border-left: 0;
+  }
+  .promo-benefits li + li { border-top: 1px solid var(--promo-line); }
+  .promo-benefits__num { display: none; }
+  .promo-band__head { flex-direction: column; align-items: stretch; margin-bottom: 1rem; }
+  .promo-band__head .btn,
+  .promo-hero__foot .btn { width: 100%; justify-content: center; text-align: center; }
+  .promo-countdown { gap: 0.75rem; }
+  .promo-countdown__unit { gap: 0.25rem; }
+  .promo-countdown__num { font-size: 1.35rem; }
+  .promo-countdown__label { font-size: 0.65rem; letter-spacing: 0.03em; }
+  .promo-band__foot { margin-top: 0; }
+  .promo-hero__timing { margin-right: 0; width: 100%; }
+  .promo-steps { grid-template-columns: 1fr; }
+  .promo-callout { padding: 0.85rem 1rem; gap: 0.5rem; }
+}

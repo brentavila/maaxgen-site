@@ -1,6 +1,12 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { LEAD_WEBHOOK_URL } from "../lib/leads";
+import PromoNote from "../components/promo/PromoNote.astro";
+import "../styles/founder.css";
+import FounderImage from "../components/founder/FounderImage.astro";
+import { getFounderImage } from "../components/founder/founder-assets";
+
+const founderPhone = getFounderImage("founder-phone");
 
 const WEBHOOK_URL = LEAD_WEBHOOK_URL;
 
@@ -26,8 +32,22 @@ const SMS_TRANSACTIONAL_CONSENT =
           <li><span>03</span><div><strong>You get a clear next step</strong><small>A fit recommendation, useful direction, or an honest no.</small></div></li>
         </ol>
         <p class="contact-stage__note">Typical response: within one business day.</p>
+        {founderPhone && (
+        <figure class="founder-contact">
+          <div class="founder-photo founder-contact__photo">
+            <FounderImage
+              src={founderPhone}
+              alt="Brent Avila, founder of MaaxGen, replying to a message on his phone"
+              widths={[176, 264]}
+              sizes="5.5rem"
+              position="48% 18%"
+            />
+          </div>
+          <figcaption>Your message comes to Brent, not a ticket queue.</figcaption>
+        </figure>
+        )}
         <p class="contact-stage__grader-link">
-          Not sure where the friction is? <a href="/ad-account-grader">Grade your ads first</a>.
+          Not sure where the friction is? <a href="/ad-account-grader/">Grade your ads first</a>.
         </p>
       </div>
 
@@ -112,13 +132,14 @@ const SMS_TRANSACTIONAL_CONSENT =
             </label>
           </fieldset>
 
+          <PromoNote />
           <button type="submit" class="btn btn--primary phase-contact-form__submit">
             Send the context <span aria-hidden="true">→</span>
           </button>
           <p class="form-status" id="form-status" role="alert" hidden></p>
           <p class="form-legal">
-            By submitting this form you agree to our <a href="/privacy">Privacy Policy</a> and
-            <a href="/terms">Terms &amp; Conditions</a>. Mobile information and SMS consent are
+            By submitting this form you agree to our <a href="/privacy/">Privacy Policy</a> and
+            <a href="/terms/">Terms &amp; Conditions</a>. Mobile information and SMS consent are
             never shared or sold to third parties for marketing.
           </p>
         </form>
@@ -127,7 +148,7 @@ const SMS_TRANSACTIONAL_CONSENT =
           <span aria-hidden="true">✓</span>
           <h2>We have your message.</h2>
           <p>We will review the context and follow up with a useful next step or booking link.</p>
-          <a class="btn btn--secondary" href="/services">Explore the growth system</a>
+          <a class="btn btn--secondary" href="/services/">Explore the growth system</a>
         </div>
       </div>
     </div>
@@ -216,6 +237,11 @@ const SMS_TRANSACTIONAL_CONSENT =
             ? window.__maaxgenInterestedServices()
             : [];
 
+        const promo =
+          typeof window.__maaxgenPromoAttribution === "function"
+            ? window.__maaxgenPromoAttribution()
+            : { promoId: "", promoName: "" };
+
         const payload = {
           name: data.get("name"),
           email: data.get("email"),
@@ -239,6 +265,8 @@ const SMS_TRANSACTIONAL_CONSENT =
           pageUrl: window.location.href,
           interestedServices: interested.map(function (s) { return { id: s.id, name: s.name }; }),
           interestedServicesText: interested.map(function (s) { return s.name; }).join(", "),
+          promoId: promo.promoId,
+          promoName: promo.promoName,
         };
 
         statusEl.hidden = true;
@@ -274,6 +302,14 @@ const SMS_TRANSACTIONAL_CONSENT =
         }
       });
     }
+  </script>
+
+  <script>
+    // Promotion attribution (empty strings unless the promotion is live on the visitor's clock).
+    import { getPromoAttribution, initPromo } from "../components/promo/promo-client";
+    initPromo();
+    (window as unknown as { __maaxgenPromoAttribution: typeof getPromoAttribution }).__maaxgenPromoAttribution =
+      getPromoAttribution;
   </script>
 
   <script>
@@ -319,6 +355,13 @@ const SMS_TRANSACTIONAL_CONSENT =
 </BaseLayout>
 
 <style>
+  .founder-contact figcaption {
+    color: oklch(0.8 0.02 245);
+  }
+  .founder-contact :global(.founder-photo) {
+    border-color: oklch(0.75 0.025 245 / 0.3);
+    box-shadow: 0 0.75rem 2rem -0.75rem oklch(0.05 0.03 245 / 0.5);
+  }
   .contact-interest {
     margin-bottom: 1.25rem;
     padding: 0.9rem 1rem 1rem;

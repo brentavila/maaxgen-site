@@ -1,0 +1,41 @@
+---
+/** checklist: one sheet, groups in columns, each item with a drawn tick box. */
+import type { ChecklistBlock } from "../../../data/industries";
+import BlockShell from "./BlockShell.astro";
+
+interface Props {
+  block: ChecklistBlock;
+}
+const { block } = Astro.props;
+const count = block.groups.reduce((n, g) => n + g.items.length, 0);
+---
+
+<BlockShell {...block}>
+  <div class="ind-check" data-reveal>
+    <p class="ind-check__head" aria-hidden="true">
+      <span>Checklist</span>
+      <span>{block.groups.length} groups · {count} items</span>
+    </p>
+    <div class={`ind-check__groups ind-check__groups--n${block.groups.length}`}>
+      {block.groups.map((group, g) => (
+        <div class="ind-check__group">
+          <h3 class="ind-check__title">
+            <span class="ind-check__idx" aria-hidden="true">{String.fromCharCode(65 + g)}</span>
+            {group.title}
+          </h3>
+          <ul class="ind-check__items">
+            {group.items.map((item) => (
+              <li>
+                <svg class="ind-check__box" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <rect x="1.5" y="1.5" width="17" height="17" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+                  <path d="m5.8 10.3 2.9 2.8 5.6-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</BlockShell>

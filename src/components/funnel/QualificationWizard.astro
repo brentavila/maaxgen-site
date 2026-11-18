@@ -46,7 +46,7 @@ const resultsPath = FUNNEL_ROUTES.results;
   const root = document.querySelector<HTMLElement>("[data-qualify-wizard]");
   if (root) {
     const steps = JSON.parse(root.dataset.steps || "[]") as QuestionStep[];
-    const resultsPath = root.dataset.resultsPath || "/growth-system/results";
+    const resultsPath = root.dataset.resultsPath || "/growth-system/results/";
     const panel = root.querySelector<HTMLElement>("[data-step-panel]")!;
     const meta = root.querySelector<HTMLElement>("[data-step-meta]")!;
     const progressBar = root.querySelector<HTMLElement>("[data-progress-bar]")!;

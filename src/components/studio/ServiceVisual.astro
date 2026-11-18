@@ -13,9 +13,11 @@
 interface Props {
   id: string;
   uid?: string;
+  /** google-ads only: replaces the typed search text (max 24 characters). */
+  query?: string;
 }
 
-const { id, uid } = Astro.props;
+const { id, uid, query } = Astro.props;
 
 const TINTS: Record<string, "blue" | "sand" | "sage" | "paper" | "dark"> = {
   "google-ads": "blue",
@@ -53,6 +55,20 @@ const audioBars = Array.from({ length: 87 }, (_, i) => {
 });
 const rulerTicks = Array.from({ length: 27 }, (_, i) => ({ x: 30 + i * 10, tall: i % 5 === 0 }));
 
+/* google-ads search text. The default keeps the original geometry and keyframes; a custom
+   query gets its own width (≈6.15 units per character) and a per-instance typing keyframe. */
+const gaQuery = String(query ?? "").replace(/\s+/g, " ").trim().slice(0, 24).trim();
+const gaCustom = id === "google-ads" && gaQuery !== "" && gaQuery !== "plumber near me";
+const gaText = gaCustom ? gaQuery : "plumber near me";
+const gaLen = gaCustom ? Math.max(1, Math.round(gaQuery.length * 6.15)) : 92;
+const gaKf = `sv-ga-cover-${idKey}-${u}`;
+const gaCss = gaCustom
+  ? `.sv .ga-cover.${gaKf}{transform:translateX(${gaLen + 2}px);animation-name:${gaKf}}` +
+    `@keyframes ${gaKf}{0%,6%{transform:translateX(${gaLen + 2}px);animation-timing-function:cubic-bezier(0.5,0,0.75,0)}` +
+    `12%{transform:translateX(0)}16%{transform:translateX(0);animation-timing-function:steps(${gaQuery.length},end)}` +
+    `42%,100%{transform:translateX(${gaLen + 2}px)}}`
+  : "";
+
 const heart =
   "M0 4.2 C-4.8 0.8 -6 -1.2 -6 -2.8 C-6 -4.6 -4.6 -6 -3 -6 C-1.6 -6 -0.6 -5.2 0 -4.2 C0.6 -5.2 1.6 -6 3 -6 C4.6 -6 6 -4.6 6 -2.8 C6 -1.2 4.8 0.8 0 4.2 Z";
 const star =
@@ -85,11 +101,23 @@ const star =
         <rect x="28" y="40" width="264" height="36" rx="18" class="fc" filter={sh} />
         <circle cx="48" cy="58" r="5.5" class="sm" stroke-width="1.6" />
         <path d="M52.2 62.2 L56.4 66.4" class="sm" stroke-width="1.6" stroke-linecap="round" />
-        <text x="64" y="62" class="tx fi" font-size="11.5" font-weight="600" textLength="92" lengthAdjust="spacingAndGlyphs">plumber near me</text>
-        <g class="a ga-cover">
-          <rect x="63" y="46" width="122" height="24" class="fc" />
-          <rect x="64" y="51.5" width="1.5" height="13" rx="0.75" class="fi a ga-caret" />
-        </g>
+        <text x="64" y="62" class="tx fi" font-size="11.5" font-weight="600" textLength={gaLen} lengthAdjust="spacingAndGlyphs">{gaText}</text>
+        {!gaCustom && (
+          <g class="a ga-cover">
+            <rect x="63" y="46" width="122" height="24" class="fc" />
+            <rect x="64" y="51.5" width="1.5" height="13" rx="0.75" class="fi a ga-caret" />
+          </g>
+        )}
+        {gaCustom && (
+          <g clip-path={url("gq")}>
+            <style is:inline set:html={gaCss} />
+            <clipPath id={ref("gq")}><rect x="28" y="40" width="264" height="36" rx="18" /></clipPath>
+            <g class={`a ga-cover ${gaKf}`}>
+              <rect x="63" y="46" width={gaLen + 30} height="24" class="fc" />
+              <rect x="64" y="51.5" width="1.5" height="13" rx="0.75" class="fi a ga-caret" />
+            </g>
+          </g>
+        )}
 
         <rect x="28" y="88" width="264" height="176" rx="14" class="fc" filter={sh} />
         <g class="a ga-row">

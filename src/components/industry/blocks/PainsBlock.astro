@@ -1,0 +1,29 @@
+---
+/** pains: a ledger of where the business leaks, each row ending in what it costs. */
+import type { PainsBlock } from "../../../data/industries";
+import BlockShell from "./BlockShell.astro";
+
+interface Props {
+  block: PainsBlock;
+}
+const { block } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, "0");
+---
+
+<BlockShell {...block}>
+  <ul class="ind-pains" role="list">
+    {block.items.map((item, i) => (
+      <li class="ind-pain" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+        <span class="ind-pain__num" aria-hidden="true">{pad(i + 1)}</span>
+        <div class="ind-pain__what">
+          <h3 class="ind-pain__title">{item.title}</h3>
+          <p class="ind-pain__body">{item.body}</p>
+        </div>
+        <p class="ind-pain__cost">
+          <span class="ind-pain__cost-label">What it costs</span>
+          {item.cost}
+        </p>
+      </li>
+    ))}
+  </ul>
+</BlockShell>

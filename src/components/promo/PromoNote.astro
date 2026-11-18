@@ -1,0 +1,11 @@
+---
+import "../../styles/promo.css";
+import { PROMO, isPromoActive } from "../../data/promo";
+
+const active = isPromoActive(new Date());
+---
+<p
+  class="promo-note"
+  data-promo-when="active"
+  {...(!active ? { "data-promo-build-off": "" } : {})}
+>{PROMO.copy.note}</p>

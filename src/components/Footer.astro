@@ -1,9 +1,12 @@
 ﻿---
+import { industries } from "../data/industries";
+
 interface Props {
   landing?: boolean;
 }
 
 const { landing = false } = Astro.props;
+const industryList = industries;
 const year = new Date().getFullYear();
 ---
 <footer class:list={["site-footer", landing && "site-footer--landing"]}>
@@ -24,14 +27,14 @@ const year = new Date().getFullYear();
           </span>
         </a>
         <ul>
-          <li><a href="/privacy">Privacy</a></li>
-          <li><a href="/terms">Terms</a></li>
+          <li><a href="/privacy/">Privacy</a></li>
+          <li><a href="/terms/">Terms</a></li>
         </ul>
         <p class="copyright">&copy; {year} MaaxGen. All rights reserved.</p>
       </div>
     ) : (
       <>
-        <div class="site-footer__grid">
+        <div class:list={["site-footer__grid", industryList.length > 0 && "site-footer__grid--industries"]}>
           <div>
             <a href="/" class="logo" aria-label="MaaxGen home">
               <img
@@ -53,20 +56,32 @@ const year = new Date().getFullYear();
           <div>
             <p class="site-footer__heading">Company</p>
             <ul>
-              <li><a href="/about">About</a></li>
-              <li><a href="/services">Services</a></li>
-              <li><a href="/case-studies">Case studies</a></li>
-              <li><a href="/ad-account-grader">Ad account grader</a></li>
-              <li><a href="/pricing">Engagements</a></li>
-              <li><a href="/contact">Contact</a></li>
+              <li><a href="/about/">About</a></li>
+              <li><a href="/services/">Services</a></li>
+              <li><a href="/case-studies/">Case studies</a></li>
+              <li><a href="/ad-account-grader/">Ad account grader</a></li>
+              <li><a href="/pricing/">Engagements</a></li>
+              <li><a href="/contact/">Contact</a></li>
             </ul>
           </div>
+          {industryList.length > 0 && (
+            <div>
+              <p class="site-footer__heading">Industries</p>
+              <ul>
+                {industryList.map((i) => (
+                  <li><a href={`/industries/${i.slug}/`}>{i.shortName}</a></li>
+                ))}
+                <li><a href="/industries/">All industries</a></li>
+              </ul>
+            </div>
+          )}
+
           <div>
             <p class="site-footer__heading">Legal</p>
             <ul>
-              <li><a href="/privacy">Privacy</a></li>
-              <li><a href="/terms">Terms</a></li>
-              <li><a href="/blog">Blog</a></li>
+              <li><a href="/privacy/">Privacy</a></li>
+              <li><a href="/terms/">Terms</a></li>
+              <li><a href="/blog/">Blog</a></li>
             </ul>
           </div>
         </div>

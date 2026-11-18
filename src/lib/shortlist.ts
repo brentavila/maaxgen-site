@@ -105,6 +105,38 @@ export function toggleService(id: string): boolean {
   return true;
 }
 
+/**
+ * Add several services in one write (for example every service an industry play draws on).
+ * Unknown and already-shortlisted ids are skipped. Pushes the same per-service
+ * `service_shortlist_add` event as addService for each id actually added.
+ */
+export function addServices(ids: string[]): void {
+  const current = read();
+  const added: string[] = [];
+  for (const id of ids) {
+    if (serviceById(id) && !current.includes(id) && !added.includes(id)) added.push(id);
+  }
+  if (!added.length) return;
+  write(current.concat(added));
+  added.forEach((id, i) => track("service_shortlist_add", id, current.length + i + 1));
+}
+
+/** Remove several services in one write; per-service `service_shortlist_remove` events as removeService. */
+export function removeServices(ids: string[]): void {
+  const current = read();
+  const removed = current.filter((id) => ids.includes(id));
+  if (!removed.length) return;
+  const next = current.filter((id) => !ids.includes(id));
+  write(next);
+  removed.forEach((id, i) => track("service_shortlist_remove", id, current.length - i - 1));
+}
+
+/** True when every id (at least one) is on the shortlist. */
+export function hasAllServices(ids: string[]): boolean {
+  const current = read();
+  return ids.length > 0 && ids.every((id) => current.includes(id));
+}
+
 export function clearShortlist(): void {
   if (read().length === 0) return;
   write([]);
@@ -129,7 +161,19 @@ export function onShortlistChange(cb: (ids: string[]) => void): () => void {
 /* ------------------------------------------------------------------ UI */
 
 const HOOKS =
-  "[data-shortlist-toggle],[data-shortlist-count],[data-shortlist-empty],[data-shortlist-filled],[data-shortlist-names],[data-shortlist-chips]";
+  "[data-shortlist-toggle],[data-shortlist-count],[data-shortlist-empty],[data-shortlist-filled],[data-shortlist-names],[data-shortlist-chips],[data-shortlist-add-many]";
+
+/**
+ * `[data-shortlist-add-many="a,b,c"]`: a toggle for a set of services. Pressed (and
+ * `.is-shortlisted`) when every id is shortlisted. A click adds the missing ones; when all
+ * are already there it removes them, unless the element also has `data-shortlist-add-only`.
+ * Supports the same `data-label-add` / `data-label-remove` labels as `[data-shortlist-toggle]`.
+ */
+const parseIds = (el: Element): string[] =>
+  (el.getAttribute("data-shortlist-add-many") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s && serviceById(s));
 
 function renderChips(container: Element, ids: string[]): void {
   container.textContent = "";
@@ -182,6 +226,18 @@ function sync(root: ParentNode, ids: string[]): void {
       else el.setAttribute("aria-label", label);
     }
   });
+  root.querySelectorAll<HTMLElement>("[data-shortlist-add-many]").forEach((el) => {
+    const set = parseIds(el);
+    const on = set.length > 0 && set.every((id) => ids.includes(id));
+    el.classList.toggle("is-shortlisted", on);
+    if (!el.hasAttribute("data-shortlist-add-only")) el.setAttribute("aria-pressed", on ? "true" : "false");
+    const label = el.getAttribute(on ? "data-label-remove" : "data-label-add");
+    if (label !== null) {
+      const target = el.querySelector("[data-shortlist-label]");
+      if (target) target.textContent = label;
+      else el.setAttribute("aria-label", label);
+    }
+  });
   root.querySelectorAll<HTMLElement>("[data-shortlist-count]").forEach((el) => {
     el.textContent = String(count);
   });
@@ -218,6 +274,15 @@ export function initShortlistUI(root: ParentNode = document): void {
 
     document.addEventListener("click", (event) => {
       const origin = event.target as Element | null;
+      const many = origin && origin.closest ? origin.closest<HTMLElement>("[data-shortlist-add-many]") : null;
+      if (many) {
+        const set = parseIds(many);
+        if (!set.length) return;
+        if (many instanceof HTMLAnchorElement) event.preventDefault();
+        if (!many.hasAttribute("data-shortlist-add-only") && hasAllServices(set)) removeServices(set);
+        else addServices(set);
+        return;
+      }
       const el = origin && origin.closest ? origin.closest<HTMLElement>("[data-shortlist-toggle]") : null;
       if (!el) return;
       const id = el.getAttribute("data-shortlist-toggle");

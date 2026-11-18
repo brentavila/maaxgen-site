@@ -1,0 +1,23 @@
+---
+/** flow: an ordered sequence on a rail. Header on the left, steps on the right (desktop). */
+import type { FlowBlock } from "../../../data/industries";
+import BlockShell from "./BlockShell.astro";
+
+interface Props {
+  block: FlowBlock;
+}
+const { block } = Astro.props;
+---
+
+<BlockShell {...block} layout="split">
+  <ol class="ind-flow">
+    {block.steps.map((step, i) => (
+      <li class="ind-step" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+        <span class="ind-step__dot" aria-hidden="true">{i + 1}</span>
+        <p class="ind-step__label">{step.label}</p>
+        <h3 class="ind-step__title">{step.title}</h3>
+        <p class="ind-step__body">{step.body}</p>
+      </li>
+    ))}
+  </ol>
+</BlockShell>

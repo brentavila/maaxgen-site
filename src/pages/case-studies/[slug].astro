@@ -9,7 +9,7 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 const entry = await getEntry("caseStudies", slug!);
-if (!entry) return Astro.redirect("/case-studies");
+if (!entry) return Astro.redirect("/case-studies/");
 
 const { Content } = await render(entry);
 const { data } = entry;
@@ -20,7 +20,7 @@ const industryLabel = data.industry === "local" ? "Local business" : "E-commerce
   <section class="case-detail-hero">
     <div class="container case-detail-hero__grid">
       <div>
-        <a class="case-detail-hero__back" href="/case-studies">← All examples</a>
+        <a class="case-detail-hero__back" href="/case-studies/">← All examples</a>
         <p class="hero-kicker">Illustrative engagement / {industryLabel}</p>
         <h1>{data.title}</h1>
         <p class="lead">{data.summary}</p>
@@ -77,7 +77,7 @@ const industryLabel = data.industry === "local" ? "Local business" : "E-commerce
     <div class="container home-final-cta__inner" data-reveal>
       <p>Your business will have a different starting point.</p>
       <h2>Let’s find the first move that makes the whole system stronger.</h2>
-      <a class="btn btn--primary" href="/contact">Start your conversation <span aria-hidden="true">→</span></a>
+      <a class="btn btn--primary" href="/contact/">Start your conversation <span aria-hidden="true">→</span></a>
     </div>
   </section>
 </BaseLayout>

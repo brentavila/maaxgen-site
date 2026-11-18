@@ -21,6 +21,27 @@ Codex handoff prompt: [CODEX_HANDOFF.md](./CODEX_HANDOFF.md)
   - Shortlist logic: `src/lib/shortlist.ts` (localStorage key `maaxgen-interested-services`)
   - Shortlist pill and plan dialog: `src/components/studio/ShortlistPill.astro`, `src/components/studio/PlanDialog.astro`, mounted in `src/layouts/BaseLayout.astro`
   - When testing, never submit the plan or contact form to the live webhook; stub `window.fetch` instead.
+- Promotions (Black Friday / Cyber Monday, promo id `bfcm-2026`):
+  - Config and terms: `src/data/promo.ts`. The window is set by the `PROMO_START` and `PROMO_END` strings at the top of the file (currently 16 November 2026 through the end of 30 November 2026, US Mountain Time).
+  - Terms are exactly three statements: 15-day risk-free trial, no monthly contract, waived setup fee.
+  - Self-expiry: promo elements hide themselves outside the window at build time and again in the browser at view time. No rebuild is needed when it ends.
+  - Surfaces and files:
+    - Top promo bar: `src/components/Header.astro`
+    - Homepage band: `src/components/promo/PromoBand.astro`
+    - Offer page with claim form: `src/pages/black-friday.astro` (`/black-friday`)
+    - Callout: `src/pages/pricing.astro`
+    - One-line note: `src/pages/contact.astro` and `src/components/studio/PlanDialog.astro`
+    - Styles: `src/styles/promo.css`
+  - The claim form posts to the same lead webhook as the contact form with `leadSource: "bfcm-2026"`.
+  - The claim form, contact form, and plan dialog all send `promoId` and `promoName` (empty strings when no promotion is active).
+- Founder photos (Brent Avila):
+  - Currently empty: the photos were pulled for remake. The placements below exist and appear automatically when the named files (see `src/assets/founder/README.md`) are added to `src/assets/founder/`; the video also needs `FOUNDER_DESK_VIDEO_AVAILABLE` in `founder-assets.ts`.
+  - Rendered through Astro's image pipeline by `src/components/founder/FounderImage.astro`. Styles: `src/styles/founder.css`.
+  - Exactly five placements:
+    - Homepage band: `src/components/founder/FounderBand.astro` (used in `src/pages/index.astro`)
+    - `/about` (`src/pages/about.astro`): hero portrait; a short muted video loop `public/video/founder/founder-desk-broll.mp4` in the story section; a photo beside the final call to action
+    - `/contact` (`src/pages/contact.astro`): one small photo
+  - Rule: do not add founder photos to other pages unless asked.
 
 ## Brand
 

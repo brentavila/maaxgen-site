@@ -1,13 +1,13 @@
 export const META_PIXEL_ID = "1528990838912009";
 
 export const META_VIEW_CONTENT_PAGES: Record<string, string> = {
-  "/pricing": "Engagements",
-  "/services": "Services",
-  "/case-studies": "Case Studies",
-  "/about": "About",
-  "/counseling": "Counseling",
-  "/growth-system": "Growth System VSL",
-  "/ad-account-grader": "Ad Account Grader",
+  "/pricing/": "Engagements",
+  "/services/": "Services",
+  "/case-studies/": "Case Studies",
+  "/about/": "About",
+  "/counseling/": "Counseling",
+  "/growth-system/": "Growth System VSL",
+  "/ad-account-grader/": "Ad Account Grader",
 };
 
 declare global {

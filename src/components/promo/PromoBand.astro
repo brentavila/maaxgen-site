@@ -1,0 +1,49 @@
+---
+import "../../styles/promo.css";
+import { PROMO, isPromoActive, promoDeadlineLine } from "../../data/promo";
+import PromoBenefits from "./PromoBenefits.astro";
+import PromoCountdown from "./PromoCountdown.astro";
+
+interface Props {
+  /** Button target. Defaults to the offer page's claim form. */
+  href?: string;
+  /** Button label. Defaults to PROMO.cta.claim. */
+  label?: string;
+  /** data-promo-placement for promo_cta_click. */
+  placement?: string;
+}
+const { href = "/black-friday/#claim", label = PROMO.cta.claim, placement = "home_band" } = Astro.props;
+const active = isPromoActive(new Date());
+---
+<section
+  class="promo-band-section"
+  aria-labelledby="promo-band-title"
+  data-promo-when="active"
+  {...(!active ? { "data-promo-build-off": "" } : {})}
+>
+  <div class="container">
+    <div class="promo promo-band" data-reveal>
+      <div class="promo-band__head">
+        <div>
+          <p class="promo-label">{PROMO.name}</p>
+          <h2 class="promo-band__title" id="promo-band-title">{PROMO.copy.headline}</h2>
+        </div>
+        <a
+          class="btn btn--primary"
+          href={href}
+          data-promo-cta
+          data-promo-placement={placement}
+        >{label} <span aria-hidden="true">→</span></a>
+      </div>
+      <PromoBenefits />
+      <div class="promo-band__foot">
+        <p class="promo-deadline">{promoDeadlineLine()}</p>
+        <PromoCountdown />
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  import { initPromo } from "./promo-client";
+  initPromo();
+</script>
