@@ -1,31 +1,19 @@
+import { track } from "../lib/tracking";
 import { hasEventFired, markEventFired } from "./state";
+import { trackBookingOnce } from "./booking";
 import type { FunnelEventName } from "./types";
 
 type EventParams = Record<string, string | number | boolean | undefined | null>;
 
-function hasAnalyticsConsent(): boolean {
-  return Boolean(window.MaaxConsent?.get()?.analytics);
-}
-
-function hasAdvertisingConsent(): boolean {
-  return Boolean(window.MaaxConsent?.get()?.advertising);
-}
-
-function cleanParams(params?: EventParams): Record<string, string | number | boolean> {
-  const out: Record<string, string | number | boolean> = {};
-  if (!params) return out;
-  for (const [key, value] of Object.entries(params)) {
-    if (value === undefined || value === null || value === "") continue;
-    out[key] = value;
-  }
-  return out;
-}
-
 /**
- * Consent-aware funnel tracking.
- * - GA4 / Ads via GTM dataLayer
- * - Meta via trackCustom (and standard Lead where appropriate)
- * Dedupes once-per-session events when onceKey is provided.
+ * Funnel analytics now run through src/lib/tracking (consent, dataLayer, and Meta live there).
+ * Funnel events map onto the tracking contract; the rest are intentionally not sent:
+ *   qualification_started                       -> form_start { form_id: "growth_system" }
+ *   lead_highly_qualified / _potentially_...    -> qualify_lead { qualification, score }
+ *   appointment_booked                          -> book_appointment (see ./booking.ts)
+ * Dropped (no contract event): vsl_*, qualification_step_completed, qualification_completed,
+ * lead_not_qualified, calendar_viewed, calendar_booking_started, nq_resource_requested.
+ * Once-per-session dedupe uses the funnel state (onceKey).
  */
 export function trackFunnelEvent(
   eventName: FunnelEventName | string,
@@ -33,44 +21,29 @@ export function trackFunnelEvent(
   options?: { onceKey?: string; metaStandard?: string }
 ): void {
   const onceKey = options?.onceKey ?? eventName;
-  if (onceKey && hasEventFired(onceKey)) return;
-  if (onceKey) markEventFired(onceKey);
-
-  const payload = {
-    ...cleanParams(params),
-    funnel: "growth-system",
-  };
-
-  if (hasAnalyticsConsent()) {
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: eventName, ...payload });
-  }
-
-  if (hasAdvertisingConsent() && typeof window.fbq === "function") {
-    if (options?.metaStandard) {
-      window.fbq("track", options.metaStandard, payload);
-    } else {
-      window.fbq("trackCustom", eventName, payload);
+  try {
+    switch (eventName) {
+      case "qualification_started":
+        if (onceKey && hasEventFired(onceKey)) return;
+        if (onceKey) markEventFired(onceKey);
+        track("form_start", { form_id: "growth_system" });
+        return;
+      case "lead_highly_qualified":
+      case "lead_potentially_qualified":
+        if (onceKey && hasEventFired(onceKey)) return;
+        if (onceKey) markEventFired(onceKey);
+        track("qualify_lead", {
+          qualification: String(params?.qualification_status ?? ""),
+          score: typeof params?.lead_score === "number" ? params.lead_score : undefined,
+        });
+        return;
+      case "appointment_booked":
+        trackBookingOnce();
+        return;
+      default:
+        return;
     }
-  }
-}
-
-/** Fire again after consent if the user accepts mid-session (page-level helpers use this). */
-export function trackFunnelEventAllowRepeat(
-  eventName: FunnelEventName | string,
-  params?: EventParams
-): void {
-  const payload = {
-    ...cleanParams(params),
-    funnel: "growth-system",
-  };
-
-  if (hasAnalyticsConsent()) {
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: eventName, ...payload });
-  }
-
-  if (hasAdvertisingConsent() && typeof window.fbq === "function") {
-    window.fbq("trackCustom", eventName, payload);
+  } catch {
+    /* analytics never breaks the page */
   }
 }

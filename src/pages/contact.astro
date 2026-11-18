@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { LEAD_WEBHOOK_URL } from "../lib/leads";
+import Honeypot from "../components/forms/Honeypot.astro";
 import PromoNote from "../components/promo/PromoNote.astro";
 import "../styles/founder.css";
 import FounderImage from "../components/founder/FounderImage.astro";
@@ -8,12 +8,6 @@ import { getFounderImage } from "../components/founder/founder-assets";
 
 const founderPhone = getFounderImage("founder-phone");
 
-const WEBHOOK_URL = LEAD_WEBHOOK_URL;
-
-const SMS_MARKETING_CONSENT =
-  "I consent to receive marketing text messages, about special offers, discounts, and service updates, from MaaxGen at the phone number provided. Message frequency may vary. Message & data rates may apply. Text HELP for assistance, reply STOP to opt out.";
-const SMS_TRANSACTIONAL_CONSENT =
-  "I consent to receive non-marketing text messages from MaaxGen about appointment and booking confirmations, replies to my inquiry, and account or service updates. Message frequency may vary. Message & data rates may apply. Text HELP for assistance, reply STOP to opt out.";
 ---
 
 <BaseLayout title="Contact" description="Tell MaaxGen where growth feels disconnected and start a focused strategy conversation.">
@@ -62,7 +56,8 @@ const SMS_TRANSACTIONAL_CONSENT =
           </div>
         </div>
 
-        <form id="contact-form" class="form phase-contact-form" action={WEBHOOK_URL} method="post">
+        <form id="contact-form" class="form phase-contact-form" action="/api/lead" method="post" data-lead-form="contact">
+          <Honeypot />
           <input type="hidden" name="lead-source" value="contact-page" />
           <input type="hidden" name="grader-grade" value="" />
           <input type="hidden" name="grader-score" value="" />
@@ -163,7 +158,11 @@ const SMS_TRANSACTIONAL_CONSENT =
     </div>
   </section>
 
-  <script define:vars={{ WEBHOOK_URL, SMS_MARKETING_CONSENT, SMS_TRANSACTIONAL_CONSENT }}>
+  <script>
+    import { submitLead } from "../lib/tracking";
+    import { splitName, watchLeadForm } from "../lib/lead-form";
+    import { SMS_MARKETING_CONSENT, SMS_TRANSACTIONAL_CONSENT } from "../lib/sms-consent";
+
     const form = document.getElementById("contact-form");
     const successBox = document.getElementById("form-success");
     const statusEl = document.getElementById("form-status");
@@ -224,6 +223,7 @@ const SMS_TRANSACTIONAL_CONSENT =
     }
 
     if (form) {
+      const watch = watchLeadForm(form, "contact");
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
@@ -242,31 +242,28 @@ const SMS_TRANSACTIONAL_CONSENT =
             ? window.__maaxgenPromoAttribution()
             : { promoId: "", promoName: "" };
 
-        const payload = {
-          name: data.get("name"),
-          email: data.get("email"),
-          phone: data.get("phone") || "",
-          businessType: data.get("business-type") || "",
-          message: data.get("message"),
-          leadSource: data.get("lead-source") || "contact-page",
-          adGrader: {
-            grade: data.get("grader-grade") || "",
-            score: data.get("grader-score") || "",
-            industry: data.get("grader-industry") || "",
-            frustration: data.get("grader-frustration") || "",
-          },
-          smsMarketingConsent: marketingConsent,
-          smsTransactionalConsent: transactionalConsent,
-          consentLanguage: {
-            marketing: marketingConsent ? SMS_MARKETING_CONSENT : "",
-            transactional: transactionalConsent ? SMS_TRANSACTIONAL_CONSENT : "",
-          },
-          submittedAt: new Date().toISOString(),
-          pageUrl: window.location.href,
-          interestedServices: interested.map(function (s) { return { id: s.id, name: s.name }; }),
-          interestedServicesText: interested.map(function (s) { return s.name; }).join(", "),
+        const { firstName, lastName } = splitName(String(data.get("name") || ""));
+        const leadSource = String(data.get("lead-source") || "contact-page");
+        const smsConsent = [marketingConsent ? "marketing" : "", transactionalConsent ? "transactional" : ""]
+          .filter(Boolean)
+          .join(",");
+
+        const fields = {
+          message: String(data.get("message") || ""),
+          businessType: String(data.get("business-type") || ""),
+          interestedServices: interested.map(function (s) { return s.name; }).join(","),
+          interestedServiceIds: interested.map(function (s) { return s.id; }).join(","),
           promoId: promo.promoId,
           promoName: promo.promoName,
+          smsConsent: smsConsent,
+          smsMarketingConsent: marketingConsent ? "yes" : "no",
+          smsTransactionalConsent: transactionalConsent ? "yes" : "no",
+          smsMarketingConsentText: marketingConsent ? SMS_MARKETING_CONSENT : "",
+          smsTransactionalConsentText: transactionalConsent ? SMS_TRANSACTIONAL_CONSENT : "",
+          graderGrade: String(data.get("grader-grade") || ""),
+          graderScore: String(data.get("grader-score") || ""),
+          graderIndustry: String(data.get("grader-industry") || ""),
+          graderFrustration: String(data.get("grader-frustration") || ""),
         };
 
         statusEl.hidden = true;
@@ -274,21 +271,20 @@ const SMS_TRANSACTIONAL_CONSENT =
         submitBtn.textContent = "Sending...";
 
         try {
-          await fetch(WEBHOOK_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
+          const res = await submitLead({
+            formId: "contact",
+            leadSource: leadSource,
+            contact: {
+              firstName: firstName,
+              lastName: lastName,
+              email: String(data.get("email") || ""),
+              phone: String(data.get("phone") || ""),
+            },
+            fields: fields,
+            hp: watch.hp(),
+            startedAt: watch.startedAt(),
           });
-
-          if (typeof window.fbq === "function") {
-            window.fbq("track", "Lead", {
-              content_name: "Contact Form",
-              content_category: payload.businessType || "unspecified",
-              value: 1,
-              currency: "USD",
-            });
-          }
+          if (!res.ok) throw new Error(res.error || "Lead not accepted");
 
           form.hidden = true;
           successBox.hidden = false;

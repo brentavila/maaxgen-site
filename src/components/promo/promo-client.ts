@@ -4,12 +4,12 @@
  * - Keeps `html[data-promo="on|off"]` correct against the visitor's clock.
  *   promo.css shows/hides every `[data-promo-when="active|ended"]` element from it.
  * - Fills and updates `[data-promo-countdown]` once a minute.
- * - Tracks `promo_cta_click` for `[data-promo-cta]` links.
+ * - Tracks `view_promotion` (first time a `[data-promo-cta]` is visible) and `select_promotion` (click),
+ *   with creative_slot = its data-promo-placement.
  * - Exposes attribution + tracking helpers for the lead forms.
  */
 import { PROMO, isPromoActive, msUntilPromoEnd } from "../../data/promo";
-
-type DataLayerWindow = Window & { dataLayer?: Record<string, unknown>[] };
+import { track } from "../../lib/tracking";
 
 export const PROMO_REFRESH_EVENT = "maaxgen:promo-refresh"; // dispatch on document to re-check the clock
 export const PROMO_CHANGE_EVENT = "maaxgen:promo-change"; // CustomEvent<{ active: boolean }> on document
@@ -21,16 +21,6 @@ export function promoActiveNow(): boolean {
 /** promoId / promoName for lead payloads: empty strings when the promotion is not active. */
 export function getPromoAttribution(): { promoId: string; promoName: string } {
   return promoActiveNow() ? { promoId: PROMO.id, promoName: PROMO.name } : { promoId: "", promoName: "" };
-}
-
-export function trackPromo(event: string, data: Record<string, unknown> = {}): void {
-  try {
-    const w = window as DataLayerWindow;
-    w.dataLayer = w.dataLayer || [];
-    w.dataLayer.push({ event, promo_id: PROMO.id, ...data });
-  } catch {
-    /* analytics must never break the page */
-  }
 }
 
 let timer: number | undefined;
@@ -85,9 +75,28 @@ export function initPromo(): void {
     const target = event.target as Element | null;
     const el = target && target.closest ? target.closest<HTMLAnchorElement>("[data-promo-cta]") : null;
     if (!el) return;
-    trackPromo("promo_cta_click", {
-      placement: el.getAttribute("data-promo-placement") || "",
-      destination: el.getAttribute("href") || "",
+    track("select_promotion", {
+      promotion_id: PROMO.id,
+      creative_slot: el.getAttribute("data-promo-placement") || "",
     });
   });
+
+  // Impressions: one view_promotion per placement per page view, when it is actually on screen.
+  if ("IntersectionObserver" in window) {
+    const seen = new Set<string>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const slot = entry.target.getAttribute("data-promo-placement") || "";
+          if (!promoActiveNow() || seen.has(slot)) continue;
+          seen.add(slot);
+          io.unobserve(entry.target);
+          track("view_promotion", { promotion_id: PROMO.id, creative_slot: slot });
+        }
+      },
+      { threshold: 0.5 }
+    );
+    document.querySelectorAll("[data-promo-cta][data-promo-placement]").forEach((el) => io.observe(el));
+  }
 }

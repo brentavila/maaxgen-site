@@ -5232,7 +5232,9 @@ p { margin: 0 0 1rem; }
   gap: 0.6rem;
 }
 
-.grader-result-lead input[type="tel"] {
+.grader-result-lead input[type="tel"],
+.grader-result-lead input[type="text"],
+.grader-result-lead input[type="email"] {
   min-width: 0;
   border: 1px solid oklch(0.55 0.03 245);
   border-radius: 0.45rem;
@@ -5242,8 +5244,12 @@ p { margin: 0 0 1rem; }
   font: inherit;
 }
 
-.grader-result-lead input[type="tel"]::placeholder { color: oklch(0.65 0.02 245); }
-.grader-result-lead input[type="tel"]:focus-visible {
+.grader-result-lead input[type="tel"]::placeholder,
+.grader-result-lead input[type="text"]::placeholder,
+.grader-result-lead input[type="email"]::placeholder { color: oklch(0.65 0.02 245); }
+.grader-result-lead input[type="tel"]:focus-visible,
+.grader-result-lead input[type="text"]:focus-visible,
+.grader-result-lead input[type="email"]:focus-visible {
   outline: 2px solid oklch(0.74 0.13 238);
   outline-offset: 2px;
 }

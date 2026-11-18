@@ -1,0 +1,18 @@
+---
+/** Spam trap for lead forms: invisible to people, tempting to bots. submitLead() sends its value as `hp`. */
+---
+
+<div class="hp-field" aria-hidden="true">
+  <label>Leave this field empty <input type="text" name="company_url" tabindex="-1" autocomplete="off" /></label>
+</div>
+
+<style is:global>
+  .hp-field {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+</style>

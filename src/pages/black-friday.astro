@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PromoBenefits from "../components/promo/PromoBenefits.astro";
 import PromoCountdown from "../components/promo/PromoCountdown.astro";
 import "../styles/promo.css";
-import { LEAD_WEBHOOK_URL } from "../lib/leads";
+import Honeypot from "../components/forms/Honeypot.astro";
 import { PROMO, isPromoActive, promoDeadlineLine } from "../data/promo";
 
 const active = isPromoActive(new Date());
@@ -43,6 +43,7 @@ const steps = [
             href="#claim"
             data-promo-cta
             data-promo-placement="page_hero"
+            data-track-cta="bfcm-hero"
           >{PROMO.cta.claim} <span aria-hidden="true">→</span></a>
         </div>
       </div>
@@ -84,7 +85,8 @@ const steps = [
         </div>
 
         <div class="promo-claim__card">
-          <form id="promo-claim-form" class="form" action={LEAD_WEBHOOK_URL} method="post">
+          <form id="promo-claim-form" class="form" action="/api/lead" method="post" data-lead-form="bfcm_claim">
+            <Honeypot />
             <div class="promo-claim__interest" data-shortlist-filled hidden>
               <p>Services you are interested in</p>
               <div class="shortlist-chips" data-shortlist-chips></div>
@@ -173,7 +175,9 @@ const steps = [
   import { getShortlist } from "../lib/shortlist";
   import { serviceById } from "../data/services";
   import { PROMO } from "../data/promo";
-  import { PROMO_CHANGE_EVENT, initPromo, promoActiveNow, trackPromo } from "../components/promo/promo-client";
+  import { PROMO_CHANGE_EVENT, initPromo, promoActiveNow } from "../components/promo/promo-client";
+  import { submitLead } from "../lib/tracking";
+  import { splitName, watchLeadForm } from "../lib/lead-form";
 
   initPromo();
 
@@ -196,7 +200,7 @@ const steps = [
   if (form && success && statusEl) {
     const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
     const SUBMIT_LABEL = submitBtn.innerHTML;
-    const WEBHOOK_URL = form.getAttribute("action") || "";
+    const watch = watchLeadForm(form, "bfcm_claim");
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -210,53 +214,34 @@ const steps = [
         note ||
         `Claiming the ${PROMO.name} offer.${interestedServicesText ? ` Interested in: ${interestedServicesText}.` : ""}`;
 
-      const payload = {
-        name: data.get("name"),
-        email: data.get("email"),
-        phone: "",
-        businessType: data.get("business-type") || "",
-        message,
-        leadSource: PROMO.id,
-        adGrader: { grade: "", score: "", industry: "", frustration: "" },
-        smsMarketingConsent: false,
-        smsTransactionalConsent: false,
-        consentLanguage: { marketing: "", transactional: "" },
-        submittedAt: new Date().toISOString(),
-        pageUrl: window.location.href,
-        interestedServices,
-        interestedServicesText,
-        website: String(data.get("website") || "").trim(),
-        promoId: PROMO.id,
-        promoName: PROMO.name,
-      };
+      const { firstName, lastName } = splitName(String(data.get("name") || ""));
 
       statusEl.hidden = true;
       submitBtn.disabled = true;
       submitBtn.textContent = "Sending...";
 
       try {
-        await fetch(WEBHOOK_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+        const res = await submitLead({
+          formId: "bfcm_claim",
+          leadSource: PROMO.id,
+          contact: {
+            firstName,
+            lastName,
+            email: String(data.get("email") || ""),
+            website: String(data.get("website") || "").trim(),
+          },
+          fields: {
+            message,
+            businessType: String(data.get("business-type") || ""),
+            interestedServices: interestedServices.map((s) => s.name).join(","),
+            interestedServiceIds: ids.join(","),
+            promoId: PROMO.id,
+            promoName: PROMO.name,
+          },
+          hp: watch.hp(),
+          startedAt: watch.startedAt(),
         });
-
-        const w = window as unknown as { fbq?: (...args: unknown[]) => void };
-        if (typeof w.fbq === "function") {
-          w.fbq("track", "Lead", {
-            content_name: "BFCM Offer",
-            content_category: payload.businessType || "unspecified",
-            value: 1,
-            currency: "USD",
-          });
-        }
-        trackPromo("promo_claim_submit", {
-          promo_name: PROMO.name,
-          service_ids: ids,
-          service_count: ids.length,
-          business_type: payload.businessType || "unspecified",
-        });
+        if (!res.ok) throw new Error(res.error || "Lead not accepted");
 
         form.hidden = true;
         success.hidden = false;

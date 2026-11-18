@@ -7,6 +7,7 @@
  * attributes; see `initShortlistUI`.
  */
 import { serviceById, services } from "../data/services";
+import { pageType, track as trackEvent } from "./tracking";
 
 export const SHORTLIST_KEY = "maaxgen-interested-services";
 export const SHORTLIST_EVENT = "maaxgen:shortlist-change"; // CustomEvent<{ ids: string[] }> on document
@@ -56,18 +57,8 @@ function write(ids: string[]): void {
   emit(memory.slice());
 }
 
-function track(event: string, id: string, count: number): void {
-  try {
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event,
-      service_id: id,
-      service_name: serviceById(id)?.name ?? "",
-      shortlist_count: count,
-    });
-  } catch {
-    /* analytics must never break the page */
-  }
+function trackAdd(ids: string[], count: number): void {
+  trackEvent("add_to_shortlist", { service_id: ids.join(","), service_count: count, source: pageType() });
 }
 
 export function getShortlist(): string[] {
@@ -84,7 +75,7 @@ export function addService(id: string): void {
   if (ids.includes(id)) return;
   ids.push(id);
   write(ids);
-  track("service_shortlist_add", id, ids.length);
+  trackAdd([id], ids.length);
 }
 
 export function removeService(id: string): void {
@@ -92,7 +83,6 @@ export function removeService(id: string): void {
   if (!ids.includes(id)) return;
   const next = ids.filter((x) => x !== id);
   write(next);
-  track("service_shortlist_remove", id, next.length);
 }
 
 export function toggleService(id: string): boolean {
@@ -107,8 +97,8 @@ export function toggleService(id: string): boolean {
 
 /**
  * Add several services in one write (for example every service an industry play draws on).
- * Unknown and already-shortlisted ids are skipped. Pushes the same per-service
- * `service_shortlist_add` event as addService for each id actually added.
+ * Unknown and already-shortlisted ids are skipped. Fires one `add_to_shortlist` for the batch
+ * (service_id is the comma-joined ids actually added).
  */
 export function addServices(ids: string[]): void {
   const current = read();
@@ -118,17 +108,16 @@ export function addServices(ids: string[]): void {
   }
   if (!added.length) return;
   write(current.concat(added));
-  added.forEach((id, i) => track("service_shortlist_add", id, current.length + i + 1));
+  trackAdd(added, current.length + added.length);
 }
 
-/** Remove several services in one write; per-service `service_shortlist_remove` events as removeService. */
+/** Remove several services in one write. */
 export function removeServices(ids: string[]): void {
   const current = read();
   const removed = current.filter((id) => ids.includes(id));
   if (!removed.length) return;
   const next = current.filter((id) => !ids.includes(id));
   write(next);
-  removed.forEach((id, i) => track("service_shortlist_remove", id, current.length - i - 1));
 }
 
 /** True when every id (at least one) is on the shortlist. */

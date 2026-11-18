@@ -1,12 +1,12 @@
 ---
 /**
- * The industry page's lead form (#plan). Posts to the same lead webhook as the
- * contact form, with every key the contact form sends plus the industry context.
+ * The industry page's lead form (#plan). Submits through submitLead() (formId "industry"),
+ * with every field the contact form sends plus the industry context.
  * Phone is optional; the SMS consent block and wording match /contact exactly.
  * Field order: qualifier, name, email, phone, one business field, note, services.
  */
 import type { Industry } from "../../data/industries";
-import { LEAD_WEBHOOK_URL } from "../../lib/leads";
+import Honeypot from "../forms/Honeypot.astro";
 import PromoNote from "../promo/PromoNote.astro";
 import FounderImage from "../founder/FounderImage.astro";
 import { getFounderImage, hasFounderImage } from "../founder/founder-assets";
@@ -87,13 +87,15 @@ const siteIsUrl = /url|website|domain/i.test(site.label) && !/name/i.test(site.l
       <form
         id="ind-lead-form"
         class="form ind-lead__form"
-        action={LEAD_WEBHOOK_URL}
+        action="/api/lead"
         method="post"
+        data-lead-form="industry"
         data-industry-form
         data-industry={industry.slug}
         data-industry-name={industry.name}
         data-business-type={form.businessType}
       >
+        <Honeypot />
         <label for="ind-qualifier">{form.qualifier.label}</label>
         <select id="ind-qualifier" name="qualifier" required>
           <option value="">Select one</option>
@@ -216,7 +218,8 @@ const siteIsUrl = /url|website|domain/i.test(site.label) && !/name/i.test(site.l
   import { getShortlist } from "../../lib/shortlist";
   import { serviceById } from "../../data/services";
   import { getPromoAttribution, initPromo } from "../promo/promo-client";
-  import { postLead, pushDataLayer, trackLeadPixel } from "../../lib/lead-submit";
+  import { submitLead } from "../../lib/tracking";
+  import { splitName, watchLeadForm } from "../../lib/lead-form";
   import { SMS_MARKETING_CONSENT, SMS_TRANSACTIONAL_CONSENT } from "../../lib/sms-consent";
 
   initPromo();
@@ -236,7 +239,7 @@ const siteIsUrl = /url|website|domain/i.test(site.label) && !/name/i.test(site.l
   if (form && success && statusEl) {
     const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
     const SUBMIT_LABEL = submitBtn.innerHTML;
-    const WEBHOOK_URL = form.getAttribute("action") || "";
+    const watch = watchLeadForm(form, "industry");
     const slug = form.dataset.industry || "";
     const industryName = form.dataset.industryName || "";
     const businessType = form.dataset.businessType || "";
@@ -260,47 +263,46 @@ const siteIsUrl = /url|website|domain/i.test(site.label) && !/name/i.test(site.l
         `Plan request from the ${industryName} page. Needs most: ${qualifier || "not given"}.` +
           (interestedServicesText ? ` Interested in: ${interestedServicesText}.` : "");
 
-      const payload = {
-        name: data.get("name"),
-        email: data.get("email"),
-        phone: String(data.get("phone") || "").trim(),
-        businessType,
-        message,
-        leadSource: `industry-${slug}`,
-        adGrader: { grade: "", score: "", industry: "", frustration: "" },
-        smsMarketingConsent: marketingConsent,
-        smsTransactionalConsent: transactionalConsent,
-        consentLanguage: {
-          marketing: marketingConsent ? SMS_MARKETING_CONSENT : "",
-          transactional: transactionalConsent ? SMS_TRANSACTIONAL_CONSENT : "",
-        },
-        submittedAt: new Date().toISOString(),
-        pageUrl: window.location.href,
-        interestedServices,
-        interestedServicesText,
-        ...getPromoAttribution(),
-        industry: slug,
-        industryName,
-        qualifier,
-        business,
-        businessName: businessIsSite ? "" : business,
-        website: businessIsSite ? business : "",
-      };
+      const { firstName, lastName } = splitName(String(data.get("name") || ""));
 
       statusEl.hidden = true;
       submitBtn.disabled = true;
       submitBtn.textContent = "Sending...";
 
       try {
-        await postLead(WEBHOOK_URL, payload);
-        trackLeadPixel(`Industry: ${industryName}`, businessType);
-        pushDataLayer("industry_lead_submit", {
-          industry: slug,
-          service_ids: ids,
-          service_count: ids.length,
-          qualifier,
-          business_type: businessType || "unspecified",
+        const res = await submitLead({
+          formId: "industry",
+          leadSource: `industry-${slug}`,
+          contact: {
+            firstName,
+            lastName,
+            email: String(data.get("email") || ""),
+            phone: String(data.get("phone") || "").trim(),
+            company: businessIsSite ? "" : business,
+            website: businessIsSite ? business : "",
+          },
+          fields: {
+            message,
+            businessType,
+            industry: slug,
+            industryName,
+            qualifier,
+            business,
+            interestedServices: interestedServices.map((s) => s.name).join(","),
+            interestedServiceIds: ids.join(","),
+            ...getPromoAttribution(),
+            smsConsent: [marketingConsent ? "marketing" : "", transactionalConsent ? "transactional" : ""]
+              .filter(Boolean)
+              .join(","),
+            smsMarketingConsent: marketingConsent ? "yes" : "no",
+            smsTransactionalConsent: transactionalConsent ? "yes" : "no",
+            smsMarketingConsentText: marketingConsent ? SMS_MARKETING_CONSENT : "",
+            smsTransactionalConsentText: transactionalConsent ? SMS_TRANSACTIONAL_CONSENT : "",
+          },
+          hp: watch.hp(),
+          startedAt: watch.startedAt(),
         });
+        if (!res.ok) throw new Error(res.error || "Lead not accepted");
         form.hidden = true;
         const alt = document.querySelector<HTMLElement>("[data-ind-lead-alt]");
         if (alt) alt.hidden = true;

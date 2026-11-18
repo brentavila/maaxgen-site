@@ -23,3 +23,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 _vendor/
+
+# Vercel adapter output
+.vercel/

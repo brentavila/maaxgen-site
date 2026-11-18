@@ -43,6 +43,12 @@ Codex handoff prompt: [CODEX_HANDOFF.md](./CODEX_HANDOFF.md)
     - `/contact` (`src/pages/contact.astro`): one small photo
   - Rule: do not add founder photos to other pages unless asked.
 
+- Conversion tracking (setup guide: `tracking/SETUP.md`):
+  - Contract (events, CRM keys, lead values): `src/lib/tracking/contract.ts`. Browser API: `submitLead()` and `track()` from `src/lib/tracking`. No component calls `fbq`, `gtag`, or `dataLayer.push` directly.
+  - Every lead form posts to `/api/lead` (`src/pages/api/lead.ts`, the only on-demand route, Vercel adapter), which forwards to `LEAD_WEBHOOK_URL` (GHL/n8n) and Meta CAPI with a shared event id.
+  - The Meta Pixel is hardcoded in `ConsentManager.astro`; GTM (`tracking/gtm/`) handles GA4 and Google Ads only and must contain no Meta tags.
+  - `/api/lead` dry-runs under `astro dev` without `LEAD_WEBHOOK_URL`, or with `TRACKING_DRY_RUN=1`.
+
 ## Brand
 
 MaaxGen — marketing, advertising, and AI agency; bundled services for local and e-commerce SMBs. Light-first theme. No Inter, no purple gradients.
