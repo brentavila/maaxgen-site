@@ -5,6 +5,7 @@
  * [data-plan-open] click or by document.dispatchEvent(new CustomEvent("maaxgen:plan-open")).
  */
 import { LEAD_WEBHOOK_URL } from "../../lib/leads";
+import PromoNote from "../promo/PromoNote.astro";
 ---
 
 <dialog
@@ -63,18 +64,19 @@ import { LEAD_WEBHOOK_URL } from "../../lib/leads";
           maxlength="1000"
           placeholder="Goals, timeline, or what you want off your plate"></textarea>
 
+        <PromoNote />
         <button type="submit" class="btn btn--primary plan-dialog__submit">
           Send my shortlist <span aria-hidden="true">→</span>
         </button>
         <p class="form-status" id="plan-form-status" role="alert" hidden></p>
         <p class="form-legal plan-dialog__legal">
-          By submitting this form you agree to our <a href="/privacy">Privacy Policy</a> and
-          <a href="/terms">Terms &amp; Conditions</a>.
+          By submitting this form you agree to our <a href="/privacy/">Privacy Policy</a> and
+          <a href="/terms/">Terms &amp; Conditions</a>.
         </p>
       </form>
 
       <p class="plan-dialog__alt">
-        Prefer to talk it through? <a href="/contact?source=service-studio">Book a call</a>
+        Prefer to talk it through? <a href="/contact/?source=service-studio">Book a call</a>
       </p>
       </div>
     </div>
@@ -87,7 +89,7 @@ import { LEAD_WEBHOOK_URL } from "../../lib/leads";
         Typical response: within one business day.
       </p>
       <div class="plan-dialog__success-actions">
-        <a class="btn btn--primary" href="/ad-account-grader">Grade my ads while you wait</a>
+        <a class="btn btn--primary" href="/ad-account-grader/">Grade my ads while you wait</a>
         <button type="button" class="btn btn--secondary" data-plan-close>Close</button>
       </div>
     </div>
@@ -97,6 +99,7 @@ import { LEAD_WEBHOOK_URL } from "../../lib/leads";
 <script>
   import { getShortlist } from "../../lib/shortlist";
   import { serviceById } from "../../data/services";
+  import { getPromoAttribution } from "../promo/promo-client";
 
   const dialog = document.getElementById("plan-dialog") as HTMLDialogElement | null;
   const form = document.getElementById("plan-form") as HTMLFormElement | null;
@@ -183,6 +186,7 @@ import { LEAD_WEBHOOK_URL } from "../../lib/leads";
         pageUrl: window.location.href,
         interestedServices,
         interestedServicesText,
+        ...getPromoAttribution(),
       };
 
       statusEl.hidden = true;

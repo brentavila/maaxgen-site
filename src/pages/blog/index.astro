@@ -51,7 +51,7 @@ function formatDate(value: string) {
     <div class="container">
       {featuredPost ? (
         <>
-          <a class="featured-article" href={`/blog/${featuredPost.id}`} data-reveal>
+          <a class="featured-article" href={`/blog/${featuredPost.id}/`} data-reveal>
             <div class="featured-article__visual" aria-hidden="true">
               <span>01</span>
               <div>
@@ -70,7 +70,7 @@ function formatDate(value: string) {
           {remainingPosts.length > 0 && (
             <div class="article-grid">
               {remainingPosts.map((post, index) => (
-                <a href={`/blog/${post.id}`} data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
+                <a href={`/blog/${post.id}/`} data-reveal style={`--reveal-delay: ${index * 0.08}s`}>
                   <p>{post.data.category} / {formatDate(post.data.publishDate)}</p>
                   <h2>{post.data.title}</h2>
                   <span>Read article <i aria-hidden="true">→</i></span>
@@ -107,7 +107,7 @@ function formatDate(value: string) {
     <div class="container home-final-cta__inner" data-reveal>
       <p>Prefer advice tied to your actual business?</p>
       <h2>Bring the context. We’ll help identify what deserves attention first.</h2>
-      <a class="btn btn--primary" href="/contact">Start a conversation <span aria-hidden="true">→</span></a>
+      <a class="btn btn--primary" href="/contact/">Start a conversation <span aria-hidden="true">→</span></a>
     </div>
   </section>
 </BaseLayout>

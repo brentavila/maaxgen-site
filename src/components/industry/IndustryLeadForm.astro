@@ -1,0 +1,317 @@
+---
+/**
+ * The industry page's lead form (#plan). Posts to the same lead webhook as the
+ * contact form, with every key the contact form sends plus the industry context.
+ * Phone is optional; the SMS consent block and wording match /contact exactly.
+ * Field order: qualifier, name, email, phone, one business field, note, services.
+ */
+import type { Industry } from "../../data/industries";
+import { LEAD_WEBHOOK_URL } from "../../lib/leads";
+import PromoNote from "../promo/PromoNote.astro";
+import FounderImage from "../founder/FounderImage.astro";
+import { getFounderImage, hasFounderImage } from "../founder/founder-assets";
+import { isPromoActive, promoDeadlineLine } from "../../data/promo";
+import { inSentence } from "./industry-utils";
+import "../../styles/founder.css";
+
+interface Props {
+  industry: Industry;
+}
+const { industry } = Astro.props;
+const { form } = industry;
+const stackName = `${inSentence(industry.shortName)} stack`;
+const promoActive = isPromoActive(new Date());
+const founderPhone = hasFounderImage("founder-phone") ? getFounderImage("founder-phone") : undefined;
+
+/**
+ * "What happens next", adapted from the approved steps on /contact: what Brent reviews,
+ * and what he looks for leaks in, per trade (taken from each page's own hero and answer).
+ */
+const NEXT: Record<string, { context: string; outcome: string }> = {
+  "garage-door-companies": { context: "ads, calls, and follow-up", outcome: "booked jobs" },
+  "auto-repair-shops": { context: "ads, calls, and follow-up", outcome: "repair work" },
+  "shopify-stores": { context: "ads, feed, site, and follow-up", outcome: "profit" },
+  "used-car-dealerships": { context: "inventory ads, lead handling, and follow-up", outcome: "appointments" },
+  "law-firms": { context: "ads, intake, and follow-up", outcome: "signed matters" },
+  "kitchen-bath-remodelers": { context: "ads, inquiries, and follow-up", outcome: "signed projects" },
+};
+const next = NEXT[industry.slug] ?? { context: "marketing and follow-up", outcome: "business" };
+const steps = [
+  `Brent reviews your ${next.context}`,
+  `He finds where ${next.outcome} ${next.outcome.endsWith("s") ? "are" : "is"} leaking first`,
+  "You get a clear next step, or an honest no.",
+];
+
+/** The one business field: an optional "Business name or website" unless the industry sets its own. */
+const site = form.siteField ?? {
+  label: "Business name or website",
+  placeholder: "Your business or yoursite.com",
+  required: false,
+};
+const siteIsUrl = /url|website|domain/i.test(site.label) && !/name/i.test(site.label);
+---
+
+<section id="plan" class="ind-lead" aria-labelledby="plan-title">
+  <div class="container ind-lead__grid">
+    <div class="ind-lead__copy" data-reveal>
+      <p class="ind-eyebrow">Your plan</p>
+      <h2 class="ind-lead__title" id="plan-title">{form.heading}</h2>
+      <p class="ind-lead__intro">{form.intro}</p>
+      <ol class="ind-lead__steps">
+        {steps.map((step, i) => (
+          <li><span aria-hidden="true">{String(i + 1).padStart(2, "0")}</span> {step}</li>
+        ))}
+      </ol>
+      {founderPhone ? (
+        <figure class="founder-contact ind-lead__brent">
+          <div class="founder-photo founder-contact__photo">
+            <FounderImage
+              src={founderPhone}
+              alt="Brent Avila, founder of MaaxGen, replying to a message on his phone"
+              widths={[176, 264]}
+              sizes="5.5rem"
+              position="48% 18%"
+            />
+          </div>
+          <figcaption>Your request comes to Brent, not a ticket queue.</figcaption>
+        </figure>
+      ) : (
+        <p class="ind-lead__promise">
+          <span aria-hidden="true"></span>
+          Your request comes to Brent, not a ticket queue.
+        </p>
+      )}
+    </div>
+
+    <div class="ind-lead__card">
+      <form
+        id="ind-lead-form"
+        class="form ind-lead__form"
+        action={LEAD_WEBHOOK_URL}
+        method="post"
+        data-industry-form
+        data-industry={industry.slug}
+        data-industry-name={industry.name}
+        data-business-type={form.businessType}
+      >
+        <label for="ind-qualifier">{form.qualifier.label}</label>
+        <select id="ind-qualifier" name="qualifier" required>
+          <option value="">Select one</option>
+          {form.qualifier.options.map((option) => <option value={option}>{option}</option>)}
+        </select>
+        <div class="field-grid">
+          <div>
+            <label for="ind-name">Name</label>
+            <input id="ind-name" name="name" type="text" required autocomplete="name" />
+          </div>
+          <div>
+            <label for="ind-email">Email</label>
+            <input id="ind-email" name="email" type="email" required autocomplete="email" />
+          </div>
+        </div>
+        <label for="ind-phone">Phone <span class="field-optional">(optional, if you would rather talk)</span></label>
+        <input id="ind-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" />
+        <label for="ind-business">
+          {site.label}
+          {!site.required && <span class="field-optional">(optional)</span>}
+        </label>
+        <input
+          id="ind-business"
+          name="business"
+          type="text"
+          required={site.required}
+          autocomplete={siteIsUrl ? "url" : "organization"}
+          inputmode={siteIsUrl ? "url" : undefined}
+          placeholder={site.placeholder}
+        />
+        <label for="ind-note">Anything we should know? <span class="field-optional">(optional)</span></label>
+        <textarea
+          id="ind-note"
+          name="message"
+          rows="3"
+          maxlength="1000"
+          placeholder={form.notePlaceholder}
+          aria-describedby={form.noteHint ? "ind-note-hint" : undefined}></textarea>
+        {form.noteHint && <p class="ind-lead__hint" id="ind-note-hint">{form.noteHint}</p>}
+
+        <div class="ind-lead__picks">
+          <p class="ind-lead__picks-title">Services <span class="field-optional">(optional)</span></p>
+          <div data-shortlist-filled hidden>
+            <div class="shortlist-chips" data-shortlist-chips></div>
+          </div>
+          <div class="ind-lead__empty" data-shortlist-empty>
+            <button
+              type="button"
+              class="ind-lead__stack"
+              data-shortlist-add-many={industry.recommendedServices.join(",")}
+              data-shortlist-add-only
+              data-ind-stack-add
+            >
+              <span aria-hidden="true">+</span> Add the {stackName}
+            </button>
+          </div>
+        </div>
+
+        <fieldset class="consent phase-consent">
+          <legend>Text message preferences <span class="field-optional">(optional)</span></legend>
+          <p class="consent__intro">
+            Your phone number and both choices below are optional. You can contact us without
+            agreeing to text messages.
+          </p>
+          <label class="consent__item">
+            <input type="checkbox" name="sms-marketing" value="yes" />
+            <span>
+              I consent to receive marketing text messages, about special offers, discounts, and
+              service updates, from MaaxGen at the phone number provided. Message frequency may
+              vary. Message &amp; data rates may apply. Text HELP for assistance, reply STOP to
+              opt out.
+            </span>
+          </label>
+          <label class="consent__item">
+            <input type="checkbox" name="sms-transactional" value="yes" />
+            <span>
+              I consent to receive non-marketing text messages from MaaxGen about appointment and
+              booking confirmations, replies to my inquiry, and account or service updates.
+              Message frequency may vary. Message &amp; data rates may apply. Text HELP for
+              assistance, reply STOP to opt out.
+            </span>
+          </label>
+        </fieldset>
+
+        <PromoNote />
+        <p
+          class="promo-note ind-lead__deadline"
+          data-promo-when="active"
+          {...(!promoActive ? { "data-promo-build-off": "" } : {})}
+        >{promoDeadlineLine()}.</p>
+        <button type="submit" class="btn btn--primary ind-lead__submit">
+          {form.submitLabel} <span aria-hidden="true">→</span>
+        </button>
+        <p class="ind-lead__micro">A person replies within one business day. Nothing is booked until you choose to.</p>
+        <p class="form-status" id="ind-lead-status" role="alert" hidden></p>
+        <p class="form-legal">
+          By submitting this form you agree to our <a href="/privacy/">Privacy Policy</a> and
+          <a href="/terms/">Terms &amp; Conditions</a>. Mobile information and SMS consent are
+          never shared or sold to third parties for marketing.
+        </p>
+      </form>
+      <p class="ind-lead__alt" data-ind-lead-alt>
+        Want a quick read first? <a href="/ad-account-grader/">Grade your ads first</a>, a free two-minute diagnostic.
+      </p>
+
+      <div class="ind-lead__success" id="ind-lead-success" role="status" tabindex="-1" hidden>
+        <span class="ind-lead__tick" aria-hidden="true">✓</span>
+        <h3 class="ind-lead__success-title">We have your request.</h3>
+        <p>
+          A person will review your business and what you need most, and reply with where we would
+          start. Typical response: within one business day.
+        </p>
+        <a class="btn btn--secondary" href="/ad-account-grader/">Grade my ads while you wait</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { getShortlist } from "../../lib/shortlist";
+  import { serviceById } from "../../data/services";
+  import { getPromoAttribution, initPromo } from "../promo/promo-client";
+  import { postLead, pushDataLayer, trackLeadPixel } from "../../lib/lead-submit";
+  import { SMS_MARKETING_CONSENT, SMS_TRANSACTIONAL_CONSENT } from "../../lib/sms-consent";
+
+  initPromo();
+
+  const form = document.querySelector<HTMLFormElement>("[data-industry-form]");
+  const success = document.getElementById("ind-lead-success");
+  const statusEl = document.getElementById("ind-lead-status");
+
+  // "Add the stack" in the empty state hides itself once the shortlist fills; keep focus in the form.
+  document.querySelector("[data-ind-stack-add]")?.addEventListener("click", () => {
+    window.setTimeout(() => {
+      const chip = form?.querySelector<HTMLElement>("[data-shortlist-chip]");
+      (chip ?? form?.querySelector<HTMLElement>("input"))?.focus();
+    }, 0);
+  });
+
+  if (form && success && statusEl) {
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const SUBMIT_LABEL = submitBtn.innerHTML;
+    const WEBHOOK_URL = form.getAttribute("action") || "";
+    const slug = form.dataset.industry || "";
+    const industryName = form.dataset.industryName || "";
+    const businessType = form.dataset.businessType || "";
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const data = new FormData(form);
+      const ids = getShortlist();
+      const interestedServices = ids.map((id) => ({ id, name: serviceById(id)?.name ?? id }));
+      const interestedServicesText = interestedServices.map((s) => s.name).join(", ");
+      const marketingConsent = data.get("sms-marketing") === "yes";
+      const transactionalConsent = data.get("sms-transactional") === "yes";
+      const qualifier = String(data.get("qualifier") || "");
+      const note = String(data.get("message") || "").trim();
+      // One business field. Both CRM keys stay present: a URL or domain goes to website, anything else to businessName.
+      const business = String(data.get("business") || "").trim();
+      const businessIsSite = /^(https?:\/\/)?(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(business);
+      const message =
+        note ||
+        `Plan request from the ${industryName} page. Needs most: ${qualifier || "not given"}.` +
+          (interestedServicesText ? ` Interested in: ${interestedServicesText}.` : "");
+
+      const payload = {
+        name: data.get("name"),
+        email: data.get("email"),
+        phone: String(data.get("phone") || "").trim(),
+        businessType,
+        message,
+        leadSource: `industry-${slug}`,
+        adGrader: { grade: "", score: "", industry: "", frustration: "" },
+        smsMarketingConsent: marketingConsent,
+        smsTransactionalConsent: transactionalConsent,
+        consentLanguage: {
+          marketing: marketingConsent ? SMS_MARKETING_CONSENT : "",
+          transactional: transactionalConsent ? SMS_TRANSACTIONAL_CONSENT : "",
+        },
+        submittedAt: new Date().toISOString(),
+        pageUrl: window.location.href,
+        interestedServices,
+        interestedServicesText,
+        ...getPromoAttribution(),
+        industry: slug,
+        industryName,
+        qualifier,
+        business,
+        businessName: businessIsSite ? "" : business,
+        website: businessIsSite ? business : "",
+      };
+
+      statusEl.hidden = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending...";
+
+      try {
+        await postLead(WEBHOOK_URL, payload);
+        trackLeadPixel(`Industry: ${industryName}`, businessType);
+        pushDataLayer("industry_lead_submit", {
+          industry: slug,
+          service_ids: ids,
+          service_count: ids.length,
+          qualifier,
+          business_type: businessType || "unspecified",
+        });
+        form.hidden = true;
+        const alt = document.querySelector<HTMLElement>("[data-ind-lead-alt]");
+        if (alt) alt.hidden = true;
+        success.hidden = false;
+        success.focus();
+      } catch {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = SUBMIT_LABEL;
+        statusEl.hidden = false;
+        statusEl.textContent = "Sorry, something went wrong sending your request. Please try again.";
+      }
+    });
+  }
+</script>

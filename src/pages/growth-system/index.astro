@@ -147,10 +147,10 @@ const qualifyHref = FUNNEL_ROUTES.qualify;
   <script>
     import { trackFunnelEvent } from "../../funnel/track";
 
-    trackFunnelEvent("vsl_page_view", { page_path: "/growth-system" });
+    trackFunnelEvent("vsl_page_view", { page_path: "/growth-system/" });
 
     window.addEventListener("maaxgen:consent", () => {
-      trackFunnelEvent("vsl_page_view", { page_path: "/growth-system" });
+      trackFunnelEvent("vsl_page_view", { page_path: "/growth-system/" });
     });
   </script>
 </BaseLayout>

@@ -28,6 +28,8 @@ Professional, modern, and growth-oriented. Confident without hype. Plain languag
 - Trust and clarity over flashy effects
 - Case studies show real outcomes and scope (marketing + ads + AI), not vanity metrics
 - The shortlist is a lead path; service copy must not contain fees, invented numbers, guarantees, or client names
+- Promotion copy states only the owner's confirmed terms. Never invent prices, refund mechanics, eligibility rules, or scarcity; say specifics are confirmed on the call
+- Founder photos are used sparingly (five placements across home, about, contact; currently empty and appear automatically when the named files are added to `src/assets/founder/`) to humanize the business, not on every page
 
 ## Site map (v1)
 
@@ -38,6 +40,7 @@ Professional, modern, and growth-oriented. Confident without hype. Plain languag
 | `/case-studies` | Proof — index of client stories |
 | `/case-studies/[slug]` | Individual case study detail |
 | `/pricing` | Engagement levels and scope comparison (legacy URL; no public fees) |
+| `/black-friday` | Black Friday and Cyber Monday offer page with claim form; shows an ended state outside the promotion window |
 | `/ad-account-grader` | Free diagnostic, immediate result, optional review request |
 | `/contact` | Lead capture |
 | `/blog` | Articles (SEO, authority) |

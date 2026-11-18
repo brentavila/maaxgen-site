@@ -1,0 +1,116 @@
+---
+/**
+ * Industry pages only. Two things that keep leads on the page's own form (#plan):
+ *
+ * 1. A bottom pill for phones (below 40rem): it appears once the hero has scrolled out
+ *    of view, hides while #plan or an inline call-to-action row is on screen, and shows the shortlist count when there
+ *    is one. On these pages, at that size, it replaces the site-wide shortlist pill.
+ * 2. Every [data-plan-open] click (the floating "Your shortlist" pill on wider screens)
+ *    scrolls to #plan and focuses its first field instead of opening the plan dialog.
+ *    Intercepted on window in the capture phase, so PlanDialog.astro is untouched and
+ *    keeps its behaviour on every other page.
+ */
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<a class="ind-mcta" href="#plan" data-ind-mcta aria-hidden="true" tabindex="-1">
+  <span class="ind-mcta__label">{label}</span>
+  <span class="ind-mcta__count" data-shortlist-filled hidden>
+    <span data-shortlist-count>0</span><span class="sr-only"> services shortlisted</span>
+  </span>
+  <span class="ind-mcta__arrow" aria-hidden="true">→</span>
+</a>
+
+<script>
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const phone = window.matchMedia("(max-width: 39.99rem)");
+  const plan = document.getElementById("plan");
+
+  function goToPlan(): void {
+    if (!plan) return;
+    plan.scrollIntoView({ behavior: reduced.matches ? "auto" : "smooth", block: "start" });
+    const first = plan.querySelector<HTMLElement>("select, input:not([type='hidden']), textarea");
+    first?.focus({ preventScroll: true });
+  }
+
+  // 1. Shortlist leads stay on this page's form.
+  window.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target as Element | null;
+      const opener = target && target.closest ? target.closest("[data-plan-open]") : null;
+      if (!opener || !plan) return;
+      event.preventDefault();
+      event.stopPropagation();
+      goToPlan();
+    },
+    true
+  );
+
+  // 2. The phone pill.
+  const pill = document.querySelector<HTMLAnchorElement>("[data-ind-mcta]");
+  // "The hero" is the headline block and the deck; the answer below them is already page body.
+  const heroParts = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-studio] .studio-intro, [data-studio] [data-studio-deck]")
+  );
+  const notice = document.getElementById("cookie-notice");
+
+  if (pill && heroParts.length && plan && "IntersectionObserver" in window) {
+    document.documentElement.classList.add("ind-mcta-page");
+    let heroGone = false;
+    let planShowing = false;
+    let inlineShowing = false;
+    const inlineSeen = new Map<Element, boolean>();
+    const heroSeen = new Map<Element, boolean>();
+
+    const update = () => {
+      const on = phone.matches && heroGone && !planShowing && !inlineShowing;
+      pill.classList.toggle("is-visible", on);
+      pill.setAttribute("aria-hidden", on ? "false" : "true");
+      pill.tabIndex = on ? 0 : -1;
+    };
+
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach((e) => heroSeen.set(e.target, e.isIntersecting));
+      heroGone = !Array.from(heroSeen.values()).some(Boolean);
+      update();
+    });
+    heroParts.forEach((el) => heroObserver.observe(el));
+    new IntersectionObserver((entries) => {
+      planShowing = entries.some((e) => e.isIntersecting);
+      update();
+    }).observe(plan);
+    // The inline call-to-action rows carry the same button, so the pill steps aside while one is on screen.
+    const inlineRows = Array.from(document.querySelectorAll<HTMLElement>(".ind-cta"));
+    if (inlineRows.length) {
+      const inlineObserver = new IntersectionObserver((entries) => {
+        entries.forEach((e) => inlineSeen.set(e.target, e.isIntersecting));
+        inlineShowing = Array.from(inlineSeen.values()).some(Boolean);
+        update();
+      });
+      inlineRows.forEach((el) => inlineObserver.observe(el));
+    }
+    phone.addEventListener?.("change", update);
+
+    pill.addEventListener("click", (event) => {
+      event.preventDefault();
+      goToPlan();
+    });
+
+    // Sit above the cookie notice while it is showing (as ShortlistPill.astro does).
+    const lift = () => {
+      const showing = notice && !notice.hidden;
+      const rect = showing ? notice.getBoundingClientRect() : null;
+      const px = rect ? Math.max(0, window.innerHeight - rect.top) : 0;
+      pill.style.setProperty("--ind-mcta-lift", px + "px");
+    };
+    lift();
+    window.addEventListener("resize", lift);
+    window.addEventListener("maaxgen:cookie-notice-show", lift);
+    window.addEventListener("maaxgen:cookie-notice-dismiss", lift);
+    if (notice && "ResizeObserver" in window) new ResizeObserver(lift).observe(notice);
+  }
+</script>

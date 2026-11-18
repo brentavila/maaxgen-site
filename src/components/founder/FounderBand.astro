@@ -1,0 +1,37 @@
+---
+import "../../styles/founder.css";
+import FounderImage from "./FounderImage.astro";
+import { getFounderImage } from "./founder-assets";
+const office = getFounderImage("founder-office");
+---
+{office && (
+<section class="section founder-band" aria-labelledby="founder-band-title">
+  <div class="container founder-band__grid">
+    <div class="founder-photo founder-band__photo">
+      <FounderImage
+        src={office}
+        alt="Brent Avila, founder of MaaxGen, seated at his desk"
+        widths={[480, 720, 960, 1200]}
+        sizes="(min-width: 56rem) 36rem, calc(100vw - 2rem)"
+        position="42% 30%"
+      />
+    </div>
+    <div class="founder-band__copy">
+      <p class="founder-label">Who you work with</p>
+      <h2 id="founder-band-title">MaaxGen is run by a person, not an account queue.</h2>
+      <p>
+        I'm Brent Avila, and I run MaaxGen. If we work together, you will know exactly who is
+        accountable for the plan, the campaigns, and the results conversation: me.
+      </p>
+      <p class="founder-sign">
+        <strong>Brent Avila</strong>
+        <span>Founder, MaaxGen</span>
+      </p>
+      <div class="founder-band__links">
+        <a class="btn btn--primary" href="/contact/">Book a call</a>
+        <a class="founder-textlink" href="/about/">About MaaxGen <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+)}

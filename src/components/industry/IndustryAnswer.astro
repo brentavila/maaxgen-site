@@ -1,0 +1,41 @@
+---
+/**
+ * The direct answer, written to be quoted by search and AI answers: the question
+ * as an h2, the answer as the first paragraph, then the key points.
+ * Rendered inside the hero (IndustryStudio) right after the h1 block, so it comes
+ * before the deck's illustrations in the HTML; CSS places it below the deck and dock.
+ */
+import type { Industry } from "../../data/industries";
+
+interface Props {
+  industry: Industry;
+}
+const { industry } = Astro.props;
+const { answer, updated } = industry;
+const updatedLabel = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "UTC",
+}).format(new Date(`${updated}T00:00:00Z`));
+---
+
+<section id="answer" class="ind-answer" aria-labelledby="answer-title" data-answer>
+  <div class="ind-answer__inner">
+    <div class="ind-answer__main">
+      <p class="ind-eyebrow">The short answer</p>
+      <h2 class="ind-answer__q" id="answer-title">{answer.question}</h2>
+      <p class="ind-answer__a">{answer.answer}</p>
+      <p class="ind-answer__meta">
+        <span>Last reviewed <time datetime={updated}>{updatedLabel}</time></span>
+        <span class="ind-answer__by">Reviewed by Brent Avila, founder</span>
+      </p>
+    </div>
+    <div class="ind-answer__side">
+      <h3 class="ind-answer__points-title">Key points</h3>
+      <ul class="ind-answer__points">
+        {answer.points.map((point) => <li>{point}</li>)}
+      </ul>
+    </div>
+  </div>
+</section>

@@ -4,6 +4,17 @@ import Footer from "../components/Footer.astro";
 import ConsentBanner from "../components/ConsentBanner.astro";
 import ConsentManager from "../components/analytics/ConsentManager.astro";
 import MetaPixelEvents from "../components/analytics/MetaPixelEvents.astro";
+import {
+  SITE_URL,
+  SITE_NAME,
+  SITE_DESCRIPTION,
+  SITE_ORG_DESCRIPTION,
+  SITE_LOGO_PNG_PATH,
+  absoluteUrl,
+  canonicalPath,
+} from "../data/site";
+import { industries } from "../data/industries";
+import { services } from "../data/services";
 import PlanDialog from "../components/studio/PlanDialog.astro";
 import ShortlistPill from "../components/studio/ShortlistPill.astro";
 
@@ -13,18 +24,81 @@ interface Props {
   chrome?: "default" | "landing";
   ctaHref?: string;
   ctaLabel?: string;
+  /** Absolute or site-relative canonical URL. Defaults to the current path on the production origin. */
+  canonical?: string;
+  /** Adds <meta name="robots" content="noindex, follow"> and drops canonical and social tags. */
+  noindex?: boolean;
+  /** Open Graph type. Defaults to "website"; use "article" for posts. */
+  ogType?: string;
+  /** Page-level structured data, one <script type="application/ld+json"> per object. */
+  jsonLd?: object | object[];
 }
 
 const {
   title = "MaaxGen",
   description = "Marketing, advertising, and AI for local and e-commerce businesses.",
   chrome = "default",
-  ctaHref = "/ad-account-grader",
+  ctaHref = "/ad-account-grader/",
   ctaLabel = "Grade my ads",
+  canonical,
+  noindex = false,
+  ogType = "website",
+  jsonLd,
 } = Astro.props;
 
 const landing = chrome === "landing";
 const pageTitle = title === "MaaxGen" ? title : `${title} | MaaxGen`;
+
+// Canonical: absolute, built from the production origin; page URLs end in "/".
+const canonicalUrl = canonical
+  ? new URL(canonical, SITE_URL).toString()
+  : absoluteUrl(canonicalPath(Astro.url.pathname));
+
+// Site-wide entities, referenced by stable @id from page-level data.
+const siteGraph = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: `${SITE_URL}/`,
+      logo: absoluteUrl(SITE_LOGO_PNG_PATH),
+      description: SITE_ORG_DESCRIPTION,
+      founder: {
+        "@type": "Person",
+        "@id": `${SITE_URL}/#founder`,
+        name: "Brent Avila",
+        jobTitle: "Founder",
+        worksFor: { "@id": `${SITE_URL}/#organization` },
+      },
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "sales",
+        url: `${SITE_URL}/contact/`,
+      },
+      knowsAbout: [...industries.map((i) => i.name), ...services.map((s) => s.name)],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: `${SITE_URL}/`,
+      name: SITE_NAME,
+      description: SITE_DESCRIPTION,
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      inLanguage: "en-US",
+    },
+  ],
+};
+const pageLd = jsonLd === undefined ? [] : Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+const ldBlocks = (noindex ? pageLd : [siteGraph, ...pageLd]).map((o) =>
+  JSON.stringify(o)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029")
+);
 ---
 <!doctype html>
 <html lang="en">
@@ -42,6 +116,23 @@ const pageTitle = title === "MaaxGen" ? title : `${title} | MaaxGen`;
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400;1,500&display=swap"
       rel="stylesheet"
     />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    {!noindex && <link rel="canonical" href={canonicalUrl} />}
+    {!noindex && (
+      <>
+        <meta property="og:site_name" content={SITE_NAME} />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:type" content={ogType} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={description} />
+      </>
+    )}
+    {ldBlocks.map((json) => <script type="application/ld+json" set:html={json} />)}
+    <slot name="head" />
     <title>{pageTitle}</title>
     <script is:inline>document.documentElement.classList.add("js");</script>
   </head>

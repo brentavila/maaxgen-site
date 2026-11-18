@@ -9,7 +9,7 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 const entry = await getEntry("blog", slug!);
-if (!entry || entry.data.draft) return Astro.redirect("/blog");
+if (!entry || entry.data.draft) return Astro.redirect("/blog/");
 
 const { Content } = await render(entry);
 
@@ -27,7 +27,7 @@ function formatDate(value: string) {
 
   <section class="article-hero">
     <div class="container article-hero__inner">
-      <a href="/blog">← All field notes</a>
+      <a href="/blog/">← All field notes</a>
       <p class="hero-kicker">{entry.data.category} / {formatDate(entry.data.publishDate)}</p>
       <h1>{entry.data.title}</h1>
       <p class="lead">{entry.data.description}</p>
@@ -43,7 +43,7 @@ function formatDate(value: string) {
         <p>In this field note</p>
         <span>{entry.data.category}</span>
         <small>Written for owners making practical growth decisions.</small>
-        <a href="/contact">Discuss your situation <span aria-hidden="true">→</span></a>
+        <a href="/contact/">Discuss your situation <span aria-hidden="true">→</span></a>
       </aside>
       <article class="prose case-study-body article-body">
         <Content />
@@ -58,8 +58,8 @@ function formatDate(value: string) {
         <h2>Want help applying this to your growth stack?</h2>
       </div>
       <div class="cta-row">
-        <a class="btn btn--primary" href="/contact">Talk through the context</a>
-        <a class="btn btn--secondary" href="/blog">Read more field notes</a>
+        <a class="btn btn--primary" href="/contact/">Talk through the context</a>
+        <a class="btn btn--secondary" href="/blog/">Read more field notes</a>
       </div>
     </div>
   </section>

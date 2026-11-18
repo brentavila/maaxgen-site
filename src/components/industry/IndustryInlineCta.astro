@@ -1,0 +1,22 @@
+---
+/**
+ * A quiet call to action between content blocks: one line that picks up the block
+ * above (from the industry's `ctaLines`) and the hero's primary button. It sits on
+ * the same background as the block above, so it reads as that block's closing line.
+ */
+interface Props {
+  line: string;
+  label: string;
+  tone: "light" | "surface" | "dark";
+}
+const { line, label, tone } = Astro.props;
+---
+
+<aside class={`ind-cta ind-cta--${tone}`} aria-label="Next step">
+  <div class="container">
+    <div class="ind-cta__row">
+      <p class="ind-cta__line">{line}</p>
+      <a class="btn btn--primary ind-cta__btn" href="#plan">{label} <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</aside>

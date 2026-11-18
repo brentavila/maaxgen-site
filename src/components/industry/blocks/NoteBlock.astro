@@ -1,0 +1,16 @@
+---
+/** note: short prose, header left and a readable measure on the right. */
+import type { NoteBlock } from "../../../data/industries";
+import BlockShell from "./BlockShell.astro";
+
+interface Props {
+  block: NoteBlock;
+}
+const { block } = Astro.props;
+---
+
+<BlockShell {...block} layout="split">
+  <div class="ind-note" data-reveal>
+    {block.body.map((para, i) => <p class={i === 0 ? "ind-note__lede" : undefined}>{para}</p>)}
+  </div>
+</BlockShell>

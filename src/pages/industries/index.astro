@@ -1,0 +1,125 @@
+---
+/** /industries/ — the hub: the six industry pages in priority order. */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import IndustryVisual from "../../components/industry/IndustryVisual.astro";
+import ServiceVisual from "../../components/studio/ServiceVisual.astro";
+import { industries } from "../../data/industries";
+import { SITE_URL } from "../../data/site";
+import "../../styles/studio.css";
+import "../../styles/industry.css";
+
+const path = "/industries/";
+const url = `${SITE_URL}${path}`;
+const title = "Industries we market for: local and e-commerce";
+const description =
+  "MaaxGen builds marketing for garage door companies, auto repair shops, Shopify stores, used car dealerships, law firms, and kitchen and bath remodelers.";
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/** One illustration per card: the industry's first bespoke one, else its first play's. */
+const cardVisual = (i: (typeof industries)[number]) =>
+  i.plays.find((p) => p.visual.kind === "industry")?.visual ?? i.plays[0].visual;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": `${url}#webpage`,
+      url,
+      name: title,
+      description,
+      isPartOf: { "@id": `${SITE_URL}/#website` },
+      breadcrumb: { "@id": `${url}#breadcrumb` },
+      mainEntity: { "@id": `${url}#list` },
+      inLanguage: "en-US",
+    },
+    {
+      "@type": "ItemList",
+      "@id": `${url}#list`,
+      name: "Industries MaaxGen markets for",
+      numberOfItems: industries.length,
+      itemListElement: industries.map((i, n) => ({
+        "@type": "ListItem",
+        position: n + 1,
+        name: i.name,
+        url: `${SITE_URL}/industries/${i.slug}/`,
+      })),
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${url}#breadcrumb`,
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+        { "@type": "ListItem", position: 2, name: "Industries", item: url },
+      ],
+    },
+  ],
+};
+---
+
+<BaseLayout title={title} description={description} canonical={path} jsonLd={jsonLd}>
+  <div class="ind">
+    <section class="ind-hub" aria-labelledby="hub-title">
+      <div class="studio__wash" aria-hidden="true"></div>
+      <div class="container">
+        <nav class="ind-crumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="/">Home</a></li>
+            <li><span aria-current="page">Industries</span></li>
+          </ol>
+        </nav>
+
+        <header class="ind-hub__intro">
+          <h1 class="studio-intro__title" id="hub-title">
+            <span class="studio-intro__kicker ind-h1-kicker">Marketing by industry</span>
+            <span class="studio-intro__line1">Marketing shaped to your trade.</span>
+            <span class="studio-intro__line2">Pick your industry.</span>
+          </h1>
+          <p class="studio-intro__lead">
+            MaaxGen builds marketing for the six industries below, shaped around how each one wins
+            work. Each page shows the problems we see in that trade and the bundle of ads, pages,
+            follow-up, and reporting we run to fix them as one partner.
+          </p>
+        </header>
+
+        <ul class="ind-hub__grid" role="list">
+          {industries.map((i, n) => {
+            const v = cardVisual(i);
+            return (
+              <li class="ind-hubcard" data-reveal style={`--reveal-delay:${n * 0.05}s`}>
+                <div class="ind-hubcard__visual">
+                  {v.kind === "industry" ? (
+                    <IndustryVisual id={v.id} uid={`hub-${i.slug}`} />
+                  ) : (
+                    <ServiceVisual id={v.id} uid={`hub-${i.slug}`} query={v.query} />
+                  )}
+                </div>
+                <div class="ind-hubcard__body">
+                  <div class="ind-hubcard__top">
+                    <h2 class="ind-hubcard__name">
+                      <a class="ind-hubcard__link" href={`/industries/${i.slug}/`}>{i.name}</a>
+                    </h2>
+                    <span class="ind-hubcard__num" aria-hidden="true">{pad(n + 1)}</span>
+                  </div>
+                  <p class="ind-hubcard__blurb">{i.hubBlurb}</p>
+                  <span class="ind-hubcard__go" aria-hidden="true">See the {i.plays.length} plays →</span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div class="ind-hub__more" data-reveal>
+          <div>
+            <h2 class="ind-hub__more-title">Your industry is not listed?</h2>
+            <p>Tell us what you do and where growth feels stuck. We will tell you plainly whether we can help.</p>
+          </div>
+          <div class="ind-hub__more-actions">
+            <a class="btn btn--primary" href="/contact/">Tell us about your business <span aria-hidden="true">→</span></a>
+            <a class="studio-btn-ghost" href="/#studio">Browse all services</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

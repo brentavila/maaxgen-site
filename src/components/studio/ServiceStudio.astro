@@ -84,7 +84,7 @@ const searchText = (s: (typeof services)[number]) =>
             detail, save the ones you want, and we will turn your shortlist into a plan.
           </p>
           <div class="studio-intro__ctas">
-            <a class="btn btn--primary studio-btn-primary" href="/ad-account-grader">
+            <a class="btn btn--primary studio-btn-primary" href="/ad-account-grader/">
               Grade my ads <span aria-hidden="true">→</span>
             </a>
             <a class="studio-btn-ghost" href="#studio" data-studio-show-grid>See all 12 services</a>
@@ -185,7 +185,7 @@ const searchText = (s: (typeof services)[number]) =>
 
       <p class="studio-empty" data-studio-empty hidden>
         Nothing matches <strong data-studio-empty-query></strong>.
-        <a href="/contact?source=service-studio">Tell us what you need</a> and we will point you the right way.
+        <a href="/contact/?source=service-studio">Tell us what you need</a> and we will point you the right way.
       </p>
 
       <!-- Focus view -->
@@ -246,7 +246,7 @@ const searchText = (s: (typeof services)[number]) =>
                     </svg>
                     <span data-shortlist-label>Add to my shortlist</span>
                   </button>
-                  <a class="studio-btn-ghost" href={`/contact?source=service-studio&service=${s.id}`}>
+                  <a class="studio-btn-ghost" href={`/contact/?source=service-studio&service=${s.id}`}>
                     Talk about this
                   </a>
                 </div>

@@ -13,7 +13,7 @@ const viewContentPagesJson = JSON.stringify(META_VIEW_CONTENT_PAGES);
       window.fbq("track", eventName, params);
     }
 
-    var pageLabel = viewContentPages[window.location.pathname];
+    var pageLabel = viewContentPages[window.location.pathname.replace(/\/?$/, "/")];
     if (pageLabel) {
       trackMetaEvent("ViewContent", {
         content_name: pageLabel,

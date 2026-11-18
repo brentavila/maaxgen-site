@@ -12,10 +12,10 @@ export const ACTIVE_VARIANT: FunnelVariantId = "a";
 export const FUNNEL_BASE_PATH = "/growth-system";
 
 export const FUNNEL_ROUTES = {
-  vsl: FUNNEL_BASE_PATH,
-  qualify: `${FUNNEL_BASE_PATH}/qualify`,
-  results: `${FUNNEL_BASE_PATH}/results`,
-  book: `${FUNNEL_BASE_PATH}/book`,
+  vsl: `${FUNNEL_BASE_PATH}/`,
+  qualify: `${FUNNEL_BASE_PATH}/qualify/`,
+  results: `${FUNNEL_BASE_PATH}/results/`,
+  book: `${FUNNEL_BASE_PATH}/book/`,
 } as const;
 
 /** Placeholder thresholds — edit freely for testing */

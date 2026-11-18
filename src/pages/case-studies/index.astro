@@ -57,7 +57,7 @@ const studies = (await getCollection("caseStudies")).sort(
               <ul>
                 {study.data.services.slice(0, 3).map((service) => <li>{service}</li>)}
               </ul>
-              <a href={`/case-studies/${study.id}`} aria-label={`Read ${study.data.title}`}>
+              <a href={`/case-studies/${study.id}/`} aria-label={`Read ${study.data.title}`}>
                 Read example <span aria-hidden="true">→</span>
               </a>
             </div>
@@ -89,7 +89,7 @@ const studies = (await getCollection("caseStudies")).sort(
     <div class="container home-final-cta__inner" data-reveal>
       <p>Your growth stack does not need to be tidy before we talk.</p>
       <h2>Bring us the friction. We’ll help find the first connected win.</h2>
-      <a class="btn btn--primary" href="/contact">Book a strategy call <span aria-hidden="true">→</span></a>
+      <a class="btn btn--primary" href="/contact/">Book a strategy call <span aria-hidden="true">→</span></a>
     </div>
   </section>
 </BaseLayout>

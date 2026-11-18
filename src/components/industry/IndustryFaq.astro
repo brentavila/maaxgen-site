@@ -1,0 +1,40 @@
+---
+/**
+ * FAQ: <details>/<summary> with the question as an h3 and the full answer in the
+ * static HTML (readable without JavaScript; the first item starts open).
+ * Mirrored in the page's FAQPage JSON-LD.
+ */
+import type { Industry } from "../../data/industries";
+import { inSentence } from "./industry-utils";
+
+interface Props {
+  industry: Industry;
+}
+const { industry } = Astro.props;
+const heading = `Questions ${inSentence(industry.name)} ask before they hire us`;
+---
+
+<section id="faq" class="ind-faq" aria-labelledby="faq-title">
+  <div class="container ind-faq__inner">
+    <header class="ind-faq__head" data-reveal>
+      <p class="ind-eyebrow">FAQ</p>
+      <h2 class="ind-faq__title" id="faq-title">{heading}</h2>
+      <p class="ind-faq__aside">
+        Something else on your mind? <a href="#plan">Ask it in the form</a> and a person will answer.
+      </p>
+    </header>
+    <div class="ind-faq__list">
+      {industry.faqs.map((faq, i) => (
+        <details class="ind-faq__item" open={i === 0}>
+          <summary class="ind-faq__summary">
+            <h3 class="ind-faq__q">{faq.q}</h3>
+            <span class="ind-faq__icon" aria-hidden="true"></span>
+          </summary>
+          <div class="ind-faq__a">
+            <p>{faq.a}</p>
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

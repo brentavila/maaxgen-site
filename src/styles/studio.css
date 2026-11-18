@@ -4,7 +4,9 @@
    Interactive views are scoped under `.js .studio[data-view=...]`.
    ========================================================================== */
 
-.studio {
+/* Studio tokens. Also exposed on `.ind` so the industry pages (industry.css) share one recipe. */
+.studio,
+.ind {
   --st-ink: oklch(0.22 0.02 250);
   --st-muted: oklch(0.47 0.018 250);
   --st-soft: oklch(0.6 0.015 250);
@@ -25,7 +27,9 @@
   --st-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --st-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
   --card-w: 17.5rem;
+}
 
+.studio {
   position: relative;
   isolation: isolate;
   overflow-x: clip;

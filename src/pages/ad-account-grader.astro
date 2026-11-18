@@ -227,10 +227,10 @@ const frustrationOptions = [
               </label>
               <p class="grader-result-lead__status" role="status" data-result-lead-status hidden></p>
               <small>
-                Your result is attached automatically. See our <a href="/terms">terms</a> and <a href="/privacy">privacy policy</a>.
+                Your result is attached automatically. See our <a href="/terms/">terms</a> and <a href="/privacy/">privacy policy</a>.
               </small>
             </form>
-            <a class="grader-result-cta__link" href="/contact?source=ad-account-grader" data-result-cta>
+            <a class="grader-result-cta__link" href="/contact/?source=ad-account-grader" data-result-cta>
               Prefer to add more context? Open the full form <span aria-hidden="true">→</span>
             </a>
           </div>
@@ -249,7 +249,7 @@ const frustrationOptions = [
       <p>Not ready to share an ad account?</p>
       <div>
         <h2>That is exactly why the grader starts with the operating system around it.</h2>
-        <a href="/services">See how MaaxGen connects strategy, ads, creative, and follow-up <span aria-hidden="true">→</span></a>
+        <a href="/services/">See how MaaxGen connects strategy, ads, creative, and follow-up <span aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
@@ -530,7 +530,7 @@ const frustrationOptions = [
           industry: resultRecord.industry,
           frustration: resultRecord.frustration,
         });
-        cta.href = `/contact?${params.toString()}`;
+        cta.href = `/contact/?${params.toString()}`;
       }
 
       if (typeof window.fbq === "function") {

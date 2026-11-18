@@ -1,0 +1,272 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PromoBenefits from "../components/promo/PromoBenefits.astro";
+import PromoCountdown from "../components/promo/PromoCountdown.astro";
+import "../styles/promo.css";
+import { LEAD_WEBHOOK_URL } from "../lib/leads";
+import { PROMO, isPromoActive, promoDeadlineLine } from "../data/promo";
+
+const active = isPromoActive(new Date());
+const buildOff = (when: "active" | "ended") =>
+  (when === "active") !== active ? { "data-promo-build-off": "" } : {};
+
+const steps = [
+  { title: "Claim the offer", body: "Send your details in the form below." },
+  {
+    title: "Strategy call",
+    body: "We confirm fit and scope with you, and go through the specifics of the offer.",
+  },
+  { title: "Your trial starts", body: "Your 15-day trial begins, and you work with us before you commit." },
+];
+---
+
+<BaseLayout
+  title="Black Friday and Cyber Monday Offer"
+  description={PROMO.copy.metaDescription}
+  ctaHref={active ? "#claim" : "/ad-account-grader/"}
+  ctaLabel={active ? PROMO.cta.claim : PROMO.cta.alt}
+>
+  <div data-promo-when="active" {...buildOff("active")}>
+    <section class="promo promo-hero" aria-labelledby="promo-hero-title">
+      <div class="container" data-reveal>
+        <p class="promo-label">{PROMO.name}</p>
+        <h1 id="promo-hero-title">{PROMO.copy.pageHeadline}</h1>
+        <p class="promo-hero__lead">{PROMO.copy.pageLead}</p>
+        <PromoBenefits />
+        <div class="promo-hero__foot">
+          <div class="promo-hero__timing">
+            <p class="promo-deadline">{promoDeadlineLine()}</p>
+            <PromoCountdown />
+          </div>
+          <a
+            class="btn btn--primary"
+            href="#claim"
+            data-promo-cta
+            data-promo-placement="page_hero"
+          >{PROMO.cta.claim} <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="promo-how-title">
+      <div class="container">
+        <div data-reveal>
+          <p class="eyebrow">How it works</p>
+          <h2 id="promo-how-title">Three steps from claim to trial.</h2>
+        </div>
+        <ol class="promo-steps">
+          {steps.map((step, i) => (
+            <li data-reveal style={`--reveal-delay: ${i * 0.07}s`}>
+              <span>0{i + 1}</span>
+              <strong>{step.title}</strong>
+              <p>{step.body}</p>
+            </li>
+          ))}
+        </ol>
+        <div class="promo-mix" data-reveal>
+          <p>The offer applies to whatever mix of services fits your business.</p>
+          <a href="/#studio">Build a shortlist in the Service Studio <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--surface promo-claim" id="claim" aria-labelledby="promo-claim-title">
+      <div class="container promo-claim__grid">
+        <div class="promo-claim__copy">
+          <p class="eyebrow">Claim the offer</p>
+          <h2 id="promo-claim-title">Tell us who you are and we will take it from there.</h2>
+          <p>
+            {PROMO.copy.callNote} Typical response: within one business day.
+          </p>
+          <ul class="promo-claim__terms">
+            {PROMO.benefits.map((b) => <li>{b.label}</li>)}
+          </ul>
+        </div>
+
+        <div class="promo-claim__card">
+          <form id="promo-claim-form" class="form" action={LEAD_WEBHOOK_URL} method="post">
+            <div class="promo-claim__interest" data-shortlist-filled hidden>
+              <p>Services you are interested in</p>
+              <div class="shortlist-chips" data-shortlist-chips></div>
+            </div>
+            <div class="field-grid">
+              <div>
+                <label for="promo-name">Name</label>
+                <input id="promo-name" name="name" type="text" required autocomplete="name" />
+              </div>
+              <div>
+                <label for="promo-email">Email</label>
+                <input id="promo-email" name="email" type="email" required autocomplete="email" />
+              </div>
+            </div>
+            <div class="field-grid">
+              <div>
+                <label for="promo-business-type">Business type</label>
+                <select id="promo-business-type" name="business-type">
+                  <option value="">Select one</option>
+                  <option value="local">Local business</option>
+                  <option value="ecommerce">E-commerce</option>
+                  <option value="both">Local and e-commerce</option>
+                </select>
+              </div>
+              <div>
+                <label for="promo-website">Website <span class="field-optional">(optional)</span></label>
+                <input
+                  id="promo-website"
+                  name="website"
+                  type="text"
+                  inputmode="url"
+                  autocomplete="url"
+                  placeholder="yourbusiness.com"
+                />
+              </div>
+            </div>
+            <label for="promo-note">Anything we should know? <span class="field-optional">(optional)</span></label>
+            <textarea
+              id="promo-note"
+              name="message"
+              rows="3"
+              maxlength="1000"
+              placeholder="Goals, timeline, or what you want off your plate"></textarea>
+
+            <button type="submit" class="btn btn--primary promo-claim__submit">
+              {PROMO.cta.claim} <span aria-hidden="true">→</span>
+            </button>
+            <p class="form-status" id="promo-claim-status" role="alert" hidden></p>
+            <p class="form-legal">
+              By submitting this form you agree to our <a href="/privacy/">Privacy Policy</a> and
+              <a href="/terms/">Terms &amp; Conditions</a>.
+            </p>
+          </form>
+
+          <div class="promo-claim__success" id="promo-claim-success" role="status" tabindex="-1" hidden>
+            <span class="promo-claim__tick" aria-hidden="true">✓</span>
+            <h3>We have your request.</h3>
+            <p>
+              We will follow up to set up your strategy call and confirm the specifics of the offer.
+              Typical response: within one business day.
+            </p>
+            <a class="btn btn--secondary" href="/ad-account-grader/">Grade my ads while you wait</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="section promo-ended" data-promo-when="ended" {...buildOff("ended")}>
+    <div class="container">
+      <p class="eyebrow">{PROMO.name}</p>
+      <h1>This offer has ended.</h1>
+      <p class="lead">
+        Thanks for your interest. You can still grade your ad account in two minutes, or tell us
+        where growth feels disconnected and we will take it from there.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="/ad-account-grader/">{PROMO.cta.alt} <span aria-hidden="true">→</span></a>
+        <a class="btn btn--secondary" href="/contact/">Contact us</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { getShortlist } from "../lib/shortlist";
+  import { serviceById } from "../data/services";
+  import { PROMO } from "../data/promo";
+  import { PROMO_CHANGE_EVENT, initPromo, promoActiveNow, trackPromo } from "../components/promo/promo-client";
+
+  initPromo();
+
+  // The header button follows the live state: the form while the offer runs, the grader after.
+  const syncHeaderCta = (active: boolean) => {
+    const cta = document.querySelector<HTMLAnchorElement>(".site-header__cta");
+    if (!cta) return;
+    cta.setAttribute("href", active ? "#claim" : "/ad-account-grader/");
+    cta.textContent = active ? PROMO.cta.claim : PROMO.cta.alt;
+  };
+  syncHeaderCta(promoActiveNow());
+  document.addEventListener(PROMO_CHANGE_EVENT, (event) => {
+    syncHeaderCta(Boolean((event as CustomEvent<{ active: boolean }>).detail?.active));
+  });
+
+  const form = document.getElementById("promo-claim-form") as HTMLFormElement | null;
+  const success = document.getElementById("promo-claim-success");
+  const statusEl = document.getElementById("promo-claim-status");
+
+  if (form && success && statusEl) {
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const SUBMIT_LABEL = submitBtn.innerHTML;
+    const WEBHOOK_URL = form.getAttribute("action") || "";
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const data = new FormData(form);
+      const ids = getShortlist();
+      const interestedServices = ids.map((id) => ({ id, name: serviceById(id)?.name ?? id }));
+      const interestedServicesText = interestedServices.map((s) => s.name).join(", ");
+      const note = String(data.get("message") || "").trim();
+      const message =
+        note ||
+        `Claiming the ${PROMO.name} offer.${interestedServicesText ? ` Interested in: ${interestedServicesText}.` : ""}`;
+
+      const payload = {
+        name: data.get("name"),
+        email: data.get("email"),
+        phone: "",
+        businessType: data.get("business-type") || "",
+        message,
+        leadSource: PROMO.id,
+        adGrader: { grade: "", score: "", industry: "", frustration: "" },
+        smsMarketingConsent: false,
+        smsTransactionalConsent: false,
+        consentLanguage: { marketing: "", transactional: "" },
+        submittedAt: new Date().toISOString(),
+        pageUrl: window.location.href,
+        interestedServices,
+        interestedServicesText,
+        website: String(data.get("website") || "").trim(),
+        promoId: PROMO.id,
+        promoName: PROMO.name,
+      };
+
+      statusEl.hidden = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending...";
+
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const w = window as unknown as { fbq?: (...args: unknown[]) => void };
+        if (typeof w.fbq === "function") {
+          w.fbq("track", "Lead", {
+            content_name: "BFCM Offer",
+            content_category: payload.businessType || "unspecified",
+            value: 1,
+            currency: "USD",
+          });
+        }
+        trackPromo("promo_claim_submit", {
+          promo_name: PROMO.name,
+          service_ids: ids,
+          service_count: ids.length,
+          business_type: payload.businessType || "unspecified",
+        });
+
+        form.hidden = true;
+        success.hidden = false;
+        success.focus();
+      } catch (error) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = SUBMIT_LABEL;
+        statusEl.hidden = false;
+        statusEl.textContent = "Sorry, something went wrong sending your request. Please try again.";
+      }
+    });
+  }
+</script>

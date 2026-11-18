@@ -1,36 +1,65 @@
 /**
- * Service Studio state machine. Moves attributes and classes only; all copy is
- * server-rendered in ServiceStudio.astro.
+ * Studio state machine, shared by the homepage Service Studio (ServiceStudio.astro)
+ * and the industry heroes (IndustryStudio.astro). Moves attributes and classes
+ * only; all copy is server-rendered.
  *
- * State: view (stack | focus | grid), active service id, category filter, query.
- * URL: /#studio/<id> opens focus view. Opening from a card pushes one history
+ * State: view (stack | focus | grid), active card id, filter, query.
+ * URL: <hash prefix><id> opens focus view. Opening from a card pushes one history
  * entry (Back closes it); prev/next and "works best with" jumps replace it.
+ *
+ * Everything page-specific is read from the [data-studio] root, with defaults that
+ * are the homepage's values:
+ *   data-studio-hash        hash prefix for deep links        "#studio/"
+ *   data-studio-noun        singular noun for announcements   "service"
+ *   data-studio-nouns       plural noun                       "services"
+ *   data-studio-source      dataLayer `source`                "service-studio"
+ *   data-studio-open-event  dataLayer event on open           "studio_service_open"
+ *   data-studio-id-param    dataLayer key for the opened id   "service_id"
+ *   data-studio-clone-visuals  (flag, industry pages) detail visuals are empty
+ *                              [data-studio-visual-slot]s filled with a copy of the
+ *                              card's illustration on first open, so each one is in
+ *                              the HTML once. Absent on the homepage.
+ * A detail's [data-studio-heading] (else .studio-detail__title) receives focus on open.
+ * Cards: [data-studio-card=<id>] with data-cat (filter value) and data-search (lowercase text).
  */
 import { onShortlistChange, getShortlist } from "../lib/shortlist";
 
 type View = "stack" | "focus" | "grid";
 
-const HASH_PREFIX = "#studio/";
 const AUTO_MS = 6000;
 const DEPTHS = 4;
 
-function track(event: string, params: Record<string, string | number>): void {
-  // Same convention as src/funnel/track.ts: consent-aware dataLayer push.
-  try {
-    const consent = (window as unknown as { MaaxConsent?: { get?: () => { analytics?: boolean } | null } })
-      .MaaxConsent;
-    if (consent && typeof consent.get === "function" && !consent.get()?.analytics) return;
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event, ...params, source: "service-studio" });
-  } catch {
-    /* analytics must never break the page */
-  }
+function makeTrack(source: string) {
+  return function track(event: string, params: Record<string, string | number>): void {
+    // Same convention as src/funnel/track.ts: consent-aware dataLayer push.
+    try {
+      const consent = (window as unknown as { MaaxConsent?: { get?: () => { analytics?: boolean } | null } })
+        .MaaxConsent;
+      if (consent && typeof consent.get === "function" && !consent.get()?.analytics) return;
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event, ...params, source });
+    } catch {
+      /* analytics must never break the page */
+    }
+  };
 }
 
+/** Initialise every studio on the page (normally one). */
 export function initStudio(): void {
-  const root = document.querySelector<HTMLElement>("[data-studio]");
+  document.querySelectorAll<HTMLElement>("[data-studio]").forEach(initStudioRoot);
+}
+
+export function initStudioRoot(root: HTMLElement): void {
   if (!root || root.dataset.studioReady) return;
   root.dataset.studioReady = "1";
+
+  const HASH_PREFIX = root.dataset.studioHash || "#studio/";
+  const NOUN = root.dataset.studioNoun || "service";
+  const NOUNS = root.dataset.studioNouns || "services";
+  const OPEN_EVENT = root.dataset.studioOpenEvent || "studio_service_open";
+  const ID_PARAM = root.dataset.studioIdParam || "service_id";
+  const track = makeTrack(root.dataset.studioSource || "service-studio");
+  const CLONE_VISUALS = root.hasAttribute("data-studio-clone-visuals");
 
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const $ = <T extends Element = HTMLElement>(sel: string) => root.querySelector<T>(sel);
@@ -80,8 +109,42 @@ export function initStudio(): void {
     if (visible.length && !visible.includes(active)) active = visible[0];
   }
 
+  /**
+   * Copy a card's illustration into its detail's empty visual slot (industry pages).
+   * SVG ids get a suffix, and every #reference inside the copy is pointed at the new
+   * ids, so the page keeps unique ids and the copy's gradients/filters resolve to itself.
+   */
+  function fillDetailVisual(id: string): void {
+    if (!CLONE_VISUALS) return;
+    const slot = detailById.get(id)?.querySelector<HTMLElement>("[data-studio-visual-slot]");
+    if (!slot || slot.childElementCount) return;
+    const source = cardById.get(id)?.querySelector(".studio-card__visual > *");
+    if (!source) return;
+    const copy = source.cloneNode(true) as Element;
+    const renamed = new Map<string, string>();
+    [copy, ...Array.from(copy.querySelectorAll("[id]"))].forEach((el) => {
+      if (!el.id) return;
+      const next = `${el.id}-detail`;
+      renamed.set(el.id, next);
+      el.id = next;
+    });
+    if (renamed.size) {
+      [copy, ...Array.from(copy.querySelectorAll("*"))].forEach((el) => {
+        Array.from(el.attributes).forEach((attr) => {
+          if (!attr.value.includes("#")) return;
+          const value = attr.value.replace(/#([A-Za-z0-9_.:-]+)/g, (m, ref: string) =>
+            renamed.has(ref) ? `#${renamed.get(ref)}` : m
+          );
+          if (value !== attr.value) attr.value = value;
+        });
+      });
+    }
+    slot.append(copy);
+  }
+
   function render(): void {
     root.dataset.view = view;
+    if (view === "focus") fillDetailVisual(active);
     root.classList.toggle("is-empty", visible.length === 0);
     const pos = visible.indexOf(active);
 
@@ -133,7 +196,7 @@ export function initStudio(): void {
   function announce(): void {
     const pos = visible.indexOf(active);
     if (pos === -1) {
-      live.textContent = "No services match.";
+      live.textContent = `No ${NOUNS} match.`;
       return;
     }
     live.textContent = `${nameOf(active)}, ${pos + 1} of ${visible.length}`;
@@ -192,7 +255,10 @@ export function initStudio(): void {
   }
 
   function focusDetailHeading(): void {
-    const h = detailById.get(active)?.querySelector<HTMLElement>(".studio-detail__title");
+    const detail = detailById.get(active);
+    const h =
+      detail?.querySelector<HTMLElement>("[data-studio-heading]") ??
+      detail?.querySelector<HTMLElement>(".studio-detail__title");
     h?.focus({ preventScroll: true });
   }
 
@@ -221,7 +287,7 @@ export function initStudio(): void {
     } else {
       setView("focus");
     }
-    track("studio_service_open", { service_id: id });
+    track(OPEN_EVENT, { [ID_PARAM]: id });
     bringStudioIntoView(!wasFocus);
     // A hash change also triggers the browser's fragment scroll; re-align after it.
     if (how === "none" && !wasFocus) requestAnimationFrame(() => bringStudioIntoView(true));
@@ -229,7 +295,7 @@ export function initStudio(): void {
     announce();
   }
 
-  function closeFocus(fromHistory = false): void {
+  function closeFocus(fromHistory = false, restoreFocus = true): void {
     if (view !== "focus") return;
     if (!fromHistory) {
       if (pushedFocus) {
@@ -241,6 +307,10 @@ export function initStudio(): void {
     }
     pushedFocus = false;
     setView(returnView);
+    if (!restoreFocus) {
+      opener = null;
+      return;
+    }
     const target =
       cardById.get(active)?.querySelector<HTMLElement>("[data-studio-open]") ??
       (opener && opener.isConnected ? opener : null);
@@ -273,7 +343,18 @@ export function initStudio(): void {
         return;
       }
     }
-    if (view === "focus") closeFocus(true);
+    if (view !== "focus") return;
+    // A link to another anchor on the page (for example a form below the hero) was followed
+    // while a detail was open: close it without pulling focus back into the hero, then land
+    // on that anchor again, since closing changes the hero's height above it.
+    const anchorId = h.length > 1 ? decodeURIComponent(h.slice(1)) : "";
+    const anchor = anchorId ? document.getElementById(anchorId) : null;
+    if (anchor && !root.contains(anchor)) {
+      closeFocus(true, false);
+      requestAnimationFrame(() => anchor.scrollIntoView({ block: "start", behavior: "auto" }));
+      return;
+    }
+    closeFocus(true);
   }
 
   /* ----------------------------------------------------- illustration restarts */
@@ -435,8 +516,8 @@ export function initStudio(): void {
     }
     render();
     live.textContent = visible.length
-      ? `${visible.length} ${visible.length === 1 ? "service" : "services"} found`
-      : "No services match. Contact us and we will help.";
+      ? `${visible.length} ${visible.length === 1 ? NOUN : NOUNS} found`
+      : `No ${NOUNS} match. Contact us and we will help.`;
   });
   search.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && search.value) {

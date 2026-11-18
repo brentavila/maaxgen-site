@@ -1,16 +1,18 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import { SITE_URL } from './src/data/site.ts';
 
 const toolbarOptimizeDeps = ["astro > aria-query", "astro > axobject-query", "astro/toolbar"];
 
 // https://astro.build/config
 export default defineConfig({
+  site: SITE_URL, // single constant in src/data/site.ts
   devToolbar: {
     enabled: false,
   },
   redirects: {
-    "/service": "/services",
-    "/book-call": "/growth-system/book",
+    "/service": "/services/",
+    "/book-call": "/growth-system/book/",
   },
   vite: {
     optimizeDeps: {

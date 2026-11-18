@@ -1,0 +1,26 @@
+---
+/** metrics: a scoreboard panel. A definition list: term, plain definition, why it matters. No values. */
+import type { MetricsBlock } from "../../../data/industries";
+import BlockShell from "./BlockShell.astro";
+
+interface Props {
+  block: MetricsBlock;
+}
+const { block } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, "0");
+---
+
+<BlockShell {...block}>
+  <dl class={`ind-metrics ind-metrics--n${block.items.length}`} data-reveal>
+    {block.items.map((m, i) => (
+      <div class="ind-metric">
+        <dt class="ind-metric__term">
+          <span class="ind-metric__idx" aria-hidden="true">{pad(i + 1)}</span>
+          {m.term}
+        </dt>
+        <dd class="ind-metric__def">{m.definition}</dd>
+        <dd class="ind-metric__why"><span class="ind-metric__why-label">Why it matters</span> {m.why}</dd>
+      </div>
+    ))}
+  </dl>
+</BlockShell>

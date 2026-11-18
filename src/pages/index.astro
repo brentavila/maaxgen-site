@@ -1,6 +1,8 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ServiceStudio from "../components/studio/ServiceStudio.astro";
+import PromoBand from "../components/promo/PromoBand.astro";
+import FounderBand from "../components/founder/FounderBand.astro";
 import { getCollection } from "astro:content";
 
 const proofStories = (await getCollection("caseStudies"))
@@ -78,6 +80,8 @@ const fitSignals = [
     </div>
   </div>
 
+  <PromoBand />
+
   <section class="section grader-promo-section">
     <div class="container grader-promo">
       <div class="grader-promo__copy" data-reveal>
@@ -88,7 +92,7 @@ const fitSignals = [
           get a practical grade for the system around your ads.
         </p>
         <div class="cta-row">
-          <a class="btn btn--primary" href="/ad-account-grader">
+          <a class="btn btn--primary" href="/ad-account-grader/">
             Grade my ads <span aria-hidden="true">→</span>
           </a>
           <span class="grader-promo__time">Two minutes. Results shown immediately.</span>
@@ -234,7 +238,7 @@ const fitSignals = [
         <p>
           You want a marketing partner who can think, execute, explain, and own the result.
         </p>
-        <a href="/about">Meet MaaxGen <span aria-hidden="true">→</span></a>
+        <a href="/about/">Meet MaaxGen <span aria-hidden="true">→</span></a>
       </div>
       <ol class="fit-signals">
         {fitSignals.map((signal, index) => (
@@ -250,6 +254,8 @@ const fitSignals = [
     </div>
   </section>
 
+  <FounderBand />
+
   <section class="section proof-section">
     <div class="container">
       <div class="proof-section__heading" data-reveal>
@@ -257,13 +263,13 @@ const fitSignals = [
           <p class="eyebrow">Example engagements</p>
           <h2>See how the system comes together.</h2>
         </div>
-        <a class="btn btn--secondary" href="/case-studies">Explore the examples</a>
+        <a class="btn btn--secondary" href="/case-studies/">Explore the examples</a>
       </div>
       <div class="proof-stories">
         {proofStories.map((study, index) => (
           <a
             class="proof-story"
-            href={`/case-studies/${study.id}`}
+            href={`/case-studies/${study.id}/`}
             data-reveal
             style={`--reveal-delay: ${index * 0.1}s`}
           >
@@ -283,7 +289,7 @@ const fitSignals = [
     <div class="container home-final-cta__inner" data-reveal>
       <p>Ready for fewer moving parts?</p>
       <h2>Let’s turn your marketing into one accountable growth engine.</h2>
-      <a class="btn btn--primary" href="/contact">Book a strategy call <span aria-hidden="true">→</span></a>
+      <a class="btn btn--primary" href="/contact/">Book a strategy call <span aria-hidden="true">→</span></a>
     </div>
   </section>
 </BaseLayout>

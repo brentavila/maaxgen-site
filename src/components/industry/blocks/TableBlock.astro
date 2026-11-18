@@ -1,0 +1,39 @@
+---
+/**
+ * table: a real data table with caption, column and row headers. Explicit ARIA
+ * roles keep the table semantics when phones restyle it into stacked rows.
+ */
+import type { TableBlock } from "../../../data/industries";
+import BlockShell from "./BlockShell.astro";
+
+interface Props {
+  block: TableBlock;
+}
+const { block } = Astro.props;
+---
+
+<BlockShell {...block}>
+  <div class="ind-table" data-reveal>
+    <table role="table" class={`ind-table__t ind-table__t--c${block.columns.length}`}>
+      <caption>{block.caption}</caption>
+      <thead role="rowgroup">
+        <tr role="row">
+          {block.columns.map((col) => <th scope="col" role="columnheader">{col}</th>)}
+        </tr>
+      </thead>
+      <tbody role="rowgroup">
+        {block.rows.map((row) => (
+          <tr role="row">
+            {row.map((cell, c) =>
+              c === 0 ? (
+                <th scope="row" role="rowheader">{cell}</th>
+              ) : (
+                <td role="cell" data-label={block.columns[c]}>{cell}</td>
+              )
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</BlockShell>

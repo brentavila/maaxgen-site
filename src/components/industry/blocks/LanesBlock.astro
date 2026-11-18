@@ -1,0 +1,43 @@
+---
+/**
+ * lanes: a side-by-side comparison. On desktop the row labels sit in their own
+ * column and every lane's rows line up with them (CSS subgrid). On phones each lane
+ * stacks as its own card and each value keeps its label (the <dt>) right above it.
+ */
+import type { LanesBlock } from "../../../data/industries";
+import BlockShell from "./BlockShell.astro";
+
+interface Props {
+  block: LanesBlock;
+}
+const { block } = Astro.props;
+const labels = block.lanes[0]?.rows.map((r) => r.label) ?? [];
+const letters = ["A", "B", "C", "D"];
+const gridStyle = `--lanes:${block.lanes.length};--lane-rows:${labels.length};`;
+---
+
+<BlockShell {...block}>
+  <div class={`ind-lanes ind-lanes--n${block.lanes.length}`} style={gridStyle} data-reveal>
+    <div class="ind-lanes__labels" aria-hidden="true">
+      <span class="ind-lanes__corner">Side by side</span>
+      {labels.map((label) => <span class="ind-lanes__label">{label}</span>)}
+    </div>
+    {block.lanes.map((lane, i) => (
+      <article class="ind-lane" aria-labelledby={`${block.id}-lane-${i}`}>
+        <header class="ind-lane__head">
+          <p class="ind-lane__tag" aria-hidden="true">{letters[i] ?? i + 1}</p>
+          <h3 class="ind-lane__title" id={`${block.id}-lane-${i}`}>{lane.label}</h3>
+          <p class="ind-lane__who">{lane.who}</p>
+        </header>
+        <dl class="ind-lane__rows">
+          {lane.rows.map((row) => (
+            <div class="ind-lane__row">
+              <dt>{row.label}</dt>
+              <dd>{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </article>
+    ))}
+  </div>
+</BlockShell>
