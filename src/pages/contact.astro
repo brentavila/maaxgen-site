@@ -48,6 +48,10 @@ const SMS_TRANSACTIONAL_CONSENT =
           <input type="hidden" name="grader-score" value="" />
           <input type="hidden" name="grader-industry" value="" />
           <input type="hidden" name="grader-frustration" value="" />
+          <div class="contact-interest" data-shortlist-filled hidden>
+            <p class="contact-interest__title">Services you are interested in</p>
+            <div class="shortlist-chips" data-shortlist-chips></div>
+          </div>
           <div class="field-grid">
             <div>
               <label for="name">Name</label>
@@ -207,6 +211,11 @@ const SMS_TRANSACTIONAL_CONSENT =
         const marketingConsent = data.get("sms-marketing") === "yes";
         const transactionalConsent = data.get("sms-transactional") === "yes";
 
+        const interested =
+          typeof window.__maaxgenInterestedServices === "function"
+            ? window.__maaxgenInterestedServices()
+            : [];
+
         const payload = {
           name: data.get("name"),
           email: data.get("email"),
@@ -228,6 +237,8 @@ const SMS_TRANSACTIONAL_CONSENT =
           },
           submittedAt: new Date().toISOString(),
           pageUrl: window.location.href,
+          interestedServices: interested.map(function (s) { return { id: s.id, name: s.name }; }),
+          interestedServicesText: interested.map(function (s) { return s.name; }).join(", "),
         };
 
         statusEl.hidden = true;
@@ -264,4 +275,64 @@ const SMS_TRANSACTIONAL_CONSENT =
       });
     }
   </script>
+
+  <script>
+    // Shortlist integration: ?service=<id>, ?source=service-studio, interested-services payload.
+    import { addService, getShortlist, onShortlistChange } from "../lib/shortlist";
+    import { serviceById } from "../data/services";
+
+    const form = document.getElementById("contact-form") as HTMLFormElement | null;
+    if (form) {
+      const params = new URLSearchParams(window.location.search);
+      const serviceParam = params.get("service");
+      if (serviceParam) addService(serviceParam);
+
+      const current = () =>
+        getShortlist().map((id) => ({ id, name: serviceById(id)?.name ?? id }));
+      (window as unknown as { __maaxgenInterestedServices: typeof current }).__maaxgenInterestedServices = current;
+
+      if (params.get("source") === "service-studio") {
+        // The inline script runs first and sets "ad-account-grader" when the grader owns this lead.
+        const leadSource = form.querySelector<HTMLInputElement>('[name="lead-source"]');
+        if (leadSource && leadSource.value === "contact-page") leadSource.value = "service-studio";
+      }
+
+      const message = form.querySelector<HTMLTextAreaElement>('[name="message"]');
+      let prefilled = "";
+      const sentence = () => {
+        const names = current().map((s) => s.name).join(", ");
+        return names ? `I am interested in: ${names}.` : "";
+      };
+      const applyPrefill = () => {
+        if (!message) return;
+        // Only touch the box when it is empty or still holds our own untouched sentence.
+        if (message.value && message.value !== prefilled) return;
+        prefilled = sentence();
+        message.value = prefilled;
+      };
+      if (params.get("source") === "service-studio" || serviceParam) {
+        applyPrefill();
+        onShortlistChange(applyPrefill);
+      }
+    }
+  </script>
 </BaseLayout>
+
+<style>
+  .contact-interest {
+    margin-bottom: 1.25rem;
+    padding: 0.9rem 1rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+  }
+  .contact-interest[hidden] {
+    display: none;
+  }
+  .contact-interest__title {
+    margin: 0 0 0.6rem;
+    color: var(--color-slate);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+</style>

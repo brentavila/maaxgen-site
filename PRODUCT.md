@@ -27,12 +27,13 @@ Professional, modern, and growth-oriented. Confident without hype. Plain languag
 - Keep MaaxGen fees off the public site; explain engagement depth and confirm scope after diagnosis
 - Trust and clarity over flashy effects
 - Case studies show real outcomes and scope (marketing + ads + AI), not vanity metrics
+- The shortlist is a lead path; service copy must not contain fees, invented numbers, guarantees, or client names
 
 ## Site map (v1)
 
 | Route | Purpose |
 |-------|---------|
-| `/` | Home — value prop, bundle positioning, primary CTA |
+| `/` | Home — value prop, bundle positioning, primary CTA; Service Studio hero with interested-services shortlist |
 | `/services` | Bundled capabilities (marketing, advertising, AI) |
 | `/case-studies` | Proof — index of client stories |
 | `/case-studies/[slug]` | Individual case study detail |
@@ -72,7 +73,9 @@ Professional, modern, and growth-oriented. Confident without hype. Plain languag
 
 Generic AI-agency aesthetic: purple gradients on white, Inter as the default font, identical icon-plus-heading feature card grids, hero big-number stat blocks, glassmorphism cards, gradient text. Anything that reads as a template rather than MaaxGen.
 
+The Service Studio cards are an intentional exception to the "identical icon-plus-heading card grid" rule because each card carries a unique illustration. They must stay solid (no glass effects) and blue-accented.
+
 ## CTAs
 
 - Primary: Grade my ads, Book a call
-- Secondary: View services, Compare engagements, View case studies
+- Secondary: View services, Compare engagements, View case studies, Get my plan (shortlist)

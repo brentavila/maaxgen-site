@@ -1,0 +1,362 @@
+---
+/**
+ * ServiceStudio: the homepage hero. One section, three views (stack, focus, grid)
+ * driven by `data-view`. All service copy is server-rendered here; the script in
+ * src/scripts/studio.ts only moves state (attributes and classes).
+ */
+import ServiceVisual from "./ServiceVisual.astro";
+import { services, categories, serviceById } from "../../data/services";
+import "../../styles/studio.css";
+
+const total = services.length;
+const catLabel = (id: string) => categories.find((c) => c.id === id)?.label ?? id;
+const audience: Record<string, string> = { local: "Local business", ecommerce: "E-commerce" };
+const searchText = (s: (typeof services)[number]) =>
+  [s.name, s.tagline, catLabel(s.category), ...s.keywords].join(" ").toLowerCase();
+---
+
+<section id="studio" class="studio" data-studio data-view="stack" aria-label="MaaxGen services">
+  <div class="studio__wash" aria-hidden="true"></div>
+
+  <div class="container studio__inner">
+    <!-- Toolbar -->
+    <div class="studio-toolbar">
+      <span class="studio-toolbar__label">
+        <span class="studio-toolbar__label-text">All services</span>
+        <span class="studio-toolbar__label-count">{total}</span>
+      </span>
+      <div class="studio-search" role="search">
+        <label class="sr-only" for="studio-search">Find a service</label>
+        <svg class="studio-search__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle>
+          <path d="M12.6 12.6 17 17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+        </svg>
+        <input
+          id="studio-search"
+          class="studio-search__input"
+          type="search"
+          placeholder="Find a service..."
+          autocomplete="off"
+          spellcheck="false"
+          aria-describedby="studio-search-hint"
+          data-studio-search
+        />
+        <kbd class="studio-search__kbd" id="studio-search-hint" aria-label="Press slash to search">/</kbd>
+      </div>
+      <div class="studio-views" role="group" aria-label="Choose a view">
+        <button type="button" class="studio-views__btn" data-studio-view-btn="stack" aria-pressed="true" title="Deck view">
+          <span class="sr-only">Deck view</span>
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+            <rect x="6" y="3.5" width="8" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"></rect>
+            <path d="M3 6v8M17 6v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+          </svg>
+        </button>
+        <button type="button" class="studio-views__btn" data-studio-view-btn="focus" aria-pressed="false" title="Detail view">
+          <span class="sr-only">Detail view</span>
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+            <rect x="3" y="4" width="14" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"></rect>
+            <path d="M10 4v12" stroke="currentColor" stroke-width="1.6"></path>
+          </svg>
+        </button>
+        <button type="button" class="studio-views__btn" data-studio-view-btn="grid" aria-pressed="false" title="Grid view">
+          <span class="sr-only">Grid view</span>
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+            <rect x="3.5" y="3.5" width="5.25" height="5.25" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.6"></rect>
+            <rect x="11.25" y="3.5" width="5.25" height="5.25" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.6"></rect>
+            <rect x="3.5" y="11.25" width="5.25" height="5.25" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.6"></rect>
+            <rect x="11.25" y="11.25" width="5.25" height="5.25" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.6"></rect>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="studio__stage" data-studio-stage>
+      <!-- Headline -->
+      <header class="studio-intro">
+        <p class="studio-intro__kicker">12 services. One accountable partner.</p>
+        <h1 class="studio-intro__title">
+          <span class="studio-intro__line1">Everything your growth needs.</span>
+          <span class="studio-intro__line2">Pick where to start.</span>
+        </h1>
+        <div class="studio-intro__more">
+          <p class="studio-intro__lead">
+            Browse what MaaxGen runs for local and e-commerce businesses. Open any card for the
+            detail, save the ones you want, and we will turn your shortlist into a plan.
+          </p>
+          <div class="studio-intro__ctas">
+            <a class="btn btn--primary studio-btn-primary" href="/ad-account-grader">
+              Grade my ads <span aria-hidden="true">→</span>
+            </a>
+            <a class="studio-btn-ghost" href="#studio" data-studio-show-grid>See all 12 services</a>
+          </div>
+          <p class="studio-intro__note">
+            <span aria-hidden="true"></span>
+            Free two-minute diagnostic. No ad account login required.
+          </p>
+        </div>
+      </header>
+
+      <!-- Deck (stack) / grid: one set of cards -->
+      <div class="studio-deck" data-studio-deck>
+        <ul class="studio-cards" role="list" data-studio-cards aria-label="Services">
+          {services.map((s, i) => (
+            <li
+              class="studio-card"
+              data-studio-card={s.id}
+              data-cat={s.category}
+              data-search={searchText(s)}
+              data-depth={i < 4 ? String(i) : "out"}
+              style={`--i:${i}`}
+            >
+              <div class="studio-card__visual">
+                <ServiceVisual id={s.id} uid={`card-${s.id}`} />
+              </div>
+              <div class="studio-card__meta">
+                <a class="studio-card__open" href={`#studio/${s.id}`} data-studio-open={s.id}>
+                  <span class="studio-card__name">{s.name}</span><span class="sr-only">, {catLabel(s.category)}. Open details</span>
+                </a>
+                <span class="studio-card__num" aria-hidden="true">{s.num}</span>
+                <span class="studio-card__cat" aria-hidden="true">{catLabel(s.category)}</span>
+                <button
+                  type="button"
+                  class="studio-save studio-card__save"
+                  data-shortlist-toggle={s.id}
+                  aria-pressed="false"
+                  aria-label={`Shortlist ${s.name}`}
+                >
+                  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <path class="studio-save__plus" d="M8 3.5v9M3.5 8h9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                    <path class="studio-save__tick" d="m3.6 8.4 2.9 2.8 5.9-6.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <!-- Peek card for the active service (stack view) -->
+        <aside class="studio-peek" aria-label="Selected service">
+          <div class="studio-peek__head">
+            <span class="studio-peek__count" data-studio-position>01 / {String(total).padStart(2, "0")}</span>
+            <span class="studio-peek__nav">
+              <button type="button" class="studio-round" data-studio-prev aria-label="Previous service">
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              </button>
+              <button type="button" class="studio-round" data-studio-next aria-label="Next service">
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              </button>
+            </span>
+          </div>
+          <div class="studio-peek__items">
+            {services.map((s, i) => (
+              <div class={`studio-peek__item${i === 0 ? " is-current" : ""}`} data-studio-peek={s.id}>
+                <p class="studio-peek__cat">{catLabel(s.category)} <span aria-hidden="true">/</span> {s.num}</p>
+                <p class="studio-peek__name">{s.name}</p>
+                <p class="studio-peek__tagline">{s.tagline}</p>
+                <ul class="studio-tags" aria-label="Best for">
+                  {s.bestFor.map((b) => <li>{audience[b]}</li>)}
+                </ul>
+                <div class="studio-peek__actions">
+                  <button
+                    type="button"
+                    class="studio-pill-btn studio-pill-btn--line"
+                    data-shortlist-toggle={s.id}
+                    aria-pressed="false"
+                    data-label-add="Shortlist"
+                    data-label-remove="Shortlisted"
+                  >
+                    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                      <path class="studio-save__plus" d="M8 3.5v9M3.5 8h9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                      <path class="studio-save__tick" d="m3.6 8.4 2.9 2.8 5.9-6.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span data-shortlist-label>Shortlist</span>
+                    <span class="sr-only">{s.name}</span>
+                  </button>
+                  <a class="studio-pill-btn studio-pill-btn--dark" href={`#studio/${s.id}`} data-studio-open={s.id}>
+                    Open <span class="sr-only">{s.name}</span>
+                    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 11 11 5M6 5h5v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </aside>
+      </div>
+
+      <p class="studio-empty" data-studio-empty hidden>
+        Nothing matches <strong data-studio-empty-query></strong>.
+        <a href="/contact?source=service-studio">Tell us what you need</a> and we will point you the right way.
+      </p>
+
+      <!-- Focus view -->
+      <div class="studio-focus" data-studio-focus>
+        <div class="studio-focus__controls">
+          <button type="button" class="studio-round" data-studio-prev aria-label="Previous service">
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button type="button" class="studio-round" data-studio-next aria-label="Next service">
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <button type="button" class="studio-round studio-round--close" data-studio-close aria-label="Close details">
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m4.5 4.5 7 7m0-7-7 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></svg>
+          </button>
+        </div>
+
+        {services.map((s) => (
+          <article
+            class="studio-detail"
+            id={`studio/${s.id}`}
+            data-studio-detail={s.id}
+            aria-labelledby={`studio-h-${s.id}`}
+          >
+            <p class="studio-detail__crumb">
+              Service {s.num} <span aria-hidden="true">/</span> <span class="studio-detail__crumb-name">{s.name}</span>
+            </p>
+            <div class="studio-detail__main">
+              <div class="studio-detail__visual">
+                <ServiceVisual id={s.id} uid={`focus-${s.id}`} />
+              </div>
+              <div class="studio-detail__copy">
+                <p class="studio-detail__label">{catLabel(s.category)} <span aria-hidden="true">·</span> {s.name}</p>
+                <h2 class="studio-detail__title" id={`studio-h-${s.id}`} tabindex="-1">
+                  <span>{s.headline[0]}</span>
+                  <span class="studio-detail__title2">{s.headline[1]}</span>
+                </h2>
+                <p class="studio-detail__summary">{s.summary}</p>
+                <h3 class="studio-detail__sub">What you get</h3>
+                <ul class="studio-detail__list">
+                  {s.deliverables.map((d) => <li>{d}</li>)}
+                </ul>
+                <p class="studio-detail__outcome"><span>What changes</span> {s.outcome}</p>
+                <ul class="studio-tags" aria-label="Best for">
+                  {s.bestFor.map((b) => <li>{audience[b]}</li>)}
+                </ul>
+                <div class="studio-detail__actions">
+                  <button
+                    type="button"
+                    class="btn btn--primary studio-detail__save"
+                    data-shortlist-toggle={s.id}
+                    aria-pressed="false"
+                    data-label-add="Add to my shortlist"
+                    data-label-remove="On your shortlist"
+                  >
+                    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                      <path class="studio-save__plus" d="M8 3.5v9M3.5 8h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                      <path class="studio-save__tick" d="m3.6 8.4 2.9 2.8 5.9-6.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span data-shortlist-label>Add to my shortlist</span>
+                  </button>
+                  <a class="studio-btn-ghost" href={`/contact?source=service-studio&service=${s.id}`}>
+                    Talk about this
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="studio-plan">
+              <div class="studio-plan__head">
+                <span>MaaxGen <span aria-hidden="true">/</span> {s.name}</span>
+                <span aria-hidden="true">Shortlist → Plan</span>
+              </div>
+              <div class="studio-plan__cols">
+                <div>
+                  <h3 class="studio-plan__sub">First 30 days</h3>
+                  <ol class="studio-plan__steps">
+                    {s.firstSteps.map((step, n) => (
+                      <li><span aria-hidden="true">0{n + 1}</span>{step}</li>
+                    ))}
+                  </ol>
+                </div>
+                <div>
+                  <h3 class="studio-plan__sub">Works best with</h3>
+                  <ul class="studio-plan__pairs">
+                    {s.pairsWith.map((pid) => {
+                      const p = serviceById(pid);
+                      if (!p) return null;
+                      return (
+                        <li class="studio-pair">
+                          <a class="studio-pair__link" href={`#studio/${p.id}`} data-studio-jump={p.id}>
+                            <span class="studio-pair__num" aria-hidden="true">{p.num}</span>
+                            {p.name}
+                          </a>
+                          <button
+                            type="button"
+                            class="studio-pair__add"
+                            data-shortlist-toggle={p.id}
+                            aria-pressed="false"
+                            aria-label={`Shortlist ${p.name}`}
+                          >
+                            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                              <path class="studio-save__plus" d="M8 3.5v9M3.5 8h9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                              <path class="studio-save__tick" d="m3.6 8.4 2.9 2.8 5.9-6.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+              <div class="studio-plan__prompt">
+                <p class="studio-plan__line">
+                  <span class="studio-plan__chev" aria-hidden="true">&gt;</span>
+                  <span class="studio-plan__text">
+                    <span data-shortlist-filled hidden>
+                      <span class="sr-only">Your plan so far: </span>plan for <span data-shortlist-names></span>
+                    </span>
+                    <span data-shortlist-empty>Your plan starts here. Add a service to begin.</span>
+                    <span class="studio-plan__caret" aria-hidden="true"></span>
+                  </span>
+                </p>
+                <button type="button" class="studio-plan__go" data-plan-open>
+                  Get my plan <span aria-hidden="true">→</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <!-- Grid CTA -->
+      <div class="studio-gridcta">
+        <p class="studio-gridcta__empty" data-shortlist-empty>
+          Tap <span class="studio-gridcta__plus" aria-hidden="true">+</span> on anything that interests you. We will turn your picks into one plan.
+        </p>
+        <button type="button" class="studio-gridcta__btn" data-shortlist-filled data-plan-open hidden>
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m3.6 8.4 2.9 2.8 5.9-6.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <span>Get a plan for your <span data-shortlist-count>0</span> <span data-studio-plural>services</span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dock -->
+    <div class="studio-dock">
+      <div class="studio-dock__filters" role="group" aria-label="Filter by category">
+        <button type="button" class="studio-dock__pill" data-studio-filter="all" aria-pressed="true">Everything</button>
+        {categories.map((c) => (
+          <button type="button" class="studio-dock__pill" data-studio-filter={c.id} aria-pressed="false">{c.label}</button>
+        ))}
+      </div>
+      <div class="studio-dock__meta">
+        <span class="studio-dock__count" data-studio-counter>
+          <span aria-hidden="true" class="studio-dock__dot"></span>
+          <span data-studio-counter-text>01 / {String(total).padStart(2, "0")}</span>
+        </span>
+        <span class="studio-dock__list" data-shortlist-empty>
+          Shortlist <span class="studio-dock__badge">0</span>
+        </span>
+        <button type="button" class="studio-dock__list studio-dock__list--on" data-shortlist-filled data-plan-open hidden>
+          Shortlist <span class="studio-dock__badge" data-shortlist-count>0</span>
+          <span class="sr-only">: get a plan</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p class="sr-only" aria-live="polite" data-studio-live></p>
+</section>
+
+<script>
+  import { initStudio } from "../../scripts/studio";
+  initStudio();
+</script>

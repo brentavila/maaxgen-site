@@ -14,6 +14,13 @@ Codex handoff prompt: [CODEX_HANDOFF.md](./CODEX_HANDOFF.md)
 - Astro static marketing site
 - Global styles: `src/styles/global.css`
 - Layout: `src/layouts/BaseLayout.astro`
+- Service Studio (homepage hero, shortlist, plan dialog):
+  - Catalogue and copy: `src/data/services.ts`
+  - Hero: `src/components/studio/ServiceStudio.astro`; logic `src/scripts/studio.ts`; styles `src/styles/studio.css`
+  - Card illustrations: `src/components/studio/ServiceVisual.astro`
+  - Shortlist logic: `src/lib/shortlist.ts` (localStorage key `maaxgen-interested-services`)
+  - Shortlist pill and plan dialog: `src/components/studio/ShortlistPill.astro`, `src/components/studio/PlanDialog.astro`, mounted in `src/layouts/BaseLayout.astro`
+  - When testing, never submit the plan or contact form to the live webhook; stub `window.fetch` instead.
 
 ## Brand
 
