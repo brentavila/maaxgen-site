@@ -101,6 +101,3 @@ export function resolveCalendarEmbedUrl(): string {
   return getPublicEnv("PUBLIC_VSL_CALENDAR_EMBED_URL") || CALENDAR_CONFIG.embedUrl;
 }
 
-export function resolveWebhookUrl(): string {
-  return getPublicEnv("PUBLIC_VSL_GHL_WEBHOOK_URL") || getPublicEnv("PUBLIC_GHL_WEBHOOK_URL") || "";
-}

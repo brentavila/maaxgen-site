@@ -4,6 +4,7 @@ import AttributionCapture from "../../components/funnel/AttributionCapture.astro
 import CalendarEmbed from "../../components/funnel/CalendarEmbed.astro";
 import { FUNNEL_ROUTES } from "../../funnel/config";
 import { resultsCopy } from "../../funnel/content/vsl";
+import Honeypot from "../../components/forms/Honeypot.astro";
 ---
 
 <BaseLayout
@@ -35,7 +36,8 @@ import { resultsCopy } from "../../funnel/content/vsl";
         </div>
 
         <div data-results-nq hidden>
-          <form class="funnel-nq-form form" data-nq-form>
+          <form class="funnel-nq-form form" data-nq-form action="/api/lead" method="post">
+            <Honeypot />
             <label for="nq-email">Email</label>
             <input id="nq-email" name="email" type="email" required autocomplete="email" />
             <button type="submit" class="btn btn--primary" data-nq-submit>
@@ -66,12 +68,15 @@ import { resultsCopy } from "../../funnel/content/vsl";
     </div>
   </section>
 
-  <script define:vars={{ resultsCopyJson: JSON.stringify(resultsCopy) }}>
+  <script type="application/json" id="results-copy" set:html={JSON.stringify(resultsCopy)} />
+
+  <script>
     import { readFunnelState } from "../../funnel/state";
     import { submitNqResourceRequest } from "../../funnel/crm/submit";
     import { trackFunnelEvent } from "../../funnel/track";
+    import { watchLeadForm } from "../../lib/lead-form";
 
-    const resultsCopy = JSON.parse(resultsCopyJson);
+    const resultsCopy = JSON.parse(document.getElementById("results-copy")?.textContent || "{}");
     const state = readFunnelState();
     const root = document.querySelector("[data-results-root]");
     const empty = document.querySelector("[data-results-empty]");
@@ -96,6 +101,7 @@ import { resultsCopy } from "../../funnel/content/vsl";
         const emailInput = document.querySelector("#nq-email");
         if (emailInput && state.contact?.email) emailInput.value = state.contact.email;
 
+        const watch = form ? watchLeadForm(form, "growth_system") : null;
         form?.addEventListener("submit", async (event) => {
           event.preventDefault();
           const email = (emailInput?.value || "").trim();
@@ -112,6 +118,8 @@ import { resultsCopy } from "../../funnel/content/vsl";
               qualificationStatus: state.qualificationStatus,
               attribution: state.attribution,
             },
+            startedAt: watch ? watch.startedAt() : Date.now(),
+            hp: watch ? watch.hp() : "",
           });
           if (!result.ok) {
             if (status) {

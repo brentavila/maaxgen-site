@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { LEAD_WEBHOOK_URL } from "../lib/leads";
+import Honeypot from "../components/forms/Honeypot.astro";
 
 const GRADER_SMS_CONSENT =
   "I agree to receive automated SMS messages from MaaxGen about my Ad Account Grader result, review request, and related follow-up. Some message content may be drafted with AI assistance to provide relevant context. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not a condition of purchase.";
@@ -57,7 +57,7 @@ const frustrationOptions = [
         </p>
       </aside>
 
-      <div class="grader-card" data-ad-grader data-webhook-url={LEAD_WEBHOOK_URL}>
+      <div class="grader-card" data-ad-grader>
         <form class="grader-form" data-grader-form novalidate>
           <header class="grader-progress">
             <div class="grader-progress__copy">
@@ -199,9 +199,14 @@ const frustrationOptions = [
           <div class="grader-result-cta">
             <div>
               <strong>Want MaaxGen to review the result by text?</strong>
-              <p>Share your mobile number after seeing the score. We will start with your answers and follow up with a useful next step.</p>
+              <p>Share your name, email, and mobile number after seeing the score. We will start with your answers and follow up with a useful next step.</p>
             </div>
-            <form class="grader-result-lead" data-result-lead-form data-sms-consent={GRADER_SMS_CONSENT}>
+            <form class="grader-result-lead" data-result-lead-form data-lead-form="ad_grader" action="/api/lead" method="post" data-sms-consent={GRADER_SMS_CONSENT}>
+              <Honeypot />
+              <label class="grader-result-lead__field-label" for="grader-result-name">Name</label>
+              <input id="grader-result-name" name="name" type="text" autocomplete="name" required />
+              <label class="grader-result-lead__field-label" for="grader-result-email">Email</label>
+              <input id="grader-result-email" name="email" type="email" autocomplete="email" required />
               <label class="grader-result-lead__field-label" for="grader-result-phone">Mobile number</label>
               <div>
                 <input
@@ -256,6 +261,9 @@ const frustrationOptions = [
 </BaseLayout>
 
 <script>
+  import { submitLead, track } from "../lib/tracking";
+  import { reportFormError, splitName, watchLeadForm } from "../lib/lead-form";
+
   const roots = document.querySelectorAll<HTMLElement>("[data-ad-grader]");
 
   roots.forEach((root) => {
@@ -413,11 +421,9 @@ const frustrationOptions = [
     form.addEventListener("change", (event) => {
       const target = event.target;
       if (!(target instanceof HTMLInputElement) || target.type !== "radio") return;
-      if (!graderStarted && typeof window.fbq === "function") {
+      if (!graderStarted) {
         graderStarted = true;
-        window.fbq("trackCustom", "AdAccountGraderStarted", {
-          content_name: "Ad Account Grader",
-        });
+        track("grader_start");
       }
       if (currentStep < panels.length - 1) {
         window.setTimeout(() => showStep(currentStep + 1, "forward"), prefersReducedMotion.matches ? 0 : 180);
@@ -431,6 +437,7 @@ const frustrationOptions = [
       const industry = industrySelect?.value || "";
       if (!industry) {
         if (error) error.hidden = false;
+        reportFormError("ad_grader", "industry");
         industrySelect?.focus();
         return;
       }
@@ -533,13 +540,7 @@ const frustrationOptions = [
         cta.href = `/contact/?${params.toString()}`;
       }
 
-      if (typeof window.fbq === "function") {
-        window.fbq("trackCustom", "AdAccountGraderCompleted", {
-          content_name: "Ad Account Grader",
-          content_category: benchmark.name,
-          value: score,
-        });
-      }
+      track("grader_complete", { grade: grade.grade });
 
       form.hidden = true;
       results.hidden = false;
@@ -547,14 +548,17 @@ const frustrationOptions = [
       root.scrollIntoView({ behavior: prefersReducedMotion.matches ? "auto" : "smooth", block: "start" });
     });
 
+    const leadWatch = leadForm ? watchLeadForm(leadForm, "ad_grader") : null;
+
     leadForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
       const phoneInput = leadForm.querySelector<HTMLInputElement>('[name="phone"]');
       const consentInput = leadForm.querySelector<HTMLInputElement>('[name="sms-review-consent"]');
       const submitButton = leadForm.querySelector<HTMLButtonElement>('button[type="submit"]');
-      const webhookUrl = root.dataset.webhookUrl || "";
+      const nameInput = leadForm.querySelector<HTMLInputElement>('[name="name"]');
+      const emailInput = leadForm.querySelector<HTMLInputElement>('[name="email"]');
 
-      if (!leadForm.checkValidity() || !phoneInput || !consentInput?.checked || !latestResultRecord || !submitButton) {
+      if (!leadForm.checkValidity() || !phoneInput || !nameInput || !emailInput || !leadWatch || !consentInput?.checked || !latestResultRecord || !submitButton) {
         leadForm.reportValidity();
         return;
       }
@@ -563,36 +567,42 @@ const frustrationOptions = [
       submitButton.textContent = "Sending…";
       if (leadStatus) leadStatus.hidden = true;
 
-      const payload = {
-        type: "ad_account_grader_review_request",
-        source: "ad-account-grader",
-        phone: phoneInput.value.trim(),
-        adGrader: latestResultRecord,
-        smsTransactionalConsent: true,
-        smsConsentLanguage: leadForm.dataset.smsConsent || "",
-        smsConsentMethod: "ad-account-grader-required-checkbox",
-        submittedAt: new Date().toISOString(),
-        pageUrl: window.location.href,
-      };
+      const record = latestResultRecord;
+      const { firstName, lastName } = splitName(nameInput.value);
 
       try {
-        await fetch(webhookUrl, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+        const res = await submitLead({
+          formId: "ad_grader",
+          leadSource: "ad-account-grader",
+          contact: {
+            firstName,
+            lastName,
+            email: emailInput.value.trim(),
+            phone: phoneInput.value.trim(),
+          },
+          fields: {
+            message: `Ad Account Grader review request. Grade ${record.grade}, ${record.score}/100. Industry: ${record.industry}. Biggest frustration: ${record.frustration}.`,
+            type: "ad_account_grader_review_request",
+            grade: String(record.grade),
+            score: String(record.score),
+            industry: String(record.industry),
+            frustration: String(record.frustration),
+            spend: String(record.spend),
+            tracking: String(record.tracking),
+            manager: String(record.manager),
+            smsConsent: "transactional",
+            smsTransactionalConsent: "yes",
+            smsConsentLanguage: leadForm.dataset.smsConsent || "",
+            smsConsentMethod: "ad-account-grader-required-checkbox",
+          },
+          hp: leadWatch.hp(),
+          startedAt: leadWatch.startedAt(),
         });
-
-        if (typeof window.fbq === "function") {
-          window.fbq("track", "Lead", {
-            content_name: "Ad Account Grader Review",
-            content_category: String(latestResultRecord.industry || "unspecified"),
-            value: 1,
-            currency: "USD",
-          });
-        }
+        if (!res.ok) throw new Error(res.error || "Lead not accepted");
 
         phoneInput.disabled = true;
+        nameInput.disabled = true;
+        emailInput.disabled = true;
         consentInput.disabled = true;
         submitButton.textContent = "Review requested";
         if (leadStatus) {
@@ -618,6 +628,7 @@ const frustrationOptions = [
       const leadConsent = leadForm?.querySelector<HTMLInputElement>('[name="sms-review-consent"]');
       const leadButton = leadForm?.querySelector<HTMLButtonElement>('button[type="submit"]');
       if (leadPhone) leadPhone.disabled = false;
+      leadForm?.querySelectorAll<HTMLInputElement>('[name="name"], [name="email"]').forEach((input) => (input.disabled = false));
       if (leadConsent) leadConsent.disabled = false;
       if (leadButton) {
         leadButton.disabled = false;

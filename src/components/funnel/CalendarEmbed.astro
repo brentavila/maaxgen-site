@@ -53,6 +53,7 @@ const segment = Astro.props.segment ?? "HIGHLY_QUALIFIED";
 <script>
   import { readFunnelState } from "../../funnel/state";
   import { trackFunnelEvent } from "../../funnel/track";
+  import { listenForBooking } from "../../funnel/booking";
 
   function withPrefill(url: string): string {
     if (!url) return url;
@@ -139,28 +140,10 @@ const segment = Astro.props.segment ?? "HIGHLY_QUALIFIED";
       simulate.disabled = true;
     });
 
-    window.addEventListener("message", (event) => {
-      const origin = event.origin || "";
-      const allowed =
-        /calendly\.com|leadconnectorhq\.com|msgsndr\.com|gohighlevel\.com|maaxgen\.com/i.test(
-          origin
-        );
-      if (!allowed) return;
-
-      const data = event.data;
-      const text = typeof data === "string" ? data : JSON.stringify(data ?? "");
-      if (/calendly\.event_scheduled|booking.?complet|appointment.?book/i.test(text)) {
-        trackFunnelEvent(
-          "appointment_booked",
-          { qualification_status: segment },
-          {
-            onceKey: `appointment_booked:${segment}`,
-            metaStandard: "Schedule",
-          }
-        );
-      }
-    });
   }
+
+  // Booking completion: the GHL widget posts "msgsndr-booking-complete" (origin-checked in booking.ts).
+  listenForBooking();
 
   function tryInitAll() {
     document.querySelectorAll<HTMLElement>("[data-funnel-calendar]").forEach(initCalendar);

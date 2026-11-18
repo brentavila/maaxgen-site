@@ -148,7 +148,7 @@ const faqs = [
             <p class="phase-tier__fit">{tier.fit}</p>
             <p class="phase-tier__result">{tier.result}</p>
             <ul>{tier.includes.map((item) => <li>{item}</li>)}</ul>
-            <a class:list={["btn", tier.featured ? "btn--primary" : "btn--secondary"]} href={`/contact/?tier=${tier.name.toLowerCase().replaceAll(" ", "-")}`}>
+            <a class:list={["btn", tier.featured ? "btn--primary" : "btn--secondary"]} href={`/contact/?tier=${tier.name.toLowerCase().replaceAll(" ", "-")}`} data-track-cta="pricing-tier">
               {tier.cta}
             </a>
           </article>
@@ -215,7 +215,7 @@ const faqs = [
     <div class="container home-final-cta__inner" data-reveal>
       <p>Not sure where the weak point is?</p>
       <h2>Start with a free diagnostic before discussing scope.</h2>
-      <a class="btn btn--primary" href="/ad-account-grader/">Grade my ads <span aria-hidden="true">→</span></a>
+      <a class="btn btn--primary" href="/ad-account-grader/" data-track-cta="pricing-grader">Grade my ads <span aria-hidden="true">→</span></a>
     </div>
   </section>
 </BaseLayout>

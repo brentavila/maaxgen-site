@@ -12,6 +12,36 @@ import {
 >
   (function () {
     window.dataLayer = window.dataLayer || [];
+
+    // Consent Mode v2 defaults. Must run before the GTM loader below.
+    // US business: granted everywhere except the EEA, UK, and Switzerland, where all four
+    // signals default to denied (the notice-only banner never grants them there).
+    function gtag() {
+      window.dataLayer.push(arguments);
+    }
+    window.gtag = window.gtag || gtag;
+    gtag("consent", "default", {
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      analytics_storage: "denied",
+      region: [
+        "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE",
+        "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
+        "IS", "LI", "NO", "GB", "CH",
+      ],
+    });
+    gtag("consent", "default", {
+      ad_storage: "granted",
+      ad_user_data: "granted",
+      ad_personalization: "granted",
+      analytics_storage: "granted",
+    });
+    // Redaction applies only where ad_storage is denied (the regions above).
+    gtag("set", "ads_data_redaction", true);
+    gtag("set", "url_passthrough", false);
+
+    // Standard GTM loader.
     window.dataLayer.push({
       "gtm.start": new Date().getTime(),
       event: "gtm.js",
@@ -46,6 +76,9 @@ import {
       "script",
       "https://connect.facebook.net/en_US/fbevents.js"
     );
+    // Only PageView fires automatically. Every other Meta event comes from src/lib/tracking.
+    // autoConfig off stops the pixel's automatic button-click and page-metadata events.
+    window.fbq("set", "autoConfig", false, META_PIXEL_ID);
     window.fbq("init", META_PIXEL_ID);
     window.fbq("track", "PageView");
 

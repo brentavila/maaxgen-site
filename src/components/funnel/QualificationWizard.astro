@@ -1,6 +1,7 @@
 ---
 import { FUNNEL_ROUTES } from "../../funnel/config";
 import { QUALIFICATION_STEPS } from "../../funnel/questions";
+import Honeypot from "../forms/Honeypot.astro";
 
 const stepsJson = JSON.stringify(QUALIFICATION_STEPS);
 const resultsPath = FUNNEL_ROUTES.results;
@@ -12,6 +13,7 @@ const resultsPath = FUNNEL_ROUTES.results;
   data-steps={stepsJson}
   data-results-path={resultsPath}
 >
+  <Honeypot />
   <div class="qualify-wizard__progress" aria-hidden="true">
     <div class="qualify-wizard__progress-bar" data-progress-bar></div>
   </div>
@@ -41,6 +43,7 @@ const resultsPath = FUNNEL_ROUTES.results;
     updateFunnelState,
   } from "../../funnel/state";
   import { trackFunnelEvent } from "../../funnel/track";
+  import { reportFormError } from "../../lib/lead-form";
   import type { ContactInfo, QuestionField, QuestionStep } from "../../funnel/types";
 
   const root = document.querySelector<HTMLElement>("[data-qualify-wizard]");
@@ -255,6 +258,7 @@ const resultsPath = FUNNEL_ROUTES.results;
       const error = validateStep();
       if (error) {
         showError(error);
+        reportFormError("growth_system", currentStep().id);
         return;
       }
 
@@ -288,18 +292,6 @@ const resultsPath = FUNNEL_ROUTES.results;
         { onceKey: "qualification_completed" }
       );
 
-      trackFunnelEvent(
-        statusEventName(scored.status),
-        {
-          lead_score: scored.score,
-          qualification_status: scored.status,
-        },
-        {
-          onceKey: statusEventName(scored.status),
-          metaStandard: scored.status === "NOT_QUALIFIED" ? undefined : "Lead",
-        }
-      );
-
       const payload = buildLeadPayload({
         answers: state.answers,
         contact: state.contact,
@@ -309,7 +301,10 @@ const resultsPath = FUNNEL_ROUTES.results;
         variant: state.variant,
       });
 
-      const result = await submitLead(payload);
+      const result = await submitLead(payload, {
+        startedAt: Date.parse(state.startedAt || "") || Date.now() - 60_000,
+        hp: root.querySelector<HTMLInputElement>('input[name="company_url"]')?.value ?? "",
+      });
       if (!result.ok) {
         submitting = false;
         nextBtn.disabled = false;
@@ -317,6 +312,18 @@ const resultsPath = FUNNEL_ROUTES.results;
         showError(result.error);
         return;
       }
+
+      trackFunnelEvent(
+        statusEventName(scored.status),
+        {
+          lead_score: scored.score,
+          qualification_status: scored.status,
+        },
+        {
+          onceKey: statusEventName(scored.status),
+        }
+      );
+
 
       window.location.href = resultsPath;
     });

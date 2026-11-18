@@ -4,7 +4,7 @@
  * Mounted once site-wide (BaseLayout, non-landing chrome). Opened by any
  * [data-plan-open] click or by document.dispatchEvent(new CustomEvent("maaxgen:plan-open")).
  */
-import { LEAD_WEBHOOK_URL } from "../../lib/leads";
+import Honeypot from "../forms/Honeypot.astro";
 import PromoNote from "../promo/PromoNote.astro";
 ---
 
@@ -38,7 +38,8 @@ import PromoNote from "../promo/PromoNote.astro";
         </p>
       </div>
 
-      <form id="plan-form" class="form plan-dialog__form" action={LEAD_WEBHOOK_URL} method="post">
+      <form id="plan-form" class="form plan-dialog__form" action="/api/lead" method="post" data-lead-form="plan_dialog">
+        <Honeypot />
         <div class="field-grid">
           <div>
             <label for="plan-name">Name</label>
@@ -89,7 +90,7 @@ import PromoNote from "../promo/PromoNote.astro";
         Typical response: within one business day.
       </p>
       <div class="plan-dialog__success-actions">
-        <a class="btn btn--primary" href="/ad-account-grader/">Grade my ads while you wait</a>
+        <a class="btn btn--primary" href="/ad-account-grader/" data-track-cta="plan-success-grader">Grade my ads while you wait</a>
         <button type="button" class="btn btn--secondary" data-plan-close>Close</button>
       </div>
     </div>
@@ -100,6 +101,8 @@ import PromoNote from "../promo/PromoNote.astro";
   import { getShortlist } from "../../lib/shortlist";
   import { serviceById } from "../../data/services";
   import { getPromoAttribution } from "../promo/promo-client";
+  import { submitLead, track, pageType } from "../../lib/tracking";
+  import { splitName, watchLeadForm } from "../../lib/lead-form";
 
   const dialog = document.getElementById("plan-dialog") as HTMLDialogElement | null;
   const form = document.getElementById("plan-form") as HTMLFormElement | null;
@@ -111,7 +114,7 @@ import PromoNote from "../promo/PromoNote.astro";
     const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
     const title = document.getElementById("plan-dialog-title") as HTMLElement;
     const SUBMIT_LABEL = submitBtn.innerHTML;
-    const WEBHOOK_URL = form.getAttribute("action") || "";
+    const watch = watchLeadForm(form, "plan_dialog");
     let opener: HTMLElement | null = null;
 
     function openDialog(from?: HTMLElement | null) {
@@ -124,6 +127,7 @@ import PromoNote from "../promo/PromoNote.astro";
       submitBtn.innerHTML = SUBMIT_LABEL;
       document.documentElement.classList.add("plan-dialog-open");
       dialog.showModal();
+      track("begin_plan", { service_count: getShortlist().length, source: pageType() });
       title.focus();
     }
 
@@ -171,56 +175,29 @@ import PromoNote from "../promo/PromoNote.astro";
       const message =
         note || (interestedServicesText ? `Interested in: ${interestedServicesText}.` : "Requested a plan from the service shortlist.");
 
-      const payload = {
-        name: data.get("name"),
-        email: data.get("email"),
-        phone: "",
-        businessType: data.get("business-type") || "",
-        message,
-        leadSource: "service-studio",
-        adGrader: { grade: "", score: "", industry: "", frustration: "" },
-        smsMarketingConsent: false,
-        smsTransactionalConsent: false,
-        consentLanguage: { marketing: "", transactional: "" },
-        submittedAt: new Date().toISOString(),
-        pageUrl: window.location.href,
-        interestedServices,
-        interestedServicesText,
-        ...getPromoAttribution(),
-      };
+      const { firstName, lastName } = splitName(String(data.get("name") || ""));
+      const businessType = String(data.get("business-type") || "");
 
       statusEl.hidden = true;
       submitBtn.disabled = true;
       submitBtn.textContent = "Sending...";
 
       try {
-        await fetch(WEBHOOK_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+        const res = await submitLead({
+          formId: "plan_dialog",
+          leadSource: "service-studio",
+          contact: { firstName, lastName, email: String(data.get("email") || "") },
+          fields: {
+            message,
+            businessType,
+            interestedServices: interestedServices.map((s) => s.name).join(","),
+            interestedServiceIds: ids.join(","),
+            ...getPromoAttribution(),
+          },
+          hp: watch.hp(),
+          startedAt: watch.startedAt(),
         });
-
-        const w = window as unknown as { fbq?: (...args: unknown[]) => void };
-        if (typeof w.fbq === "function") {
-          w.fbq("track", "Lead", {
-            content_name: "Service Shortlist",
-            content_category: payload.businessType || "unspecified",
-            value: 1,
-            currency: "USD",
-          });
-        }
-        try {
-          window.dataLayer = window.dataLayer || [];
-          window.dataLayer.push({
-            event: "plan_request_submit",
-            service_ids: ids,
-            service_count: ids.length,
-            business_type: payload.businessType || "unspecified",
-          });
-        } catch {
-          /* analytics must never break the form */
-        }
+        if (!res.ok) throw new Error(res.error || "Lead not accepted");
 
         formView.hidden = true;
         success.hidden = false;

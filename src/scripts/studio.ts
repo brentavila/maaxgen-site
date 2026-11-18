@@ -12,9 +12,8 @@
  *   data-studio-hash        hash prefix for deep links        "#studio/"
  *   data-studio-noun        singular noun for announcements   "service"
  *   data-studio-nouns       plural noun                       "services"
- *   data-studio-source      dataLayer `source`                "service-studio"
- *   data-studio-open-event  dataLayer event on open           "studio_service_open"
- *   data-studio-id-param    dataLayer key for the opened id   "service_id"
+ *   data-studio-id-param    "play_id" on industry pages: view_item item_category is then
+ *                           "industry_play" (default "service")
  *   data-studio-clone-visuals  (flag, industry pages) detail visuals are empty
  *                              [data-studio-visual-slot]s filled with a copy of the
  *                              card's illustration on first open, so each one is in
@@ -23,26 +22,12 @@
  * Cards: [data-studio-card=<id>] with data-cat (filter value) and data-search (lowercase text).
  */
 import { onShortlistChange, getShortlist } from "../lib/shortlist";
+import { track } from "../lib/tracking";
 
 type View = "stack" | "focus" | "grid";
 
 const AUTO_MS = 6000;
 const DEPTHS = 4;
-
-function makeTrack(source: string) {
-  return function track(event: string, params: Record<string, string | number>): void {
-    // Same convention as src/funnel/track.ts: consent-aware dataLayer push.
-    try {
-      const consent = (window as unknown as { MaaxConsent?: { get?: () => { analytics?: boolean } | null } })
-        .MaaxConsent;
-      if (consent && typeof consent.get === "function" && !consent.get()?.analytics) return;
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event, ...params, source });
-    } catch {
-      /* analytics must never break the page */
-    }
-  };
-}
 
 /** Initialise every studio on the page (normally one). */
 export function initStudio(): void {
@@ -56,9 +41,8 @@ export function initStudioRoot(root: HTMLElement): void {
   const HASH_PREFIX = root.dataset.studioHash || "#studio/";
   const NOUN = root.dataset.studioNoun || "service";
   const NOUNS = root.dataset.studioNouns || "services";
-  const OPEN_EVENT = root.dataset.studioOpenEvent || "studio_service_open";
-  const ID_PARAM = root.dataset.studioIdParam || "service_id";
-  const track = makeTrack(root.dataset.studioSource || "service-studio");
+  // Industry studios open "plays" (data-studio-id-param="play_id"); the homepage studio opens services.
+  const ITEM_CATEGORY = root.dataset.studioIdParam === "play_id" ? "industry_play" : "service";
   const CLONE_VISUALS = root.hasAttribute("data-studio-clone-visuals");
 
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -221,7 +205,6 @@ export function initStudioRoot(root: HTMLElement): void {
     view = next;
     animateStage();
     render();
-    if (!opts.silent) track("studio_view_change", { view });
     if (view === "stack") {
       ensureClear(peekById.get(active)?.querySelector(".studio-peek__actions"));
     }
@@ -287,7 +270,7 @@ export function initStudioRoot(root: HTMLElement): void {
     } else {
       setView("focus");
     }
-    track(OPEN_EVENT, { [ID_PARAM]: id });
+    track("view_item", { item_id: id, item_category: ITEM_CATEGORY });
     bringStudioIntoView(!wasFocus);
     // A hash change also triggers the browser's fragment scroll; re-align after it.
     if (how === "none" && !wasFocus) requestAnimationFrame(() => bringStudioIntoView(true));
