@@ -64,7 +64,7 @@ Vercel → the maaxgen-site project → Settings → Environment Variables.
 
 Redeploy after changing variables. Vercel only reads them at deploy time.
 
-Safety net: if `LEAD_WEBHOOK_URL` is missing in Production, leads still go to the GHL webhook the site used before, and the logs show a warning. Set it anyway.
+Required: if `LEAD_WEBHOOK_URL` is missing on the project that serves www.maaxgen.com, every form shows its error message and the Vercel logs show `LEAD_WEBHOOK_URL is not set`. Set it on that project (Settings → Domains shows which one) and redeploy.
 
 ## Step 3. Set up GoHighLevel to receive the leads
 
