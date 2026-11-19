@@ -31,13 +31,6 @@ export const LEAD_FORM_IDS: readonly LeadFormId[] = [
 /** Default Meta pixel (same id as src/lib/analytics/consent.ts). Env META_PIXEL_ID overrides. */
 export const DEFAULT_META_PIXEL_ID = "1528990838912009";
 
-/**
- * Production fallback for the CRM forward when LEAD_WEBHOOK_URL is not set, so leads never stop
- * on a deploy that forgot the env var. Server-side only; never ships to the browser.
- */
-export const DEFAULT_LEAD_WEBHOOK_URL =
-  "https://services.leadconnectorhq.com/hooks/yumx8KoOhRfNc1pxaesc/webhook-trigger/99267a30-84fa-46d6-9772-66e2c9c6ac42";
-
 export const META_GRAPH_VERSION = "v21.0";
 export const MIN_ELAPSED_MS = 2500;
 

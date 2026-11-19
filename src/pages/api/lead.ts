@@ -6,7 +6,6 @@
 import type { APIRoute } from "astro";
 import type { LeadResponse } from "../../lib/tracking/contract";
 import {
-  DEFAULT_LEAD_WEBHOOK_URL,
   DEFAULT_META_PIXEL_ID,
   buildCapiBody,
   buildCrmPayload,
@@ -88,7 +87,7 @@ export const POST: APIRoute = async ({ request }) => {
   const testEventCode = env("META_TEST_EVENT_CODE");
   const capiBody = buildCapiBody(lead, { ipAddress, userAgent, eventTime: now, testEventCode });
 
-  let webhookUrl = env("LEAD_WEBHOOK_URL");
+  const webhookUrl = env("LEAD_WEBHOOK_URL");
   const dryRun = env("TRACKING_DRY_RUN") === "1" || (import.meta.env.DEV && !webhookUrl);
 
   if (dryRun) {
@@ -108,8 +107,13 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   if (!webhookUrl) {
-    console.warn("[api/lead] LEAD_WEBHOOK_URL is not set; using the built-in default GHL webhook");
-    webhookUrl = DEFAULT_LEAD_WEBHOOK_URL;
+    // No silent fallback: a missing variable must be visible, not routed somewhere stale.
+    // The form shows its error state, and nothing is sent to Meta for a lead the CRM never got.
+    console.error(
+      `[api/lead] LEAD_WEBHOOK_URL is not set on this deployment; lead NOT delivered (event_id ${lead.eventId}). ` +
+        "Set it in Vercel > Project > Settings > Environment Variables and redeploy."
+    );
+    return json({ ok: false, mode: "sent", error: "Lead delivery is not configured" }, 503);
   }
 
   const crmTask = postJson(webhookUrl, crmPayload);
