@@ -25,8 +25,15 @@ Every tag uses the built-in consent checks only, with no additional consent requ
 
 ### Triggers
 
-- **CE - `<event>`:** one Custom Event trigger per contract event, matching the exact event name.
+- **CE - `<event>`:** one Custom Event trigger per contract event, matching the exact event name. `CE - generate_lead` is the lead trigger. It fires when the browser pushes `generate_lead`, which every lead form does on a successful submit.
 - **Built-in triggers:** the Google tag uses Initialization - All Pages, and the Conversion Linker uses All Pages.
+
+Form leads do not use a thank-you page. The industry form, including `/industries/used-car-dealerships/`, stays on the page and reveals its success message (`#ind-lead-success`) after `submitLead()` pushes `generate_lead`. `/thank-you/?booked=1` is only the calendar booking redirect, and that page pushes `book_appointment`.
+
+The published container still has two older tags that are not in this import. Pause them so they do not count the wrong thing:
+
+- A GA4 `generate_lead` tag with no parameters, fired when Page Path contains `/thank-you` on Container Loaded. It never sees the used-car form, and it also fires on a booking redirect.
+- An Element Visibility trigger on `section.pricing-tiers-section` (the pricing page and the counseling plans section) that sends `view_pricing`. That is not the used-car form.
 
 ### Variables
 

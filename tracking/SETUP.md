@@ -87,7 +87,7 @@ Webhook or n8n? Point `LEAD_WEBHOOK_URL` straight at GHL. Fewer hops means fewer
 
 **3c. Calendar redirect.** On the GHL calendar used in the Growth System, set the confirmation action to *redirect* to
 `https://maaxgen.com/thank-you/?booked=1`
-*Why:* the site also listens for GHL's booking message from the embedded calendar, but that message is not officially documented. The redirect is the reliable backup, and the thank-you page counts each booking only once.
+*Why:* the site also listens for GHL's booking message from the embedded calendar, but that message is not officially documented. The redirect is the reliable backup, and the thank-you page counts that booking once (`book_appointment`). Lead forms do not redirect there. They push `generate_lead` on the page where the form was submitted, including the used-car dealership form, which shows its success message in place.
 
 ## Step 4. Import the GTM container
 
