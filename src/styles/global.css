@@ -1142,6 +1142,21 @@ p { margin: 0 0 1rem; }
   accent-color: var(--color-brand);
 }
 
+.consent__title {
+  font-weight: 600;
+  color: var(--color-slate);
+}
+
+.consent__item a { text-decoration: underline; }
+
+/* Black Friday claim form: the opt-in that unlocks the waived setup fee. */
+.consent__item--offer {
+  border: 1px solid var(--color-brand);
+  border-radius: var(--radius);
+  padding: 0.85rem 0.9rem;
+  background: color-mix(in srgb, var(--color-brand) 6%, transparent);
+}
+
 .form-legal {
   font-size: 0.9rem;
   color: var(--color-muted);

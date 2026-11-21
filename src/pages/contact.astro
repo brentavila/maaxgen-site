@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import SmsConsent from "../components/forms/SmsConsent.astro";
 import Honeypot from "../components/forms/Honeypot.astro";
 import PromoNote from "../components/promo/PromoNote.astro";
 import "../styles/founder.css";
@@ -101,31 +102,7 @@ const founderPhone = getFounderImage("founder-phone");
             placeholder="Goals, current channels, timeline, and what you want off your plate"
           ></textarea>
 
-          <fieldset class="consent phase-consent">
-            <legend>Text message preferences <span class="field-optional">(optional)</span></legend>
-            <p class="consent__intro">
-              Your phone number and both choices below are optional. You can contact us without
-              agreeing to text messages.
-            </p>
-            <label class="consent__item">
-              <input type="checkbox" name="sms-marketing" value="yes" />
-              <span>
-                I consent to receive marketing text messages, about special offers, discounts, and
-                service updates, from MaaxGen at the phone number provided. Message frequency may
-                vary. Message &amp; data rates may apply. Text HELP for assistance, reply STOP to
-                opt out.
-              </span>
-            </label>
-            <label class="consent__item">
-              <input type="checkbox" name="sms-transactional" value="yes" />
-              <span>
-                I consent to receive non-marketing text messages from MaaxGen about appointment and
-                booking confirmations, replies to my inquiry, and account or service updates.
-                Message frequency may vary. Message &amp; data rates may apply. Text HELP for
-                assistance, reply STOP to opt out.
-              </span>
-            </label>
-          </fieldset>
+          <SmsConsent />
 
           <PromoNote />
           <button type="submit" class="btn btn--primary phase-contact-form__submit">
@@ -161,7 +138,7 @@ const founderPhone = getFounderImage("founder-phone");
   <script>
     import { submitLead } from "../lib/tracking";
     import { splitName, watchLeadForm } from "../lib/lead-form";
-    import { SMS_MARKETING_CONSENT, SMS_TRANSACTIONAL_CONSENT } from "../lib/sms-consent";
+    import { SMS_CONSENT_VERSION, SMS_MARKETING_CONSENT, SMS_TRANSACTIONAL_CONSENT } from "../lib/sms-consent";
 
     const form = document.getElementById("contact-form");
     const successBox = document.getElementById("form-success");
@@ -260,6 +237,9 @@ const founderPhone = getFounderImage("founder-phone");
           smsTransactionalConsent: transactionalConsent ? "yes" : "no",
           smsMarketingConsentText: marketingConsent ? SMS_MARKETING_CONSENT : "",
           smsTransactionalConsentText: transactionalConsent ? SMS_TRANSACTIONAL_CONSENT : "",
+          smsConsentVersion: SMS_CONSENT_VERSION,
+          // During the offer, a marketing text opt-in waives the setup fee.
+          setupFeeWaiver: promo.promoId && marketingConsent ? "yes" : "no",
           graderGrade: String(data.get("grader-grade") || ""),
           graderScore: String(data.get("grader-score") || ""),
           graderIndustry: String(data.get("grader-industry") || ""),
