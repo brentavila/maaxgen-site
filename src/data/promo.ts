@@ -54,10 +54,13 @@ export const PROMO = {
   timeZone: TIME_ZONE,
   timeZoneLabel: "Mountain Time",
   benefits,
+  /** Brent's strategy call calendar (GoHighLevel). Shown right after someone claims. */
+  bookingUrl: "https://brand.maaxgen.com/widget/bookings/brent-jadag",
   cta: {
     claim: "Claim the offer",
     see: "See the offer",
     alt: "Grade my ads",
+    book: "Pick a time for your call",
   },
   copy: {
     /** Mobile promo bar: must stay one short line at 320px. */

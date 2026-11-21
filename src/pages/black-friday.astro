@@ -174,10 +174,19 @@ const steps = [
             <span class="promo-claim__tick" aria-hidden="true">✓</span>
             <h3>We have your request.</h3>
             <p>
-              We will follow up to set up your strategy call and confirm the specifics of the offer.
-              Typical response: within one business day.
+              Next is a short strategy call where we confirm fit, scope and the specifics of the
+              offer. Pick a time now, or we will reach out within one business day.
             </p>
-            <a class="btn btn--secondary" href="/ad-account-grader/">Grade my ads while you wait</a>
+            <div class="cta-row promo-claim__next">
+              <a
+                class="btn btn--primary"
+                href={PROMO.bookingUrl}
+                target="_blank"
+                rel="noopener"
+              >{PROMO.cta.book} <span aria-hidden="true">→</span></a>
+              <a class="btn btn--secondary" href="/ad-account-grader/">Grade my ads while you wait</a>
+            </div>
+            <p class="promo-claim__fine">We also emailed you the booking link.</p>
           </div>
         </div>
       </div>
