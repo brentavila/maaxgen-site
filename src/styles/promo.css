@@ -321,6 +321,8 @@ html.js .promo-countdown { display: flex; }
 .promo-claim__success[hidden] { display: none; }
 .promo-claim__success h3 { margin-top: 0; }
 .promo-claim__success p { color: var(--color-muted); }
+.promo-claim__next { justify-content: center; margin-top: 1rem; }
+.promo-claim__fine { font-size: 0.875rem; margin-top: 0.75rem; }
 .promo-claim__tick {
   display: grid;
   place-items: center;
