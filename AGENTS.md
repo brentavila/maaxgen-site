@@ -23,7 +23,7 @@ Codex handoff prompt: [CODEX_HANDOFF.md](./CODEX_HANDOFF.md)
   - When testing, never submit the plan or contact form to the live webhook; stub `window.fetch` instead.
 - Promotions (Black Friday / Cyber Monday, promo id `bfcm-2026`):
   - Config and terms: `src/data/promo.ts`. The window is set by the `PROMO_START` and `PROMO_END` strings at the top of the file (currently 16 November 2026 through the end of 30 November 2026, US Mountain Time).
-  - Terms are exactly three statements: 15-day risk-free trial, no monthly contract, waived setup fee.
+  - Terms are exactly three statements: 15-day risk-free trial (first month paid at kickoff, full refund if cancelled by day 15; never "free trial"), no monthly contract, setup fee waived for a marketing text opt-in. SMS consent wording lives in `src/lib/sms-consent.ts` and renders through `src/components/forms/SmsConsent.astro`.
   - Self-expiry: promo elements hide themselves outside the window at build time and again in the browser at view time. No rebuild is needed when it ends.
   - Surfaces and files:
     - Top promo bar: `src/components/Header.astro`

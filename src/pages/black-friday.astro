@@ -4,6 +4,7 @@ import PromoBenefits from "../components/promo/PromoBenefits.astro";
 import PromoCountdown from "../components/promo/PromoCountdown.astro";
 import "../styles/promo.css";
 import Honeypot from "../components/forms/Honeypot.astro";
+import SmsConsent from "../components/forms/SmsConsent.astro";
 import { PROMO, isPromoActive, promoDeadlineLine } from "../data/promo";
 
 const active = isPromoActive(new Date());
@@ -16,7 +17,10 @@ const steps = [
     title: "Strategy call",
     body: "We confirm fit and scope with you, and go through the specifics of the offer.",
   },
-  { title: "Your trial starts", body: "Your 15-day trial begins, and you work with us before you commit." },
+  {
+    title: "Your trial starts",
+    body: "Your first month is paid at kickoff. Cancel by day 15 and we refund it in full.",
+  },
 ];
 ---
 
@@ -123,7 +127,7 @@ const steps = [
                 />
               </div>
             </div>
-            <label for="promo-phone">Phone <span class="field-optional">(optional, fastest way to book your call)</span></label>
+            <label for="promo-phone">Mobile phone <span class="field-optional">(optional, needed for texts)</span></label>
             <input id="promo-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" />
 
             <label for="promo-note">Anything we should know? <span class="field-optional">(optional)</span></label>
@@ -134,31 +138,7 @@ const steps = [
               maxlength="1000"
               placeholder="Goals, timeline, or what you want off your plate"></textarea>
 
-            <fieldset class="consent phase-consent">
-              <legend>Text message preferences <span class="field-optional">(optional)</span></legend>
-              <p class="consent__intro">
-                Your phone number and both choices below are optional. You can claim the offer without
-                agreeing to text messages.
-              </p>
-              <label class="consent__item">
-                <input type="checkbox" name="sms-transactional" value="yes" />
-                <span>
-                  I consent to receive non-marketing text messages from MaaxGen about appointment and
-                  booking confirmations, replies to my inquiry, and account or service updates.
-                  Message frequency may vary. Message &amp; data rates may apply. Text HELP for
-                  assistance, reply STOP to opt out.
-                </span>
-              </label>
-              <label class="consent__item">
-                <input type="checkbox" name="sms-marketing" value="yes" />
-                <span>
-                  I consent to receive marketing text messages, about special offers, discounts, and
-                  service updates, from MaaxGen at the phone number provided. Message frequency may
-                  vary. Message &amp; data rates may apply. Text HELP for assistance, reply STOP to
-                  opt out.
-                </span>
-              </label>
-            </fieldset>
+            <SmsConsent variant="bfcm" />
 
             <button type="submit" class="btn btn--primary promo-claim__submit">
               {PROMO.cta.claim} <span aria-hidden="true">→</span>
@@ -215,7 +195,7 @@ const steps = [
   import { PROMO } from "../data/promo";
   import { PROMO_CHANGE_EVENT, initPromo, promoActiveNow } from "../components/promo/promo-client";
   import { submitLead } from "../lib/tracking";
-  import { SMS_MARKETING_CONSENT, SMS_TRANSACTIONAL_CONSENT } from "../lib/sms-consent";
+  import { SMS_BFCM_MARKETING_CONSENT, SMS_CONSENT_VERSION, SMS_TRANSACTIONAL_CONSENT } from "../lib/sms-consent";
   import { splitName, watchLeadForm } from "../lib/lead-form";
 
   initPromo();
@@ -259,6 +239,15 @@ const steps = [
       const smsConsent = [marketingConsent ? "marketing" : "", transactionalConsent ? "transactional" : ""]
         .filter(Boolean)
         .join(",");
+      const phone = String(data.get("phone") || "").trim();
+
+      // A text opt-in (and the setup fee waiver it unlocks) needs a number to text.
+      if ((marketingConsent || transactionalConsent) && phone.replace(/\D/g, "").length < 10) {
+        statusEl.hidden = false;
+        statusEl.textContent = "Add a mobile number so we can text you, or uncheck the text boxes.";
+        form.querySelector<HTMLInputElement>("#promo-phone")?.focus();
+        return;
+      }
 
       statusEl.hidden = true;
       submitBtn.disabled = true;
@@ -272,7 +261,7 @@ const steps = [
             firstName,
             lastName,
             email: String(data.get("email") || ""),
-            phone: String(data.get("phone") || "").trim(),
+            phone,
             website: String(data.get("website") || "").trim(),
           },
           fields: {
@@ -285,8 +274,11 @@ const steps = [
             smsConsent,
             smsMarketingConsent: marketingConsent ? "yes" : "no",
             smsTransactionalConsent: transactionalConsent ? "yes" : "no",
-            smsMarketingConsentText: marketingConsent ? SMS_MARKETING_CONSENT : "",
+            smsMarketingConsentText: marketingConsent ? SMS_BFCM_MARKETING_CONSENT : "",
             smsTransactionalConsentText: transactionalConsent ? SMS_TRANSACTIONAL_CONSENT : "",
+            smsConsentVersion: SMS_CONSENT_VERSION,
+            // Black Friday: opting in to marketing texts is what waives the setup fee.
+            setupFeeWaiver: marketingConsent ? "yes" : "no",
           },
           hp: watch.hp(),
           startedAt: watch.startedAt(),

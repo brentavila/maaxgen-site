@@ -1,0 +1,57 @@
+---
+/**
+ * The SMS consent block for every lead form. Wording lives in src/lib/sms-consent.ts, and the
+ * form sends the same strings with the lead as the consent record.
+ *
+ * variant "default": contact form and industry forms.
+ * variant "bfcm": the Black Friday claim form. The marketing box comes first, framed as the
+ * setup fee waiver, and the transactional box covers booking texts for the strategy call.
+ * Both boxes are unchecked and optional in every variant.
+ */
+import { SMS_COPY, SMS_DISCLOSURES, SMS_LINK_SENTENCE, type SmsConsentCopy } from "../../lib/sms-consent";
+
+interface Props {
+  variant?: "default" | "bfcm";
+  /** Overrides the intro line, e.g. "You can contact us without agreeing to text messages." */
+  intro?: string;
+}
+const { variant = "default", intro } = Astro.props;
+const bfcm = variant === "bfcm";
+
+interface Box {
+  name: "sms-marketing" | "sms-transactional";
+  copy: SmsConsentCopy;
+  highlight?: boolean;
+}
+const boxes: Box[] = bfcm
+  ? [
+      { name: "sms-marketing", copy: SMS_COPY.marketingBfcm, highlight: true },
+      { name: "sms-transactional", copy: SMS_COPY.transactional },
+    ]
+  : [
+      { name: "sms-marketing", copy: SMS_COPY.marketing },
+      { name: "sms-transactional", copy: SMS_COPY.transactional },
+    ];
+
+const introText =
+  intro ??
+  (bfcm
+    ? "Both boxes are optional, and you can claim the offer without either one. Opt in to offer texts and we waive your setup fee."
+    : "Your phone number and both choices below are optional. You can contact us without agreeing to text messages.");
+
+// Guard: the link sentence must stay at the end of the disclosures the record holds.
+const linkLead = SMS_LINK_SENTENCE.replace("Privacy Policy and SMS Terms.", "");
+---
+<fieldset class:list={["consent", "phase-consent", { "consent--bfcm": bfcm }]}>
+  <legend>Text messages <span class="field-optional">(optional)</span></legend>
+  <p class="consent__intro">{introText}</p>
+  {boxes.map((box) => (
+    <label class:list={["consent__item", { "consent__item--offer": box.highlight }]}>
+      <input type="checkbox" name={box.name} value="yes" />
+      <span>
+        <strong class="consent__title">{box.copy.title}.</strong>{" "}
+        {box.copy.body} {SMS_DISCLOSURES} {linkLead}<a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/terms/#sms" target="_blank" rel="noopener">SMS Terms</a>.
+      </span>
+    </label>
+  ))}
+</fieldset>
