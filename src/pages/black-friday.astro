@@ -197,6 +197,7 @@ const steps = [
   import { submitLead } from "../lib/tracking";
   import { SMS_BFCM_MARKETING_CONSENT, SMS_CONSENT_VERSION, SMS_TRANSACTIONAL_CONSENT } from "../lib/sms-consent";
   import { splitName, watchLeadForm } from "../lib/lead-form";
+  import { burstConfetti } from "../lib/confetti";
 
   initPromo();
 
@@ -287,7 +288,11 @@ const steps = [
 
         form.hidden = true;
         success.hidden = false;
-        success.focus();
+        // Hiding the long form leaves the visitor far below the message, so bring it to them.
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        success.focus({ preventScroll: true });
+        success.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+        window.setTimeout(() => burstConfetti(success), reduceMotion ? 0 : 350);
       } catch (error) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = SUBMIT_LABEL;
