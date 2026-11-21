@@ -123,6 +123,9 @@ const steps = [
                 />
               </div>
             </div>
+            <label for="promo-phone">Phone <span class="field-optional">(optional, fastest way to book your call)</span></label>
+            <input id="promo-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" />
+
             <label for="promo-note">Anything we should know? <span class="field-optional">(optional)</span></label>
             <textarea
               id="promo-note"
@@ -130,6 +133,32 @@ const steps = [
               rows="3"
               maxlength="1000"
               placeholder="Goals, timeline, or what you want off your plate"></textarea>
+
+            <fieldset class="consent phase-consent">
+              <legend>Text message preferences <span class="field-optional">(optional)</span></legend>
+              <p class="consent__intro">
+                Your phone number and both choices below are optional. You can claim the offer without
+                agreeing to text messages.
+              </p>
+              <label class="consent__item">
+                <input type="checkbox" name="sms-transactional" value="yes" />
+                <span>
+                  I consent to receive non-marketing text messages from MaaxGen about appointment and
+                  booking confirmations, replies to my inquiry, and account or service updates.
+                  Message frequency may vary. Message &amp; data rates may apply. Text HELP for
+                  assistance, reply STOP to opt out.
+                </span>
+              </label>
+              <label class="consent__item">
+                <input type="checkbox" name="sms-marketing" value="yes" />
+                <span>
+                  I consent to receive marketing text messages, about special offers, discounts, and
+                  service updates, from MaaxGen at the phone number provided. Message frequency may
+                  vary. Message &amp; data rates may apply. Text HELP for assistance, reply STOP to
+                  opt out.
+                </span>
+              </label>
+            </fieldset>
 
             <button type="submit" class="btn btn--primary promo-claim__submit">
               {PROMO.cta.claim} <span aria-hidden="true">→</span>
@@ -177,6 +206,7 @@ const steps = [
   import { PROMO } from "../data/promo";
   import { PROMO_CHANGE_EVENT, initPromo, promoActiveNow } from "../components/promo/promo-client";
   import { submitLead } from "../lib/tracking";
+  import { SMS_MARKETING_CONSENT, SMS_TRANSACTIONAL_CONSENT } from "../lib/sms-consent";
   import { splitName, watchLeadForm } from "../lib/lead-form";
 
   initPromo();
@@ -215,6 +245,11 @@ const steps = [
         `Claiming the ${PROMO.name} offer.${interestedServicesText ? ` Interested in: ${interestedServicesText}.` : ""}`;
 
       const { firstName, lastName } = splitName(String(data.get("name") || ""));
+      const marketingConsent = data.get("sms-marketing") === "yes";
+      const transactionalConsent = data.get("sms-transactional") === "yes";
+      const smsConsent = [marketingConsent ? "marketing" : "", transactionalConsent ? "transactional" : ""]
+        .filter(Boolean)
+        .join(",");
 
       statusEl.hidden = true;
       submitBtn.disabled = true;
@@ -228,6 +263,7 @@ const steps = [
             firstName,
             lastName,
             email: String(data.get("email") || ""),
+            phone: String(data.get("phone") || "").trim(),
             website: String(data.get("website") || "").trim(),
           },
           fields: {
@@ -237,6 +273,11 @@ const steps = [
             interestedServiceIds: ids.join(","),
             promoId: PROMO.id,
             promoName: PROMO.name,
+            smsConsent,
+            smsMarketingConsent: marketingConsent ? "yes" : "no",
+            smsTransactionalConsent: transactionalConsent ? "yes" : "no",
+            smsMarketingConsentText: marketingConsent ? SMS_MARKETING_CONSENT : "",
+            smsTransactionalConsentText: transactionalConsent ? SMS_TRANSACTIONAL_CONSENT : "",
           },
           hp: watch.hp(),
           startedAt: watch.startedAt(),
