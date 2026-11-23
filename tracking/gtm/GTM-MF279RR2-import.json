@@ -159,6 +159,53 @@
             {
                 "accountId": "1234567890",
                 "containerId": "11111111",
+                "tagId": "78",
+                "name": "Google tag - Google Ads",
+                "type": "googtag",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "tagId",
+                        "value": "AW-{{Const - AW Conversion ID}}"
+                    },
+                    {
+                        "type": "LIST",
+                        "key": "configSettingsTable",
+                        "list": [
+                            {
+                                "type": "MAP",
+                                "map": [
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameter",
+                                        "value": "send_page_view"
+                                    },
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameterValue",
+                                        "value": "true"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "fingerprint": "0",
+                "firingTriggerId": [
+                    "2147479573"
+                ],
+                "parentFolderId": "3",
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "monitoringMetadata": {
+                    "type": "MAP"
+                },
+                "consentSettings": {
+                    "consentStatus": "NOT_NEEDED"
+                }
+            },
+            {
+                "accountId": "1234567890",
+                "containerId": "11111111",
                 "tagId": "60",
                 "name": "GA4 - generate_lead",
                 "type": "gaawe",
@@ -2240,7 +2287,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "REPLACE_ME_AW_ID_DIGITS_ONLY"
+                        "value": "18395450276"
                     }
                 ],
                 "fingerprint": "0",
@@ -2257,7 +2304,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "REPLACE_ME_LEAD_LABEL"
+                        "value": "QfdqCPndjrsdEKSX0cNE"
                     }
                 ],
                 "fingerprint": "0",
@@ -2274,7 +2321,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "REPLACE_ME_BOOKED_LABEL"
+                        "value": "zBz3CIOwkLsdEKSX0cNE"
                     }
                 ],
                 "fingerprint": "0",

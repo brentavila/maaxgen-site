@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "verify:gtm-ads": "node scripts/verify-gtm-ads.mjs"
   },
   "dependencies": {
     "@astrojs/vercel": "^10.0.8",
