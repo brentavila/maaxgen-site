@@ -202,5 +202,6 @@ export const LEAD_VALUES: Record<LeadFormId | "book_appointment", number> = {
  * Enhanced conversions: generate_lead also pushes user_data in the shape GTM's
  * "User-Provided Data" variable reads (Data Layer > user_data):
  *   { email, phone_number (E.164), address: { first_name, last_name, postal_code, country: "US" } }
- * The push is cleared afterwards with { user_data: undefined } so it does not leak into later events.
+ * The push is cleared after GTM's generate_lead eventCallback (or 1.2s) with
+ * { user_data: undefined } so it does not leak into later events.
  */

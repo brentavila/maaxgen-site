@@ -94,7 +94,7 @@ Webhook or n8n? Point `LEAD_WEBHOOK_URL` straight at GHL. Fewer hops means fewer
 Full detail is in `tracking/gtm/README.md`. In short:
 
 1. GTM (GTM-MF279RR2) → Admin → **Import Container** → file `tracking/gtm/GTM-MF279RR2-import.json` → workspace: new → **Merge** → **Rename conflicting**.
-2. Variables → set `Const - AW Conversion ID` (digits only) and the three label constants from step 1c.
+2. Variables → confirm `Const - AW Conversion ID` is `18395450276` and the Lead / Booked call labels match Google Ads. Paste the Click to call label when that conversion action exists (it is still a placeholder). Confirm **Google tag - Google Ads** fires on Initialization.
 3. **Delete or pause any older tags** that fire GA4 or Google Ads, and **any Meta/Facebook pixel tag**. The site fires the Meta Pixel itself, so a GTM pixel tag would double count every event.
 4. If the journey crosses to another domain, add it to `Const - Cross-domain list` (comma-separated). Subdomains of maaxgen.com need nothing: they share cookies automatically.
 

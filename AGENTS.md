@@ -46,7 +46,7 @@ Codex handoff prompt: [CODEX_HANDOFF.md](./CODEX_HANDOFF.md)
 - Conversion tracking (setup guide: `tracking/SETUP.md`):
   - Contract (events, CRM keys, lead values): `src/lib/tracking/contract.ts`. Browser API: `submitLead()` and `track()` from `src/lib/tracking`. No component calls `fbq`, `gtag`, or `dataLayer.push` directly.
   - Every lead form posts to `/api/lead` (`src/pages/api/lead.ts`, the only on-demand route, Vercel adapter), which forwards to `LEAD_WEBHOOK_URL` (GHL/n8n) and Meta CAPI with a shared event id.
-  - The Meta Pixel is hardcoded in `ConsentManager.astro`; GTM (`tracking/gtm/`) handles GA4 and Google Ads only and must contain no Meta tags.
+  - The Meta Pixel is hardcoded in `ConsentManager.astro`; GTM (`tracking/gtm/`) handles GA4 and Google Ads only and must contain no Meta tags. Google Ads Google tag + conversion tags: `tracking/gtm/README.md`; smoke: `npm run verify:gtm-ads`.
   - `/api/lead` dry-runs under `astro dev` without `LEAD_WEBHOOK_URL`, or with `TRACKING_DRY_RUN=1`.
 
 ## Brand
@@ -55,6 +55,6 @@ MaaxGen — marketing, advertising, and AI agency; bundled services for local an
 
 ## Cursor Cloud specific instructions
 
-Single service: Astro 6 static marketing site (Node `>=22.12`, npm + `package-lock.json`). Commands: see `package.json` (`npm run dev` → `http://localhost:4321/`, `npm run build`). No ESLint/`astro check` package is declared — treat a clean `npm run build` as the type/content gate. Funnel scoring smoke: `node scripts/verify-funnel-scoring.mjs`.
+Single service: Astro 6 static marketing site (Node `>=22.12`, npm + `package-lock.json`). Commands: see `package.json` (`npm run dev` → `http://localhost:4321/`, `npm run build`). No ESLint/`astro check` package is declared — treat a clean `npm run build` as the type/content gate. Funnel scoring smoke: `node scripts/verify-funnel-scoring.mjs`. Google Ads / GTM smoke: `npm run verify:gtm-ads`.
 
 Optional env (`.env.example`): `PUBLIC_VSL_*` / `PUBLIC_GHL_*` only affect Growth System VSL video, calendar embed, and webhook submits; the site and Ad Account Grader run without them. Growth System `/growth-system/results` is client-rendered from session state after `/growth-system/qualify` — a cold load of results with no prior answers shows the empty CTA, not a grade. For a quick interactive smoke test, prefer `/ad-account-grader` (five questions → on-page letter grade).

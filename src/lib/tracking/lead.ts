@@ -99,6 +99,9 @@ function fireLeadConversion(req: LeadRequest): Promise<void> {
     release = () => {
       if (settled) return;
       settled = true;
+      // Clear after GTM has read generate_lead. Clearing in the same tick as the
+      // push (a finally block) empties UPD - user_data before Ads enhanced conversions run.
+      pushDataLayer({ user_data: undefined });
       resolve();
     };
     setTimeout(release, CONVERSION_WAIT_MS);
@@ -132,8 +135,6 @@ function fireLeadConversion(req: LeadRequest): Promise<void> {
     // Meta Lead fired synchronously inside track(), before we wait on GTM.
   } catch {
     release();
-  } finally {
-    pushDataLayer({ user_data: undefined });
   }
   return done;
 }

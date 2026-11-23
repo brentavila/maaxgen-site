@@ -13,6 +13,7 @@ Everything is filed in three folders: **MaaxGen - Core**, **MaaxGen - GA4**, and
 | Tag | Type | Trigger | Destination |
 | --- | --- | --- | --- |
 | Google tag - GA4 | Google tag | Initialization - All Pages | GA4 page views (`send_page_view` true; cookie settings left at defaults) |
+| Google tag - Google Ads | Google tag | Initialization - All Pages | Loads `AW-{{Const - AW Conversion ID}}` on every page so Ads conversions and remarketing share one Google tag |
 | Conversion Linker | Conversion Linker | All Pages | Saves Google Ads click ids (gclid) and links them across the domains in `Const - Cross-domain list` |
 | GA4 - `<event>` (15 tags) | GA4 Event | CE - `<event>` | GA4 event of the same name, with the contract's parameters plus `page_type` |
 | Ads - Lead - form | Google Ads Conversion Tracking | CE - generate_lead | Google Ads "Lead - form": value, currency, transaction id = `event_id`, enhanced conversions |
@@ -26,7 +27,7 @@ Every tag uses the built-in consent checks only, with no additional consent requ
 ### Triggers
 
 - **CE - `<event>`:** one Custom Event trigger per contract event, matching the exact event name.
-- **Built-in triggers:** the Google tag uses Initialization - All Pages, and the Conversion Linker uses All Pages.
+- **Built-in triggers:** both Google tags use Initialization - All Pages; the Conversion Linker uses All Pages.
 
 ### Variables
 
@@ -39,16 +40,18 @@ Every tag uses the built-in consent checks only, with no additional consent requ
 - **User-Provided Data:** `UPD - user_data`, in Manual mode. Each field reads its matching `dlv - user_data.*` variable. Manual mode shows every field in the GTM interface, which makes a missing field easy to spot in Preview. The site pushes these fields as plain text, and Google hashes them before sending.
 - **Built-in variables:** Page URL, Page Hostname, Page Path, Referrer, Event, Click Element, Click URL, Click Text, Container ID, Debug Mode.
 
-## Replace the placeholders before publishing
+## Conversion IDs (account 670-486-2856)
 
-Open each of these variables in GTM (Variables → User-Defined Variables) and enter the real value.
+These constants are filled from the published GTM-MF279RR2 container. Re-import this file (Merge → Rename conflicting, then pause duplicates) so a workspace matches git.
 
-| Variable | Placeholder | Where to find the value |
+| Variable | Value | Notes |
 | --- | --- | --- |
-| Const - AW Conversion ID | `REPLACE_ME_AW_ID_DIGITS_ONLY` | Google Ads → Goals → Conversions → open any of the three conversion actions → Tag setup → **Use Google Tag Manager** → **Conversion ID**. Enter the digits only, without the `AW-` prefix. All three actions share the same ID. |
-| Const - AW Label - Lead form | `REPLACE_ME_LEAD_LABEL` | The **Conversion label** on the same screen for the "Lead - form" action |
-| Const - AW Label - Booked call | `REPLACE_ME_BOOKED_LABEL` | The **Conversion label** for the "Booked call" action |
-| Const - AW Label - Click to call | `REPLACE_ME_CALL_LABEL` | The **Conversion label** for the "Click to call" action |
+| Const - AW Conversion ID | `18395450276` | Digits only. The Google tag ID is `AW-18395450276`. |
+| Const - AW Label - Lead form | `QfdqCPndjrsdEKSX0cNE` | Primary conversion; enhanced conversions on |
+| Const - AW Label - Booked call | `zBz3CIOwkLsdEKSX0cNE` | Primary conversion |
+| Const - AW Label - Click to call | `REPLACE_ME_CALL_LABEL` | Still a placeholder in the live container. Create the secondary "Click to call" action in Google Ads, paste its **Conversion label** here, then re-import. |
+
+`node scripts/verify-gtm-ads.mjs` checks that the Ads Google tag, Conversion Linker, three `awct` tags, and filled IDs are present, and that the site does not load a second AW snippet.
 
 On the "Lead - form" action, also turn on enhanced conversions in Google Ads: Goals → Settings → Enhanced conversions, using Google Tag Manager.
 
@@ -67,7 +70,7 @@ For GA4, turn on Admin → Data collection → "User-provided data collection".
 
 1. Click **Preview**, enter `https://maaxgen.com`, and connect Tag Assistant.
 2. On the first page load:
-   - Under **Initialization**, "Google tag - GA4" should fire.
+   - Under **Initialization**, "Google tag - GA4" and "Google tag - Google Ads" should fire.
    - Under **Container Loaded**, "Conversion Linker" should fire.
 3. Click around the site. Each tracked action should show its event in the left column (form_start, cta_click, add_to_shortlist, and so on), with the matching `GA4 - <event>` tag fired.
 4. Submit a test lead. Use a test name and email, and confirm with Brent that the live CRM will receive it.
