@@ -35,7 +35,7 @@ Codex handoff prompt: [CODEX_HANDOFF.md](./CODEX_HANDOFF.md)
   - The claim form posts to the same lead webhook as the contact form with `leadSource: "bfcm-2026"`.
   - The claim form, contact form, and plan dialog all send `promoId` and `promoName` (empty strings when no promotion is active).
 - Founder photos (Brent Avila):
-  - Currently empty: the photos were pulled for remake. The placements below exist and appear automatically when the named files (see `src/assets/founder/README.md`) are added to `src/assets/founder/`; the video also needs `FOUNDER_DESK_VIDEO_AVAILABLE` in `founder-assets.ts`.
+  - Three are in use: `founder-portrait` (/about hero), `founder-office` (homepage band), `founder-phone` (/contact). `founder-client` and `founder-desk` are empty, so those placements stay hidden until the named files (see `src/assets/founder/README.md`) are added; the video also needs `FOUNDER_DESK_VIDEO_AVAILABLE` in `founder-assets.ts`.
   - Rendered through Astro's image pipeline by `src/components/founder/FounderImage.astro`. Styles: `src/styles/founder.css`.
   - Exactly five placements:
     - Homepage band: `src/components/founder/FounderBand.astro` (used in `src/pages/index.astro`)
