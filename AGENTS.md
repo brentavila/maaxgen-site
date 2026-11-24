@@ -35,10 +35,10 @@ Codex handoff prompt: [CODEX_HANDOFF.md](./CODEX_HANDOFF.md)
   - The claim form posts to the same lead webhook as the contact form with `leadSource: "bfcm-2026"`.
   - The claim form, contact form, and plan dialog all send `promoId` and `promoName` (empty strings when no promotion is active).
 - Founder photos (Brent Avila):
-  - Three are in use: `founder-portrait` (/about hero), `founder-office` (homepage band), `founder-phone` (/contact). `founder-client` and `founder-desk` are empty, so those placements stay hidden until the named files (see `src/assets/founder/README.md`) are added; the video also needs `FOUNDER_DESK_VIDEO_AVAILABLE` in `founder-assets.ts`.
+  - Three are in use: `founder-portrait` (/about hero), `founder-office` (homepage band and /black-friday band), `founder-phone` (/contact). `founder-client` and `founder-desk` are empty, so those placements stay hidden until the named files (see `src/assets/founder/README.md`) are added; the video also needs `FOUNDER_DESK_VIDEO_AVAILABLE` in `founder-assets.ts`.
   - Rendered through Astro's image pipeline by `src/components/founder/FounderImage.astro`. Styles: `src/styles/founder.css`.
-  - Exactly five placements:
-    - Homepage band: `src/components/founder/FounderBand.astro` (used in `src/pages/index.astro`)
+  - Exactly six placements:
+    - Founder band: `src/components/founder/FounderBand.astro`, used in `src/pages/index.astro` (homepage) and `src/pages/black-friday.astro` (between "How it works" and the claim form, with promo copy and a "#claim" button; it hides with the rest of the promo after it ends). Props set the body copy and button.
     - `/about` (`src/pages/about.astro`): hero portrait; a short muted video loop `public/video/founder/founder-desk-broll.mp4` in the story section; a photo beside the final call to action
     - `/contact` (`src/pages/contact.astro`): one small photo
   - Rule: do not add founder photos to other pages unless asked.
