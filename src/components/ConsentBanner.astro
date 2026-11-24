@@ -12,16 +12,12 @@
   aria-describedby="cookie-notice-desc"
 >
   <div class="cookie-notice__panel">
-    <div class="cookie-notice__copy">
-      <p class="cookie-notice__eyebrow">Cookies</p>
-      <h2 id="cookie-notice-title">We use cookies to improve your experience</h2>
-      <p id="cookie-notice-desc">
-        MaaxGen uses cookies and similar technologies to understand site performance, remember
-        preferences, and measure marketing. We never sell your personal data to third parties.
-        Read our <a href="/privacy/">Privacy Policy</a> for details.
-      </p>
-    </div>
-    <button type="button" class="btn btn--primary cookie-notice__action" data-cookie-notice-dismiss>
+    <h2 id="cookie-notice-title" class="sr-only">Cookie notice</h2>
+    <p id="cookie-notice-desc" class="cookie-notice__text">
+      We use cookies to measure site performance and marketing. We never sell your data.
+      <a href="/privacy/">Privacy Policy</a>
+    </p>
+    <button type="button" class="cookie-notice__action" data-cookie-notice-dismiss>
       Got it
     </button>
   </div>
@@ -55,56 +51,61 @@
 </script>
 
 <style is:global>
+  /* Compact notice: a slim bottom bar on phones, a small corner card on wider screens.
+     Kept short so it never covers the hero on a phone (it used to take about a third of the screen). */
   .cookie-notice {
     position: fixed;
     inset: auto 0 0 0;
     z-index: 80;
-    padding: 1rem;
+    padding: 0.5rem;
     pointer-events: none;
   }
 
   .cookie-notice__panel {
     pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     max-width: 42rem;
     margin-inline: auto;
-    padding: 1.25rem 1.35rem 1.35rem;
+    padding: 0.55rem 0.6rem 0.55rem 0.85rem;
     border: 1px solid var(--color-border);
-    border-radius: 1rem;
+    border-radius: 0.75rem;
     background: oklch(0.995 0.005 245);
-    box-shadow: 0 -0.5rem 2rem oklch(0.3 0.03 250 / 0.12);
+    box-shadow: 0 -0.25rem 1.25rem oklch(0.3 0.03 250 / 0.12);
   }
 
-  .cookie-notice__eyebrow {
-    margin: 0 0 0.35rem;
-    color: var(--color-brand);
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .cookie-notice__copy h2 {
-    margin: 0 0 0.5rem;
-    color: var(--color-slate);
-    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
-  }
-
-  .cookie-notice__copy p {
+  .cookie-notice__text {
+    flex: 1 1 auto;
     margin: 0;
     color: var(--color-muted);
-    font-size: 0.95rem;
-    line-height: 1.55;
+    font-size: 0.8rem;
+    line-height: 1.4;
   }
 
-  .cookie-notice__copy a {
+  .cookie-notice__text a {
     color: var(--color-brand);
     font-weight: 600;
+    white-space: nowrap;
   }
 
   .cookie-notice__action {
-    width: 100%;
-    justify-content: center;
-    margin-top: 1.1rem;
+    flex: 0 0 auto;
+    min-height: 2.25rem;
+    padding: 0.4rem 0.9rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: var(--color-brand);
+    color: #fff;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .cookie-notice__action:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
   }
 
   @media (min-width: 40rem) {
