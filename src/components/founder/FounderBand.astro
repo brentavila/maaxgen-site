@@ -2,33 +2,61 @@
 import "../../styles/founder.css";
 import FounderImage from "./FounderImage.astro";
 import { getFounderImage } from "./founder-assets";
+
+interface Props {
+  /** Unique per page; ties the heading to the section for screen readers. */
+  id?: string;
+  /** Body copy under the heading. Defaults to the homepage text. */
+  body?: string;
+  /** Primary button. Defaults to "Book a call" on /contact/. */
+  ctaHref?: string;
+  ctaLabel?: string;
+  /** data-track-cta id for the primary button. */
+  trackCta?: string;
+  /** When set, the primary button is also a promo CTA (view_promotion / select_promotion) with this creative slot. */
+  promoPlacement?: string;
+  /** Extra class on the section, for background variants. */
+  class?: string;
+}
+
+const {
+  id = "founder-band-title",
+  body = "I'm Brent, and I run MaaxGen. If we work together, you will know exactly who is accountable for the plan, the campaigns, and the results conversation: me.",
+  ctaHref = "/contact/",
+  ctaLabel = "Book a call",
+  trackCta,
+  promoPlacement,
+  class: extraClass,
+} = Astro.props;
+
+const promoAttrs = promoPlacement
+  ? { "data-promo-cta": "", "data-promo-placement": promoPlacement }
+  : {};
+
 const office = getFounderImage("founder-office");
 ---
 {office && (
-<section class="section founder-band" aria-labelledby="founder-band-title">
+<section class:list={["section founder-band", extraClass]} aria-labelledby={id}>
   <div class="container founder-band__grid">
     <div class="founder-photo founder-band__photo">
       <FounderImage
         src={office}
-        alt="Brent Avila, founder of MaaxGen, seated at his desk"
+        alt="Brent, founder of MaaxGen, seated at his desk"
         widths={[480, 720, 960, 1200]}
         sizes="(min-width: 56rem) 36rem, calc(100vw - 2rem)"
-        position="42% 30%"
+        position="50% 30%"
       />
     </div>
     <div class="founder-band__copy">
       <p class="founder-label">Who you work with</p>
-      <h2 id="founder-band-title">MaaxGen is run by a person, not an account queue.</h2>
-      <p>
-        I'm Brent Avila, and I run MaaxGen. If we work together, you will know exactly who is
-        accountable for the plan, the campaigns, and the results conversation: me.
-      </p>
+      <h2 id={id}>MaaxGen is run by a person, not an account queue.</h2>
+      <p>{body}</p>
       <p class="founder-sign">
-        <strong>Brent Avila</strong>
+        <strong>Brent A.</strong>
         <span>Founder, MaaxGen</span>
       </p>
       <div class="founder-band__links">
-        <a class="btn btn--primary" href="/contact/">Book a call</a>
+        <a class="btn btn--primary" href={ctaHref} data-track-cta={trackCta} {...promoAttrs}>{ctaLabel}</a>
         <a class="founder-textlink" href="/about/">About MaaxGen <span aria-hidden="true">→</span></a>
       </div>
     </div>

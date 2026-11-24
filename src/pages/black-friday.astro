@@ -5,6 +5,7 @@ import PromoCountdown from "../components/promo/PromoCountdown.astro";
 import "../styles/promo.css";
 import Honeypot from "../components/forms/Honeypot.astro";
 import SmsConsent from "../components/forms/SmsConsent.astro";
+import FounderBand from "../components/founder/FounderBand.astro";
 import { PROMO, isPromoActive, promoDeadlineLine } from "../data/promo";
 
 const active = isPromoActive(new Date());
@@ -74,6 +75,15 @@ const steps = [
         </div>
       </div>
     </section>
+
+    <FounderBand
+      id="promo-founder-title"
+      body="I'm Brent, and I run MaaxGen. When you claim this offer, your details come to me, not a ticket queue. I stay accountable for the plan, the campaigns, and the results conversation, during your trial and after it."
+      ctaHref="#claim"
+      ctaLabel={PROMO.cta.claim}
+      trackCta="bfcm-founder"
+      promoPlacement="page_founder"
+    />
 
     <section class="section section--surface promo-claim" id="claim" aria-labelledby="promo-claim-title">
       <div class="container promo-claim__grid">
