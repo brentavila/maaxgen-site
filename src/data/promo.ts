@@ -14,11 +14,14 @@
  * COPY RULE: the owner's terms are exactly three, as agreed in the trial terms:
  *   1. 15-day risk-free trial: the first month is paid at kickoff and refunded in
  *      full if the client cancels by day 15. Never call it a free trial.
- *   2. No monthly contract.
+ *   2. No three-month initial term. The regular plans start with a three-month
+ *      initial term (see /pricing); Black Friday clients skip it and go month to
+ *      month after the trial.
  *   3. Setup fee waived for anyone who opts in to marketing texts when they claim.
  *      Text consent is optional and never a condition of claiming or buying
  *      (see src/lib/sms-consent.ts).
- * Do not add prices, eligibility, scarcity, or savings here.
+ *      The owner approved stating the saving as "Up to $1000 off" (Nov 24).
+ * Do not add prices, eligibility, scarcity, or other savings here.
  */
 export const PROMO_START = "2026-11-16T00:00:00-07:00";
 export const PROMO_END = "2026-12-01T00:00:00-07:00";
@@ -41,13 +44,13 @@ const benefits: PromoBenefit[] = [
   },
   {
     id: "contract",
-    label: "No monthly contract",
-    line: "You are not signing a monthly contract.",
+    label: "No 3-month term",
+    line: "Our usual three-month initial term is waived. After the trial, it's month to month.",
   },
   {
     id: "setup",
-    label: "Setup fee waived with text opt-in",
-    line: "Opt in to offer texts when you claim, and we waive our setup fee.",
+    label: "No setup fee. Up to $1000 off with text opt-in",
+    line: "Opt in to offer texts when you claim, and we waive our setup fee. That's up to $1000 off.",
   },
 ];
 
@@ -70,15 +73,15 @@ export const PROMO = {
   copy: {
     /** Mobile promo bar: must stay one short line at 320px. */
     barShort: "Black Friday: 15-day risk-free trial",
-    headline: "Start with a risk-free trial, not a monthly contract.",
+    headline: "Start with a risk-free trial, not a three-month term.",
     pageHeadline: "Start with a 15-day risk-free trial.",
     pageLead:
       "Claim the offer and we will confirm the specifics with you on a strategy call.",
     callNote: "The specifics are confirmed on the call.",
     /** One quiet line near the submit button of other lead forms. */
-    note: "Black Friday offer applies: 15-day risk-free trial (full refund if you cancel by day 15), no monthly contract, setup fee waived when you opt in to offer texts.",
+    note: "Black Friday offer applies: 15-day risk-free trial (full refund if you cancel by day 15), no three-month term, and no setup fee (up to $1000 off) when you opt in to offer texts.",
     metaDescription:
-      "MaaxGen Black Friday: a 15-day risk-free trial with a full refund if you cancel by day 15, no monthly contract, and the setup fee waived when you opt in to texts.",
+      "MaaxGen Black Friday: a 15-day risk-free trial with a full refund if you cancel by day 15, no three-month term, and no setup fee (up to $1000 off) when you opt in to texts.",
   },
 } as const;
 
