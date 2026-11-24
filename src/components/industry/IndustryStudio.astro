@@ -28,7 +28,7 @@ const stackIds = industry.recommendedServices.join(",");
 const plusPath = "M8 3.5v9M3.5 8h9";
 const tickPath = "m3.6 8.4 2.9 2.8 5.9-6.3";
 const promoActive = isPromoActive(new Date());
-/** "15-day risk-free trial, no monthly contract, setup fee waived with text opt-in": the labels from src/data/promo.ts. */
+/** The offer labels from src/data/promo.ts (trial, no 3-month term, setup fee saving). */
 const promoTerms = PROMO.benefits
   .map((b, i) => (i === 0 ? b.label : b.label.charAt(0).toLowerCase() + b.label.slice(1)))
   .join(", ");
