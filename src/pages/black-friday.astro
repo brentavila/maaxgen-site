@@ -7,10 +7,29 @@ import Honeypot from "../components/forms/Honeypot.astro";
 import SmsConsent from "../components/forms/SmsConsent.astro";
 import FounderBand from "../components/founder/FounderBand.astro";
 import { PROMO, isPromoActive, promoDeadlineLine } from "../data/promo";
+import { services, categories } from "../data/services";
+import FounderImage from "../components/founder/FounderImage.astro";
+import { getFounderImage } from "../components/founder/founder-assets";
 
 const active = isPromoActive(new Date());
 const buildOff = (when: "active" | "ended") =>
   (when === "active") !== active ? { "data-promo-build-off": "" } : {};
+
+const portrait = getFounderImage("founder-portrait");
+
+/** Tools we work in. Logos live in public/images/logos/ and are shown as a factual list, not as endorsements. */
+const tools = [
+  { name: "Google Ads", file: "google-ads.svg" },
+  { name: "Meta Ads", file: "meta.svg" },
+  { name: "Google Local Services Ads", file: "google.svg" },
+  { name: "Claude", file: "claude.svg" },
+  { name: "ChatGPT", file: "chatgpt.svg" },
+  { name: "Cursor", file: "cursor.svg" },
+];
+
+const serviceGroups = categories
+  .map((c) => ({ ...c, items: services.filter((s) => s.category === c.id) }))
+  .filter((g) => g.items.length > 0);
 
 const steps = [
   { title: "Claim the offer", body: "Send your details in the form below." },
@@ -33,23 +52,87 @@ const steps = [
 >
   <div data-promo-when="active" {...buildOff("active")}>
     <section class="promo promo-hero" aria-labelledby="promo-hero-title">
-      <div class="container" data-reveal>
-        <p class="promo-label">{PROMO.name}</p>
-        <h1 id="promo-hero-title">{PROMO.copy.pageHeadline}</h1>
-        <p class="promo-hero__lead">{PROMO.copy.pageLead}</p>
-        <PromoBenefits />
-        <div class="promo-hero__foot">
-          <div class="promo-hero__timing">
-            <p class="promo-deadline">{promoDeadlineLine()}</p>
-            <PromoCountdown />
+      <div class="container promo-hero__grid">
+        <div class="promo-hero__main" data-reveal>
+          <p class="promo-label">{PROMO.copy.barShort}</p>
+          <h1 id="promo-hero-title">{PROMO.copy.pageHeadline}</h1>
+          <p class="promo-hero__lead">{PROMO.copy.pageLead}</p>
+          {portrait && (
+            <p class="promo-hero__byline">
+              <span class="promo-hero__avatar">
+                <FounderImage src={portrait} alt="" widths={[96, 192]} sizes="48px" position="55% 20%" eager />
+              </span>
+              <span>Run by Brent, founder of MaaxGen. Your details come to me, not a ticket queue.</span>
+            </p>
+          )}
+          <PromoBenefits />
+          <div class="promo-hero__foot">
+            <div class="promo-hero__timing">
+              <p class="promo-deadline">{promoDeadlineLine()}</p>
+              <PromoCountdown />
+            </div>
+            <a
+              class="btn btn--primary"
+              href="#claim"
+              data-promo-cta
+              data-promo-placement="page_hero"
+              data-track-cta="bfcm-hero"
+            >{PROMO.cta.claim} <span aria-hidden="true">→</span></a>
           </div>
-          <a
-            class="btn btn--primary"
-            href="#claim"
-            data-promo-cta
-            data-promo-placement="page_hero"
-            data-track-cta="bfcm-hero"
-          >{PROMO.cta.claim} <span aria-hidden="true">→</span></a>
+        </div>
+        {portrait && (
+          <figure class="promo-hero__photo" data-reveal>
+            <FounderImage
+              src={portrait}
+              alt="Brent, founder of MaaxGen, standing at his desk"
+              widths={[360, 540, 720]}
+              sizes="(min-width: 64rem) 22rem, 0px"
+              position="60% 30%"
+              eager
+            />
+          </figure>
+        )}
+      </div>
+    </section>
+
+    <section class="section promo-services" aria-labelledby="promo-services-title">
+      <div class="container">
+        <div data-reveal>
+          <p class="eyebrow">What we do for you</p>
+          <h2 id="promo-services-title">One team for your ads, follow-up and growth.</h2>
+          <p class="promo-services__lead">
+            We do the work for you every month. The Black Friday offer applies to whatever mix of these fits your business.
+          </p>
+        </div>
+
+        <ul class="promo-tools" aria-label="Platforms and tools we work in" data-reveal>
+          {tools.map((t) => (
+            <li>
+              <img src={`/images/logos/${t.file}`} alt="" width="28" height="28" loading="lazy" decoding="async" />
+              <span>{t.name}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div class="promo-service-groups">
+          {serviceGroups.map((g) => (
+            <div class="promo-service-group" data-reveal>
+              <h3>{g.label}</h3>
+              <ul>
+                {g.items.map((svc) => (
+                  <li>
+                    <strong>{svc.name}</strong>
+                    <span>{svc.tagline}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div class="promo-mix" data-reveal>
+          <p>Not sure which you need? Pick a few and we'll sort the rest out on the call.</p>
+          <a href="/#studio">Build a shortlist in the Service Studio <span aria-hidden="true">→</span></a>
         </div>
       </div>
     </section>
@@ -69,10 +152,6 @@ const steps = [
             </li>
           ))}
         </ol>
-        <div class="promo-mix" data-reveal>
-          <p>The offer applies to whatever mix of services fits your business.</p>
-          <a href="/#studio">Build a shortlist in the Service Studio <span aria-hidden="true">→</span></a>
-        </div>
       </div>
     </section>
 
