@@ -74,9 +74,10 @@ export const PROMO = {
     /** Mobile promo bar: must stay one short line at 320px. */
     barShort: "Black Friday: 15-day risk-free trial",
     headline: "Start with a risk-free trial, not a three-month term.",
-    pageHeadline: "Start with a 15-day risk-free trial.",
+    /** /black-friday H1. Says what MaaxGen does first, so ad visitors know where they landed. */
+    pageHeadline: "We run your Google and Facebook ads, and follow up with every lead.",
     pageLead:
-      "Claim the offer and we will confirm the specifics with you on a strategy call.",
+      "MaaxGen is a done-for-you marketing team for small businesses. Claim the Black Friday offer and start with a 15-day risk-free trial.",
     callNote: "The specifics are confirmed on the call.",
     /** One quiet line near the submit button of other lead forms. */
     note: "Black Friday offer applies: 15-day risk-free trial (full refund if you cancel by day 15), no three-month term, and no setup fee (up to $1000 off) when you opt in to offer texts.",
