@@ -15,10 +15,8 @@
     <div class="cookie-notice__copy">
       <p class="cookie-notice__eyebrow">Cookies</p>
       <h2 id="cookie-notice-title">We use cookies to improve your experience</h2>
-      <p id="cookie-notice-desc">
-        MaaxGen uses cookies and similar technologies to understand site performance, remember
-        preferences, and measure marketing. We never sell your personal data to third parties.
-        Read our <a href="/privacy/">Privacy Policy</a> for details.
+      <p id="cookie-notice-desc" class="cookie-notice__desc">
+        <span class="cookie-notice__long">MaaxGen uses cookies and similar technologies to understand site performance, remember preferences, and measure marketing. We never sell your personal data to third parties. Read our </span><a class="cookie-notice__privacy" href="/privacy/">Privacy Policy</a><span class="cookie-notice__long"> for details.</span>
       </p>
     </div>
     <button type="button" class="btn btn--primary cookie-notice__action" data-cookie-notice-dismiss>
@@ -59,52 +57,94 @@
     position: fixed;
     inset: auto 0 0 0;
     z-index: 80;
-    padding: 1rem;
+    padding: 0;
     pointer-events: none;
   }
 
   .cookie-notice__panel {
     pointer-events: auto;
-    max-width: 42rem;
-    margin-inline: auto;
-    padding: 1.25rem 1.35rem 1.35rem;
-    border: 1px solid var(--color-border);
-    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem 0.75rem;
+    max-width: none;
+    margin: 0;
+    padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0;
     background: oklch(0.995 0.005 245);
-    box-shadow: 0 -0.5rem 2rem oklch(0.3 0.03 250 / 0.12);
+    box-shadow: 0 -0.35rem 1.1rem oklch(0.3 0.03 250 / 0.1);
+  }
+
+  .cookie-notice__copy {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .cookie-notice__eyebrow {
-    margin: 0 0 0.35rem;
-    color: var(--color-brand);
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    display: none;
   }
 
   .cookie-notice__copy h2 {
-    margin: 0 0 0.5rem;
-    color: var(--color-slate);
-    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+    display: inline;
+    margin: 0;
+    color: var(--color-fg);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.35;
   }
 
-  .cookie-notice__copy p {
+  .cookie-notice__copy h2::after {
+    content: ".";
+  }
+
+  .cookie-notice__long {
+    display: none;
+  }
+
+  .cookie-notice__desc {
+    display: inline;
     margin: 0;
     color: var(--color-muted);
-    font-size: 0.95rem;
-    line-height: 1.55;
+    font-size: 0.875rem;
+    line-height: 1.35;
   }
 
-  .cookie-notice__copy a {
+  .cookie-notice__privacy {
+    position: relative;
+    display: inline;
+    padding: 0.15rem 0.1rem;
     color: var(--color-brand);
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-underline-offset: 0.15em;
+    white-space: nowrap;
+  }
+
+  .cookie-notice__privacy::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 2.75rem);
+    height: 2.75rem;
+    transform: translate(-50%, -50%);
+  }
+
+  .cookie-notice__privacy:hover {
+    color: var(--color-brand-muted);
   }
 
   .cookie-notice__action {
-    width: 100%;
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    margin-top: 0;
     justify-content: center;
-    margin-top: 1.1rem;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.875rem;
   }
 
   @media (min-width: 40rem) {
@@ -115,7 +155,72 @@
     }
 
     .cookie-notice__panel {
+      display: block;
+      max-width: 42rem;
       margin: 0;
+      padding: 1.25rem 1.35rem 1.35rem;
+      border: 1px solid var(--color-border);
+      border-radius: 1rem;
+      box-shadow: 0 -0.5rem 2rem oklch(0.3 0.03 250 / 0.12);
+    }
+
+    .cookie-notice__copy {
+      display: block;
+    }
+
+    .cookie-notice__eyebrow {
+      display: block;
+      margin: 0 0 0.35rem;
+      color: var(--color-brand);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .cookie-notice__copy h2 {
+      display: block;
+      margin: 0 0 0.5rem;
+      color: var(--color-slate);
+      font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    .cookie-notice__copy h2::after {
+      content: none;
+    }
+
+    .cookie-notice__long {
+      display: inline;
+    }
+
+    .cookie-notice__desc {
+      display: block;
+      color: var(--color-muted);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    .cookie-notice__privacy {
+      position: static;
+      display: inline;
+      padding: 0;
+      font-weight: 600;
+      letter-spacing: inherit;
+    }
+
+    .cookie-notice__privacy::before {
+      content: none;
+    }
+
+    .cookie-notice__action {
+      width: 100%;
+      margin-top: 1.1rem;
+      min-width: 0;
+      padding: 0.75rem 1.35rem;
+      font-size: 1rem;
     }
   }
 </style>
