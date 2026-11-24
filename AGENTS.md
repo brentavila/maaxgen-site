@@ -34,13 +34,15 @@ Codex handoff prompt: [CODEX_HANDOFF.md](./CODEX_HANDOFF.md)
     - Styles: `src/styles/promo.css`
   - The claim form posts to the same lead webhook as the contact form with `leadSource: "bfcm-2026"`.
   - The claim form, contact form, and plan dialog all send `promoId` and `promoName` (empty strings when no promotion is active).
-- Founder photos (Brent Avila):
-  - Three are in use: `founder-portrait` (/about hero), `founder-office` (homepage band and /black-friday band), `founder-phone` (/contact). `founder-client` and `founder-desk` are empty, so those placements stay hidden until the named files (see `src/assets/founder/README.md`) are added; the video also needs `FOUNDER_DESK_VIDEO_AVAILABLE` in `founder-assets.ts`.
+- Founder photos (Brent A.):
+  - Name rule: never show the founder's last name anywhere on the site (copy, alt text, captions, schema). Use "Brent" in sentences and "Brent A." where a full name or signature is expected.
+  - Three are in use: `founder-portrait` (/about hero), `founder-office` (homepage band and /black-friday band), `founder-phone` (/contact and industry lead forms). `founder-client` and `founder-desk` are empty, so those placements stay hidden until the named files (see `src/assets/founder/README.md`) are added; the video also needs `FOUNDER_DESK_VIDEO_AVAILABLE` in `founder-assets.ts`.
   - Rendered through Astro's image pipeline by `src/components/founder/FounderImage.astro`. Styles: `src/styles/founder.css`.
-  - Exactly six placements:
+  - Exactly seven placements:
     - Founder band: `src/components/founder/FounderBand.astro`, used in `src/pages/index.astro` (homepage) and `src/pages/black-friday.astro` (between "How it works" and the claim form, with promo copy and a "#claim" button; it hides with the rest of the promo after it ends). Props set the body copy and button.
     - `/about` (`src/pages/about.astro`): hero portrait; a short muted video loop `public/video/founder/founder-desk-broll.mp4` in the story section; a photo beside the final call to action
-    - `/contact` (`src/pages/contact.astro`): one small photo
+    - `/contact` (`src/pages/contact.astro`): one small photo (`founder-phone`)
+    - Industry pages: the same small `founder-phone` photo in `src/components/industry/IndustryLeadForm.astro`
   - Rule: do not add founder photos to other pages unless asked.
 
 - Conversion tracking (setup guide: `tracking/SETUP.md`):
