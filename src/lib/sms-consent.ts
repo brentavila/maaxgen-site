@@ -14,15 +14,14 @@
  * - If the wording changes, update the A2P campaign's opt-in description to match.
  */
 
-export const SMS_CONSENT_VERSION = "2026-11-21";
+export const SMS_CONSENT_VERSION = "2026-11-25";
 
 /** Rendered with links to /privacy/ and /terms/#sms. Keep the wording exact. */
 export const SMS_LINK_SENTENCE = "See our Privacy Policy and SMS Terms.";
 
 const DISCLOSURES =
-  "Texts may be sent with automated technology, and some replies may be written by AI. " +
-  "Consent is not a condition of purchase. Message frequency varies. Message & data rates may apply. " +
-  "Reply HELP for help or STOP to opt out at any time.";
+  "Msg frequency varies. Msg & data rates may apply. Reply HELP for help or STOP to opt out. " +
+  "Texts may be automated or AI-assisted. Consent is not a condition of purchase.";
 
 export interface SmsConsentCopy {
   /** Bold first line of the box. Part of the consent record. */
@@ -34,23 +33,18 @@ export interface SmsConsentCopy {
 export const SMS_COPY = {
   transactional: {
     title: "Text me about my request",
-    body:
-      "I agree to receive non-marketing text messages from MaaxGen at the number I provided about my " +
-      "request, including booking confirmations, call reminders, replies to my inquiry, and account or service updates.",
+    body: "I agree to get texts from MaaxGen about my request, like booking confirmations, reminders and replies.",
   },
   marketing: {
-    title: "Text me offers and updates",
-    body:
-      "I agree to receive recurring marketing text messages from MaaxGen at the number I provided about " +
-      "special offers, discounts, and service updates.",
+    title: "Text me offers",
+    body: "I agree to get recurring marketing texts from MaaxGen at this number.",
   },
   /** The Black Friday claim form. Opting in is how the setup fee waiver is unlocked. */
   marketingBfcm: {
-    title: "Waive my setup fee and text me Black Friday offers",
+    title: "Waive my setup fee and text me offers",
     body:
-      "I agree to receive recurring marketing text messages from MaaxGen at the number I provided, " +
-      "including Black Friday and Cyber Monday offer reminders, special offers, and service updates. " +
-      "Opting in is how the setup fee is waived on this offer, and the waiver stays even if I opt out later.",
+      "I agree to get recurring marketing texts from MaaxGen at this number, including Black Friday offers. " +
+      "Opting in waives my setup fee, even if I opt out later.",
   },
 } satisfies Record<string, SmsConsentCopy>;
 
