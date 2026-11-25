@@ -8,7 +8,7 @@
  * setup fee waiver, and the transactional box covers booking texts for the strategy call.
  * Both boxes are unchecked and optional in every variant.
  */
-import { SMS_COPY, SMS_DISCLOSURES, SMS_LINK_SENTENCE, type SmsConsentCopy } from "../../lib/sms-consent";
+import { SMS_COPY, SMS_LINK_SENTENCE, type SmsConsentCopy } from "../../lib/sms-consent";
 
 interface Props {
   variant?: "default" | "bfcm";
@@ -50,7 +50,7 @@ const linkLead = SMS_LINK_SENTENCE.replace("Privacy Policy and SMS Terms.", "");
       <input type="checkbox" name={box.name} value="yes" />
       <span>
         <strong class="consent__title">{box.copy.title}.</strong>{" "}
-        {box.copy.body} {SMS_DISCLOSURES} {linkLead}<a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/terms/#sms" target="_blank" rel="noopener">SMS Terms</a>.
+        {box.copy.body} {box.copy.disclosures} {linkLead}<a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/terms/#sms" target="_blank" rel="noopener">SMS Terms</a>.
       </span>
     </label>
   ))}
