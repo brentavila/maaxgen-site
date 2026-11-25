@@ -186,7 +186,7 @@ const steps = [
             </div>
             <div class="field-grid">
               <div>
-                <label for="promo-name">Name</label>
+                <label for="promo-name">Full name</label>
                 <input id="promo-name" name="name" type="text" required autocomplete="name" />
               </div>
               <div>
@@ -196,36 +196,70 @@ const steps = [
             </div>
             <div class="field-grid">
               <div>
-                <label for="promo-business-type">Business type</label>
-                <select id="promo-business-type" name="business-type">
-                  <option value="">Select one</option>
-                  <option value="local">Local business</option>
-                  <option value="ecommerce">E-commerce</option>
-                  <option value="both">Local and e-commerce</option>
-                </select>
+                <label for="promo-phone">Mobile phone <span class="field-optional">(optional, needed for texts)</span></label>
+                <input id="promo-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" />
               </div>
               <div>
-                <label for="promo-website">Website <span class="field-optional">(optional)</span></label>
-                <input
-                  id="promo-website"
-                  name="website"
-                  type="text"
-                  inputmode="url"
-                  autocomplete="url"
-                  placeholder="yourbusiness.com"
-                />
+                <label for="promo-company">Company name</label>
+                <input id="promo-company" name="company" type="text" required autocomplete="organization" />
               </div>
             </div>
-            <label for="promo-phone">Mobile phone <span class="field-optional">(optional, needed for texts)</span></label>
-            <input id="promo-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" />
 
-            <label for="promo-note">Anything we should know? <span class="field-optional">(optional)</span></label>
-            <textarea
-              id="promo-note"
-              name="message"
-              rows="3"
-              maxlength="1000"
-              placeholder="Goals, timeline, or what you want off your plate"></textarea>
+            <label for="promo-business-type">What kind of business do you run?</label>
+            <select id="promo-business-type" name="business-type" required>
+              <option value="">Select one</option>
+              <option value="local">Local Business</option>
+              <option value="ecommerce">E-commerce</option>
+              <option value="both">Both Local &amp; E-commerce</option>
+            </select>
+
+            <div data-business-follow-up="local" hidden>
+              <label for="promo-industry">What industry are you in?</label>
+              <select id="promo-industry" name="industry" disabled>
+                <option value="">Select one</option>
+                <option>Plumbing</option>
+                <option>HVAC</option>
+                <option>Electrical</option>
+                <option>Roofing</option>
+                <option>Garage Door Repair</option>
+                <option>Law Firm</option>
+                <option>Auto Repair Shop</option>
+                <option>Contractor</option>
+                <option>Counselor / Therapist</option>
+              </select>
+            </div>
+
+            <div data-business-follow-up="ecommerce" hidden>
+              <label for="promo-product-sector">What product sector are you in?</label>
+              <select id="promo-product-sector" name="product-sector" disabled>
+                <option value="">Select one</option>
+                <option>Home Goods</option>
+                <option>Hardware</option>
+                <option>Health, Beauty, &amp; Wellness</option>
+                <option>Automotive &amp; Industrial B2B</option>
+                <option>Furniture</option>
+              </select>
+            </div>
+
+            <label for="promo-help-with">What do you want help with first?</label>
+            <select id="promo-help-with" name="help-with" required>
+              <option value="">Select one</option>
+              <option>Google Ads</option>
+              <option>Facebook and Instagram ads</option>
+              <option>Lead follow-up and CRM</option>
+              <option>Website</option>
+              <option>Not sure yet</option>
+            </select>
+
+            <label for="promo-ad-budget">About how much do you spend on ads each month?</label>
+            <select id="promo-ad-budget" name="ad-budget" required>
+              <option value="">Select one</option>
+              <option>Not running ads yet</option>
+              <option>Under $1,000</option>
+              <option>$1,000 to $3,000</option>
+              <option>$3,000 to $10,000</option>
+              <option>Over $10,000</option>
+            </select>
 
             <SmsConsent variant="bfcm" />
 
@@ -311,6 +345,25 @@ const steps = [
     const SUBMIT_LABEL = submitBtn.innerHTML;
     const watch = watchLeadForm(form, "bfcm_claim");
 
+    // Same branching as the Meta instant form: local businesses pick an industry,
+    // e-commerce picks a product sector. A hidden follow-up is disabled, so it is
+    // neither required nor sent.
+    const businessType = form.querySelector<HTMLSelectElement>("#promo-business-type");
+    const followUps = form.querySelectorAll<HTMLElement>("[data-business-follow-up]");
+    const syncFollowUps = () => {
+      followUps.forEach((wrap) => {
+        const show = wrap.dataset.businessFollowUp === businessType?.value;
+        wrap.hidden = !show;
+        const select = wrap.querySelector("select");
+        if (select) {
+          select.disabled = !show;
+          select.required = show;
+        }
+      });
+    };
+    businessType?.addEventListener("change", syncFollowUps);
+    syncFollowUps();
+
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
 
@@ -318,10 +371,20 @@ const steps = [
       const ids = getShortlist();
       const interestedServices = ids.map((id) => ({ id, name: serviceById(id)?.name ?? id }));
       const interestedServicesText = interestedServices.map((s) => s.name).join(", ");
-      const note = String(data.get("message") || "").trim();
-      const message =
-        note ||
-        `Claiming the ${PROMO.name} offer.${interestedServicesText ? ` Interested in: ${interestedServicesText}.` : ""}`;
+      const industry = String(data.get("industry") || "");
+      const productSector = String(data.get("product-sector") || "");
+      const helpWith = String(data.get("help-with") || "");
+      const adBudget = String(data.get("ad-budget") || "");
+      const message = [
+        `Claiming the ${PROMO.name} offer.`,
+        industry ? `Industry: ${industry}.` : "",
+        productSector ? `Product sector: ${productSector}.` : "",
+        helpWith ? `Wants help with first: ${helpWith}.` : "",
+        adBudget ? `Monthly ad spend: ${adBudget}.` : "",
+        interestedServicesText ? `Interested in: ${interestedServicesText}.` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
 
       const { firstName, lastName } = splitName(String(data.get("name") || ""));
       const marketingConsent = data.get("sms-marketing") === "yes";
@@ -352,11 +415,17 @@ const steps = [
             lastName,
             email: String(data.get("email") || ""),
             phone,
-            website: String(data.get("website") || "").trim(),
+            company: String(data.get("company") || "").trim(),
           },
           fields: {
             message,
             businessType: String(data.get("business-type") || ""),
+            // Local industry or e-commerce product sector, whichever they answered.
+            industry: industry || productSector,
+            productSector,
+            // Same questions as the Meta instant form; they land in the Qualifications JSON the bot reads.
+            helpWith,
+            adBudget,
             interestedServices: interestedServices.map((s) => s.name).join(","),
             interestedServiceIds: ids.join(","),
             promoId: PROMO.id,
